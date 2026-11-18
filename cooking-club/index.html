@@ -854,7 +854,7 @@ let arT; controls.addEventListener('start', () => { controls.autoRotate = false;
 controls.addEventListener('end', () => { clearTimeout(arT); arT = setTimeout(() => controls.autoRotate = true, 6000); });
 const dishRoot = new T3.Group(); scene.add(dishRoot);
 const objs = new Map(); let curDish = null, curComp = null;
-const CAMS = { burger: [0, 2.1, 4.6, 0, .6], juice: [0, 2.1, 4.4, 0, .85], hotdog: [0, 2.9, 4.2, 0, .25], mahshi: [0, 4.6, 5, 0, .05], pizza: [0, 4.1, 4.6, 0, .1], koshary: [0, 3.5, 4.3, 0, .45], default: [0, 3.4, 4.3, 0, .35] };
+const CAMS = { burger: [0, 2.1, 4.6, 0, .6], juice: [0, 2.5, 5.3, 0, 1], hotdog: [0, 2.9, 4.2, 0, .25], mahshi: [0, 4.6, 5, 0, .05], pizza: [0, 4.1, 4.6, 0, .1], koshary: [0, 3.5, 4.3, 0, .45], default: [0, 3.4, 4.3, 0, .35] };
 function frame() { if (!curDish) return; const c = CAMS[curDish.kind] || CAMS.default; const wide = window.innerWidth > 900; const k = cam.aspect < .8 ? 1.5 : cam.aspect < 1.2 ? 1.2 : 1; cam.position.set(c[0] * k, c[1] * k, c[2] * k); controls.target.set(0, c[4], 0); cam.setViewOffset && wide ? cam.setViewOffset(window.innerWidth, window.innerHeight, (document.documentElement.dir === 'rtl' ? 1 : -1) * window.innerWidth * .04, 0, window.innerWidth, window.innerHeight) : cam.clearViewOffset(); controls.update(); }
 function size() { const w = window.innerWidth, h = window.innerHeight; renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); frame(); }
 window.addEventListener('resize', size);
