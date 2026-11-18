@@ -649,9 +649,9 @@ function openDish(id) {
   if (S.dish !== id || !S.sel || !Object.keys(S.sel).length) { S.dish = id; S.sel = blankSel(dishBy(id)); S.pos = {}; S.step = 0; rcPrev = new Set(); }
   S.view = 'build'; $('#home').hidden = true; $('#foot').hidden = true; $('#build').hidden = false;
   window.scrollTo(0, 0); renderChips(); renderBuild(true);
-  if (location.hash !== '#build') history.pushState({ b: 1 }, '', '#build');
+  if (location.hash !== '#build') { try { history.pushState({ b: 1 }, '', '#build'); } catch (e) {} }
 }
-function goHome() { S.view = 'home'; $('#build').hidden = true; $('#home').hidden = false; $('#foot').hidden = false; renderChips(); if (location.hash) history.pushState({}, '', location.pathname); }
+function goHome() { S.view = 'home'; $('#build').hidden = true; $('#home').hidden = false; $('#foot').hidden = false; renderChips(); if (location.hash) { try { history.pushState({}, '', location.pathname); } catch (e) {} } }
 window.addEventListener('popstate', () => { if (location.hash !== '#build' && S.view === 'build') { S.view = 'home'; $('#build').hidden = true; $('#home').hidden = false; $('#foot').hidden = false; renderChips(); } });
 const D = () => dishBy(S.dish);
 function renderBuild(focus) { renderTray(); renderStage(); renderStepCard(focus); renderReceipt(); }
