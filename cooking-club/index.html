@@ -115,6 +115,11 @@ img{display:block;max-width:100%}
 .plate.main{inset:14%;background:radial-gradient(circle,#b8261b 58%,#9c1d14 62%,#fff 63.5%,#fff 64.5%,#b8261b 66%,#fff 70%,#fff 71%,#b8261b 72.5%,#86160f)}
 .plate .food{position:absolute;inset:7.5%;border-radius:50%;overflow:hidden;box-shadow:inset 0 0 22px rgba(0,0,0,.55)}
 .plate.main .food{inset:10%}
+.tops{position:absolute;inset:0;pointer-events:none}
+.tops .top{position:absolute;width:30%;height:auto;transform:translate(-50%,-50%) rotate(var(--r,0deg));filter:drop-shadow(0 8px 8px rgba(0,0,0,.45));transition:left .3s,top .3s}
+.tops .top.land{animation:land .6s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes land{from{transform:translate(-50%,-160%) rotate(calc(var(--r,0deg) - 30deg)) scale(1.5);opacity:0}}
+.plate.main.glass{background:radial-gradient(circle,#f4ead6 60%,#e6dcc6 62%,#fff 66%,#d8d2c6)}
 .plate .food img{width:100%;height:100%;object-fit:cover;filter:saturate(1.12) contrast(1.05)}
 .plate .empty{font-family:var(--f-disp);color:#fff;font-size:clamp(1rem,2.4vw,1.8rem);text-align:center;padding:20%;line-height:1.05;text-transform:uppercase;text-shadow:0 2px 0 rgba(0,0,0,.3)}
 .plate.small{width:34%;aspect-ratio:1}
@@ -272,7 +277,7 @@ img{display:block;max-width:100%}
 <section class="build" id="build" hidden aria-label="Builder">
   <div class="tray" id="tray" role="group"></div>
   <div class="table" id="table">
-    <div class="plate main" id="pMain"><div class="food" id="fMain"></div><div class="empty" id="eMain"></div><div class="steam" id="steam"><i></i><i></i><i></i></div></div>
+    <div class="plate main" id="pMain"><div class="food" id="fMain"></div><div class="tops" id="tops"></div><div class="empty" id="eMain"></div><div class="steam" id="steam"><i></i><i></i><i></i></div></div>
     <div class="plate small side" id="pSide"><div class="food"></div><span class="tag"></span></div>
     <div class="plate small drink" id="pDrink"><div class="food"></div><span class="tag"></span></div>
     <div class="plate small sweet" id="pSweet"><div class="food"></div><span class="tag"></span></div>
@@ -341,14 +346,38 @@ const SIDES = [I('fries-cone', 'Classic fries', 'بطاطس', 35), I('fries-bask
 const DRINKS = [I('drink-orange', 'Fresh orange', 'برتقال فريش', 35), I('drink-mango', 'Mango juice', 'عصير مانجا', 40), I('drink-strawberry', 'Strawberry smoothie', 'سموذي فراولة', 50), I('drink-berry', 'Berry smoothie', 'سموذي توت', 55), I('drink-lemonade', 'Strawberry lemonade', 'ليمونادة فراولة', 40), I('drink-citrus', 'Citrus mix', 'مكس حمضيات', 45)];
 const SWEETS = [I('cake', 'Berry layer cake', 'كيكة توت', 60), I('pancakes', 'Honey pancakes', 'بان كيك بالعسل', 55)];
 const AREAS = [I('nasr', 'Nasr City', 'مدينة نصر', 20), I('heliopolis', 'Heliopolis', 'مصر الجديدة', 25), I('maadi', 'Maadi', 'المعادي', 20), I('zamalek', 'Zamalek', 'الزمالك', 30), I('dokki', 'Dokki & Mohandessin', 'الدقي والمهندسين', 30), I('tagamoa', 'New Cairo', 'التجمع', 40), I('zayed', 'Sheikh Zayed', 'الشيخ زايد', 20), I('october', '6th of October', '٦ أكتوبر', 35)];
-const STEPKEYS = ['main', 'side', 'drink', 'sweet'];
+const ING = {
+  egg: I('egg', 'Soft egg', 'بيض نص سوا', 15), shrimp: I('shrimp', 'Shrimp', 'جمبري', 55), chicken: I('chicken', 'Grilled chicken', 'فراخ مشوية', 40), beef: I('beef', 'Beef slices', 'شرايح لحمة', 60),
+  mince: I('mince', 'Minced beef', 'لحمة مفرومة', 45), bacon: I('bacon', 'Beef bacon', 'بيكون لحمة', 40), salmon: I('salmon', 'Salmon cubes', 'مكعبات سلمون', 70), chili: I('chili', 'Red chili', 'شطة حمرا', 5),
+  veg: I('veg', 'Mixed veggies', 'خضار مشكل', 15), lettuce: I('lettuce', 'Fresh greens', 'خضرة فريش', 10), feta: I('feta', 'Feta & olives', 'فيتا وزيتون', 25), orange: I('orange', 'Orange slices', 'شرايح برتقال', 10), grapefruit: I('grapefruit', 'Grapefruit slice', 'شريحة جريب فروت', 10)
+};
+const G = (k, en, ar, sen, sar, items) => ({ k, en, ar, short: { en: sen, ar: sar }, items });
+const BUILD = {
+  ramen: { bases: [I('base-noodles', 'Spicy ramen noodles', 'نودلز رامن حارة', 70), I('base-noodles2', 'Stir-fry noodles', 'نودلز سوتيه', 75)], groups: [G('protein', 'Add your protein', 'حط البروتين', 'Protein', 'بروتين', ['egg', 'shrimp', 'chicken', 'beef', 'mince', 'salmon', 'bacon']), G('extras', 'Add some greens', 'زوّد خضار', 'Greens', 'خضار', ['veg', 'lettuce', 'chili'])] },
+  pizza: { bases: [I('base-pizza', 'Margherita base', 'قاعدة مارجريتا', 90)], groups: [G('protein', 'Top your pizza', 'حط على البيتزا', 'Toppings', 'إضافات', ['chicken', 'beef', 'mince', 'bacon', 'shrimp', 'egg']), G('extras', 'Finish it', 'اللمسة الأخيرة', 'Extras', 'زيادات', ['veg', 'feta', 'chili'])] },
+  bowls: { bases: [I('base-greens', 'Garden greens bowl', 'بول خضرة', 55)], groups: [G('protein', 'Add your protein', 'حط البروتين', 'Protein', 'بروتين', ['chicken', 'salmon', 'shrimp', 'beef', 'egg']), G('extras', 'Load it up', 'حمّله', 'Extras', 'زيادات', ['feta', 'veg', 'lettuce', 'chili'])] },
+  juice: { bases: [I('drink-orange', 'Fresh orange', 'برتقال فريش', 35), I('drink-mango', 'Mango', 'مانجا', 40), I('drink-strawberry', 'Strawberry smoothie', 'سموذي فراولة', 50), I('drink-berry', 'Berry smoothie', 'سموذي توت', 55), I('drink-lemonade', 'Strawberry lemonade', 'ليمونادة فراولة', 40)], groups: [G('extras', 'Garnish it', 'زيّنه', 'Garnish', 'تزيين', ['orange', 'grapefruit'])], tail: ['sweet'] }
+};
+CATS.splice(0, 0);
+CATS.find(c => c.id === 'bowls').en = 'Build a Bowl'; CATS.find(c => c.id === 'bowls').ar = 'اعمل البول بتاعك';
+CATS.push({ id: 'juice', en: 'Fresh Juice', ar: 'عصير فريش', tag: { en: 'MIX IT', ar: 'اعمل المكس' }, items: BUILD.juice.bases });
+const isBuild = cat => !!BUILD[cat];
+const stepsOf = cat => BUILD[cat] ? ['base', ...BUILD[cat].groups.map(g => g.k), ...(BUILD[cat].tail || ['side', 'drink'])] : ['main', 'side', 'drink', 'sweet'];
+const groupOf = (cat, k) => BUILD[cat] && BUILD[cat].groups.find(g => g.k === k);
+const isMulti = (cat, k) => !!groupOf(cat, k);
+const STEPINFO = { main: 0, side: 1, drink: 2, sweet: 3 };
+const stepTitle = (cat, k) => k === 'base' ? (LANG === 'ar' ? 'اختار القاعدة' : 'Choose your base') : groupOf(cat, k) ? N(groupOf(cat, k)) : t('steps')[STEPINFO[k]][0];
+const stepShort = (cat, k) => k === 'base' ? (LANG === 'ar' ? 'القاعدة' : 'Base') : groupOf(cat, k) ? N(groupOf(cat, k).short) : t('steps')[STEPINFO[k]][1];
 const catBy = id => CATS.find(c => c.id === id);
-const listFor = (k, cat) => k === 'main' ? catBy(cat).items : k === 'side' ? SIDES : k === 'drink' ? DRINKS : SWEETS;
+const listFor = (k, cat) => k === 'base' ? BUILD[cat].bases : groupOf(cat, k) ? groupOf(cat, k).items.map(x => ING[x]) : k === 'main' ? catBy(cat).items : k === 'side' ? SIDES : k === 'drink' ? DRINKS : SWEETS;
 const findItem = (k, cat, id) => listFor(k, cat).find(i => i.id === id);
-
-const S = { view: 'home', cat: 'ramen', step: 0, sel: { main: null, side: null, drink: null, sweet: null }, cart: store.get('cc3-cart', []), pay: 'cash' };
-const saveCart = () => store.set('cc3-cart', S.cart);
-const mealPrice = m => STEPKEYS.reduce((a, k) => a + (m.sel[k] ? findItem(k, m.cat, m.sel[k]).price : 0), 0);
+const imgOf = (k, id) => (k === 'base' && id.startsWith('base-')) || ING[id] && k !== 'side' ? `img/ing/${id}.png` : IMG(id);
+const blank = () => ({ main: null, side: null, drink: null, sweet: null, base: null, protein: [], extras: [] });
+const S = { view: 'home', cat: 'ramen', step: 0, sel: blank(), pos: {}, cart: store.get('cc4-cart', []), pay: 'cash' };
+const saveCart = () => store.set('cc4-cart', S.cart);
+const picked = (m, k) => { const v = m.sel[k]; return Array.isArray(v) ? v : v ? [v] : []; };
+const mealPrice = m => stepsOf(m.cat).reduce((a, k) => a + picked(m, k).reduce((b, id) => b + findItem(k, m.cat, id).price, 0), 0);
+const mainKey = cat => isBuild(cat) ? 'base' : 'main';
 
 const SFX = (() => { let ac = null, on = store.get('cc-sound', true);
   const C = () => ac || (ac = new (window.AudioContext || window.webkitAudioContext)());
@@ -400,7 +429,7 @@ function renderChips() { $('#chips').innerHTML = CATS.map(c => `<button class="c
 $('#chips').addEventListener('click', e => { const b = e.target.closest('[data-cat]'); if (b) openCat(b.dataset.cat); });
 function renderHome() {
   $('#heroTitle').innerHTML = t('heroTitle'); $('#heroSub').textContent = t('heroSub'); $('#heroCta').textContent = t('heroCta');
-  $('#picks').innerHTML = CATS.map(c => `<button class="pick" data-cat="${c.id}"><span class="tag">${N(c.tag)}</span><img src="${IMG(c.items[0].id)}" alt=""><b>${N(c)}</b><small>${t('from')} ${money(Math.min(...c.items.map(i => i.price)))}</small></button>`).join('');
+  $('#picks').innerHTML = CATS.map(c => `<button class="pick" data-cat="${c.id}"><span class="tag">${N(c.tag)}</span><img src="${IMG(BUILD[c.id] && c.id !== 'juice' ? ({ ramen: 'ramen-egg', pizza: 'pizza-margherita', bowls: 'bowl-poke' })[c.id] : c.items[0].id)}" alt=""><b>${N(c)}</b><small>${t('from')} ${money(Math.min(...(BUILD[c.id] ? BUILD[c.id].bases : c.items).map(i => i.price)))}</small></button>`).join('');
   $('#how').innerHTML = t('howT').map((h, i) => `<div><div class="n">${num(i + 1)}</div><h3>${h}</h3><p>${t('howD')[i]}</p></div>`).join('');
   $('#info').innerHTML = `<div><h2>${t('hours')}</h2><dl>${t('hoursD').map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('')}</dl></div><div class="dark"><h2>${t('hungry')}</h2><p>${t('hungryD')}</p><button class="cta" data-cat="ramen">${t('heroCta')}</button></div>`;
   $('#foot').textContent = t('foot');
@@ -414,37 +443,48 @@ function renderCartN() { const n = S.cart.reduce((a, c) => a + c.qty, 0); $('#ca
 
 let rcPrev = new Set();
 function openCat(id) {
-  if (S.cat !== id) { S.cat = id; S.sel.main = null; S.step = 0; }
+  if (S.cat !== id) { S.cat = id; S.sel = blank(); S.pos = {}; S.step = 0; }
   S.view = 'build'; $('#home').hidden = true; $('#foot').hidden = true; $('#build').hidden = false; window.scrollTo(0, 0);
   renderChips(); renderBuild(true); SFX.play('whoosh');
 }
 function goHome() { S.view = 'home'; $('#build').hidden = true; $('#home').hidden = false; $('#foot').hidden = false; toggleRc(false); renderChips(); }
 function renderBuild(focus) { renderTray(); renderTable(); renderStepCard(focus); renderReceipt(); }
+const curK = () => stepsOf(S.cat)[S.step];
 function renderTray() {
-  const k = STEPKEYS[S.step]; const items = listFor(k, S.cat); const n = items.length;
-  const tray = $('#tray'); tray.classList.toggle('many', n > 5 && innerWidth > 900); tray.setAttribute('aria-label', t('steps')[S.step][0]);
-  tray.innerHTML = items.map((it, i) => { const tt = n > 1 ? (i / (n - 1)) * 2 - 1 : 0; const arc = Math.round(70 * (1 - tt * tt)); const on = S.sel[k] === it.id;
-    return `<button class="bowlbtn ${on ? 'on' : ''}" style="--arc:${arc}" data-item="${it.id}" aria-pressed="${on}" aria-label="${esc(N(it))}, ${money(it.price)}"><img src="${IMG(it.id)}" alt="" draggable="false"><span class="nm">${N(it)}<i>${money(it.price)}</i></span></button>`; }).join('');
+  const k = curK(); const items = listFor(k, S.cat); const n = items.length;
+  const tray = $('#tray'); tray.classList.toggle('many', n > 5 && innerWidth > 900); tray.setAttribute('aria-label', stepTitle(S.cat, k));
+  tray.innerHTML = items.map((it, i) => { const tt = n > 1 ? (i / (n - 1)) * 2 - 1 : 0; const arc = Math.round(70 * (1 - tt * tt)); const on = picked(S, k).includes(it.id);
+    return `<button class="bowlbtn ${on ? 'on' : ''}" style="--arc:${arc}" data-item="${it.id}" aria-pressed="${on}" aria-label="${esc(N(it))}, ${money(it.price)}"><img src="${imgOf(k, it.id)}" alt="" draggable="false"><span class="nm">${N(it)}<i>+${money(it.price)}</i></span></button>`; }).join('');
 }
 let fresh = null;
+const SLOTS = [[50, 30], [70, 44], [64, 68], [38, 70], [28, 46], [50, 52], [42, 34], [60, 56], [36, 54], [58, 36]];
 function renderTable() {
-  const cat = catBy(S.cat);
-  const setPlate = (pid, k, label) => { const p = $(pid); const id = S.sel[k]; const f = p.querySelector('.food'); const has = !!id;
+  const cat = catBy(S.cat), mk = mainKey(S.cat), build = isBuild(S.cat), steps = stepsOf(S.cat);
+  const setPlate = (pid, k, label) => { const p = $(pid); p.hidden = !steps.includes(k); const id = S.sel[k]; const f = p.querySelector('.food'); const has = !!id;
     p.classList.toggle('has', has); const tg = p.querySelector('.tag'); if (tg) tg.textContent = has ? N(findItem(k, S.cat, id)) : label;
-    if ((f.dataset.id || '') !== (id || '')) { f.dataset.id = id || ''; f.innerHTML = has ? `<img src="${IMG(id)}" alt="${esc(N(findItem(k, S.cat, id)))}" class="${k === 'main' ? 'spin' : ''}">` : ''; if (has && fresh === k) { p.classList.remove('drop'); void p.offsetWidth; p.classList.add('drop'); } } };
-  setPlate('#pMain', 'main'); $('#eMain').textContent = t('pickMain'); $('#eMain').hidden = !!S.sel.main;
-  $('#steam').hidden = !(S.sel.main && cat.hot);
+    if ((f.dataset.id || '') !== (id || '')) { f.dataset.id = id || ''; f.innerHTML = has ? `<img src="${imgOf(k, id)}" alt="${esc(N(findItem(k, S.cat, id)))}" class="${k === 'main' ? 'spin' : ''}">` : ''; if (has && fresh === k) { p.classList.remove('drop'); void p.offsetWidth; p.classList.add('drop'); } } };
+  const pm = $('#pMain'); const f = pm.querySelector('.food'); const id = S.sel[mk];
+  if ((f.dataset.id || '') !== (id || '')) { f.dataset.id = id || ''; f.innerHTML = id ? `<img src="${imgOf(mk, id)}" alt="${esc(N(findItem(mk, S.cat, id)))}" class="${build ? '' : 'spin'}">` : ''; if (id && fresh === mk) { pm.classList.remove('drop'); void pm.offsetWidth; pm.classList.add('drop'); } }
+  pm.classList.toggle('glass', S.cat === 'juice');
+  $('#eMain').textContent = build ? (LANG === 'ar' ? 'حط القاعدة هنا' : 'Drop the base here') : t('pickMain'); $('#eMain').hidden = !!id;
+  $('#steam').hidden = !(id && cat.hot);
+  const tops = $('#tops'); const want = build ? [...picked(S, 'protein'), ...picked(S, 'extras')] : [];
+  $$('img', tops).forEach(im => { if (!want.includes(im.dataset.id)) im.remove(); });
+  want.forEach((tid, i) => { let im = tops.querySelector(`[data-id="${tid}"]`); const p = S.pos[tid] || SLOTS[i % SLOTS.length]; const rot = (tid.charCodeAt(0) * 37 + tid.length * 53) % 60 - 30;
+    if (!im) { im = document.createElement('img'); im.src = `img/ing/${tid}.png`; im.alt = N(ING[tid]); im.dataset.id = tid; im.className = 'top' + (fresh === tid ? ' land' : ''); tops.appendChild(im); }
+    im.style.left = p[0] + '%'; im.style.top = p[1] + '%'; im.style.setProperty('--r', rot + 'deg'); });
   setPlate('#pSide', 'side', t('side')); setPlate('#pDrink', 'drink', t('drink')); setPlate('#pSweet', 'sweet', t('sweet'));
   fresh = null;
 }
 function renderStepCard(focus) {
-  const k = STEPKEYS[S.step], has = !!S.sel[k], last = S.step === STEPKEYS.length - 1; const req = k === 'main';
+  const steps = stepsOf(S.cat), k = curK(), has = picked(S, k).length > 0, last = S.step === steps.length - 1; const req = k === mainKey(S.cat);
   const aB = LANG === 'ar' ? '→' : '←', aN = LANG === 'ar' ? '←' : '→';
-  $('#stepcard').innerHTML = `<div class="dots">${STEPKEYS.map((s, i) => `<i class="${i === S.step ? 'cur' : (S.sel[s] ? 'on' : '')}"></i>`).join('')}</div>
-    <div class="k">${t('step').toUpperCase()} ${num(S.step + 1)} / ${num(STEPKEYS.length)}</div>
-    <h2 id="stepTitle" tabindex="-1">${t('steps')[S.step][0]}</h2><p>${t('dragHint')}</p>
+  const hint = isMulti(S.cat, k) ? (LANG === 'ar' ? 'اسحب كل مكون وحطه على الطبق في المكان اللي يعجبك. تقدر تحط أكتر من حاجة.' : 'Drag each pick onto the plate, wherever you like. Add as many as you want.') : t('dragHint');
+  $('#stepcard').innerHTML = `<div class="dots">${steps.map((s2, i) => `<i class="${i === S.step ? 'cur' : (picked(S, s2).length ? 'on' : '')}"></i>`).join('')}</div>
+    <div class="k">${t('step').toUpperCase()} ${num(S.step + 1)} / ${num(steps.length)}</div>
+    <h2 id="stepTitle" tabindex="-1">${stepTitle(S.cat, k)}</h2><p>${hint}</p>
     <div class="nav"><button class="sbtn" id="sPrev" ${S.step === 0 ? 'disabled' : ''}>${aB} ${t('back')}</button>
-    ${last ? `<button class="sbtn pri" id="sDone" ${S.sel.main ? '' : 'disabled'}>${t('done')}</button>` : `<button class="sbtn ${has || !req ? 'pri' : ''}" id="sNext" ${req && !has ? 'disabled' : ''}>${!has && !req ? t('skip') : t('next')} ${aN}</button>`}</div>`;
+    ${last ? `<button class="sbtn pri" id="sDone" ${S.sel[mainKey(S.cat)] ? '' : 'disabled'}>${t('done')}</button>` : `<button class="sbtn ${has || !req ? 'pri' : ''}" id="sNext" ${req && !has ? 'disabled' : ''}>${!has && !req ? t('skip') : t('next')} ${aN}</button>`}</div>`;
   $('#sPrev').onclick = () => { S.step--; renderBuild(true); };
   const nx = $('#sNext'); if (nx) nx.onclick = () => { S.step++; renderBuild(true); };
   const dn = $('#sDone'); if (dn) dn.onclick = addToCart;
@@ -452,14 +492,14 @@ function renderStepCard(focus) {
 }
 function barcode(seed) { const r = rng(seed); let x = 0; const g = []; while (x < 100) { const w = 1 + Math.floor(r() * 3); g.push(`#141414 ${x}% ${x + w * .5}%`, `transparent ${x + w * .5}% ${x + w * .5 + .6 + r() * 1.2}%`); x += w * .5 + .6 + r() * 1.2; } return `linear-gradient(90deg,${g.join(',')})`; }
 function renderReceipt() {
-  const total = mealPrice(S);
-  const lines = STEPKEYS.map((k, i) => S.sel[k] ? { key: k + S.sel[k], n: N(findItem(k, S.cat, S.sel[k])), sub: t('steps')[i][1], p: num(findItem(k, S.cat, S.sel[k]).price), f: 1 } : { key: k, n: t('steps')[i][1], p: '—' });
+  const total = mealPrice(S); const ok = !!S.sel[mainKey(S.cat)];
+  const lines = []; stepsOf(S.cat).forEach(k => { const ids = picked(S, k); if (!ids.length) lines.push({ key: k, n: stepShort(S.cat, k), p: '—' }); else ids.forEach(id => { const it = findItem(k, S.cat, id); lines.push({ key: k + id, n: N(it), sub: stepShort(S.cat, k), p: num(it.price), f: 1 }); }); });
   const date = new Date().toLocaleString(LANG === 'ar' ? 'ar-EG' : 'en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
   $('#receipt').innerHTML = `<div class="rc-head"><i>THE</i><b>COOKING<br>CLUB</b><small>${N(catBy(S.cat)).toUpperCase()}</small><small class="meta">${date}</small></div>
     <ul class="rc-lines">${lines.map(l => `<li class="${l.f ? 'f' : ''} ${l.f && !rcPrev.has(l.key) ? 'new' : ''}"><span class="n">${esc(l.n)}${l.f ? `<small>${esc(l.sub)}</small>` : ''}</span><span>${l.p}</span></li>`).join('')}</ul>
     <div class="rc-tot"><span>${t('total')}</span><span>${money(total)}</span></div>
     <div class="barcode" style="--bc:${barcode(S.cat + total)}"></div><div class="rc-no">${String(total * 7919 + 100003).slice(0, 10).split('').join(' ')}</div>
-    <button class="rc-btn ${S.sel.main ? 'go' : ''}" id="rcOrder" ${S.sel.main ? '' : 'disabled'}>${t('order')}</button>
+    <button class="rc-btn ${ok ? 'go' : ''}" id="rcOrder" ${ok ? '' : 'disabled'}>${t('order')}</button>
     ${S.cart.length ? `<button class="rc-link" id="rcCart">${t('cart')} (${num(S.cart.reduce((a, c) => a + c.qty, 0))})</button>` : ''}`;
   rcPrev = new Set(lines.filter(l => l.f).map(l => l.key));
   $('#rcOrder').onclick = addToCart; const rc = $('#rcCart'); if (rc) rc.onclick = openSheet;
@@ -468,31 +508,40 @@ function renderReceipt() {
 $('#peek').addEventListener('click', () => toggleRc(true));
 $('#scrim').addEventListener('click', () => toggleRc(false));
 function toggleRc(o) { $('#receipt').classList.toggle('open', o); $('#scrim').hidden = !o; }
-function pick(id) {
-  const k = STEPKEYS[S.step]; const it = findItem(k, S.cat, id);
-  if (S.sel[k] === id) { S.sel[k] = null; toast('− ' + N(it)); say(t('removed') + ': ' + N(it)); }
-  else { S.sel[k] = id; fresh = k; toast('+ ' + N(it)); say(t('added') + ': ' + N(it));
-    setTimeout(() => SFX.play(k === 'drink' ? 'pour' : 'plate'), 180); setTimeout(() => SFX.play(k === 'main' && catBy(S.cat).hot ? 'sizzle' : k === 'side' ? 'crunch' : 'print'), 420); buzz([20, 30, 20]); }
+function pick(id, pt) {
+  const k = curK(); const it = findItem(k, S.cat, id); const multi = isMulti(S.cat, k);
+  if (multi) {
+    const arr = S.sel[k]; const ix = arr.indexOf(id);
+    if (ix >= 0 && !pt) { arr.splice(ix, 1); delete S.pos[id]; toast('− ' + N(it)); say(t('removed') + ': ' + N(it)); }
+    else { if (ix < 0) arr.push(id); if (pt) S.pos[id] = pt; fresh = id; const tops = $(`#tops [data-id="${id}"]`); if (tops) tops.remove(); toast('+ ' + N(it)); say(t('added') + ': ' + N(it)); fx(k, id); }
+  } else if (S.sel[k] === id) { S.sel[k] = null; toast('− ' + N(it)); say(t('removed') + ': ' + N(it)); }
+  else { S.sel[k] = id; fresh = k; toast('+ ' + N(it)); say(t('added') + ': ' + N(it)); fx(k, id); }
   renderTray(); renderTable(); renderStepCard(false); renderReceipt();
 }
+function fx(k, id) { const hot = catBy(S.cat).hot; const snd = k === 'drink' || S.cat === 'juice' && k === 'base' ? 'pour' : ['shrimp', 'chicken', 'beef', 'mince', 'bacon', 'salmon'].includes(id) && hot ? 'sizzle' : k === 'side' || ['veg', 'lettuce', 'chili', 'feta'].includes(id) ? 'crunch' : 'plate';
+  setTimeout(() => SFX.play(k === 'base' || k === 'main' ? 'plate' : snd === 'plate' ? 'plate' : 'plate'), 160); if (snd !== 'plate') setTimeout(() => SFX.play(snd), 380); setTimeout(() => SFX.play('print'), 600); buzz([20, 30, 20]); }
 let tT; function toast(m) { const e = $('#toast'); e.textContent = m; e.classList.add('on'); clearTimeout(tT); tT = setTimeout(() => e.classList.remove('on'), 1100); }
 function say(m) { const l = $('#live'); l.textContent = ''; setTimeout(() => l.textContent = m, 30); }
 
 let drag = null;
 $('#tray').addEventListener('pointerdown', e => { const b = e.target.closest('.bowlbtn'); if (!b || e.button > 0) return; drag = { b, id: b.dataset.item, x: e.clientX, y: e.clientY, moved: false, ghost: null, pid: e.pointerId }; });
 window.addEventListener('pointermove', e => { if (!drag || e.pointerId !== drag.pid) return;
-  if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 8) { drag.moved = true; const g = document.createElement('div'); g.className = 'dragghost'; g.innerHTML = `<img src="${IMG(drag.id)}" alt="">`; document.body.appendChild(g); drag.ghost = g; }
+  if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 8) { drag.moved = true; const g = document.createElement('div'); g.className = 'dragghost'; g.innerHTML = `<img src="${imgOf(curK(), drag.id)}" alt="">`; document.body.appendChild(g); drag.ghost = g; }
   if (drag.moved) { drag.ghost.style.left = e.clientX + 'px'; drag.ghost.style.top = e.clientY + 'px'; $('#table').classList.toggle('dropok', overTable(e)); } });
 window.addEventListener('pointerup', e => { if (!drag || e.pointerId !== drag.pid) return; const d = drag; drag = null; $('#table').classList.remove('dropok'); if (d.ghost) d.ghost.remove();
-  if (!d.moved) { pick(d.id); return; } if (overTable(e)) { if (S.sel[STEPKEYS[S.step]] !== d.id) pick(d.id); } else toast(t('dropHere')); });
+  if (!d.moved) { pick(d.id); return; }
+  if (!overTable(e)) { toast(t('dropHere')); return; }
+  const k = curK();
+  if (isMulti(S.cat, k)) { const r = $('#pMain').getBoundingClientRect(); let x = (e.clientX - r.left) / r.width * 100, y = (e.clientY - r.top) / r.height * 100; const dx = x - 50, dy = y - 50, m = Math.hypot(dx, dy); if (m > 26) { x = 50 + dx / m * 26; y = 50 + dy / m * 26; } pick(d.id, [Math.round(x), Math.round(y)]); }
+  else if (S.sel[k] !== d.id) pick(d.id); });
 window.addEventListener('pointercancel', () => { if (drag && drag.ghost) drag.ghost.remove(); drag = null; });
 function overTable(e) { const r = $('#table').getBoundingClientRect(); const pad = r.width * .15; return e.clientX > r.left - pad && e.clientX < r.right + pad && e.clientY > r.top - pad && e.clientY < r.bottom + pad; }
 $('#tray').addEventListener('click', e => { if (e.detail === 0) { const b = e.target.closest('.bowlbtn'); if (b) pick(b.dataset.item); } });
 
 function addToCart() {
-  if (!S.sel.main) return;
-  S.cart.push({ cat: S.cat, sel: { ...S.sel }, qty: 1 }); saveCart(); renderCartN(); toast(t('added2cart')); SFX.play('ding');
-  S.sel = { main: null, side: null, drink: null, sweet: null }; S.step = 0; rcPrev = new Set(); toggleRc(false); renderBuild(false); openSheet();
+  if (!S.sel[mainKey(S.cat)]) return;
+  S.cart.push({ cat: S.cat, sel: JSON.parse(JSON.stringify(S.sel)), qty: 1 }); saveCart(); renderCartN(); toast(t('added2cart')); SFX.play('ding');
+  S.sel = blank(); S.pos = {}; S.step = 0; rcPrev = new Set(); $('#tops').innerHTML = ''; toggleRc(false); renderBuild(false); openSheet();
 }
 
 let form = store.get('cc-cust', { name: '', phone: '', area: '', address: '', notes: '' });
@@ -501,12 +550,12 @@ function openSheet() { $('#sheet').hidden = false; document.body.style.overflow 
 function closeSheet() { $('#sheet').hidden = true; document.body.style.overflow = ''; }
 $('#sheet').addEventListener('click', e => { if (e.target.id === 'sheet') closeSheet(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (!$('#sheet').hidden) closeSheet(); else toggleRc(false); } });
-function describe(c) { return STEPKEYS.filter(k => c.sel[k]).map(k => N(findItem(k, c.cat, c.sel[k]))).join(LANG === 'ar' ? '، ' : ', '); }
+function describe(c) { return stepsOf(c.cat).flatMap(k => picked(c, k).map(id => N(findItem(k, c.cat, id)))).join(LANG === 'ar' ? '، ' : ', '); }
 function renderSheet() {
   const P = $('#panel'); const tt = totals();
   P.innerHTML = `<div class="panel-h"><h2 id="sheetTitle" tabindex="-1">${t('cart')}</h2><div style="display:flex;gap:8px"><button class="sbtn" data-a="keep">${t('keep')}</button><button class="sbtn" data-a="close" aria-label="${t('close')}">✕</button></div></div>
   <div class="panel-b"><div>
-    ${S.cart.length ? S.cart.map((c, i) => `<div class="citem"><div class="ims">${STEPKEYS.filter(k => c.sel[k]).map(k => `<img src="${IMG(c.sel[k])}" alt="">`).join('')}</div><div class="d"><b>${N(catBy(c.cat))}</b><p>${esc(describe(c))}</p><button class="rc-link" style="width:auto;margin:0;padding:0;text-align:start" data-a="rm" data-i="${i}">${t('remove')}</button></div><div style="display:grid;gap:6px;justify-items:end"><span class="pr">${money(mealPrice(c) * c.qty)}</span><div class="qty"><button data-a="q" data-i="${i}" data-d="-1" aria-label="-">−</button><output>${num(c.qty)}</output><button data-a="q" data-i="${i}" data-d="1" aria-label="+">+</button></div></div></div>`).join('') : `<div class="empty"><p>${t('empty')}</p><button class="cta" data-a="keep">${t('heroCta')}</button></div>`}
+    ${S.cart.length ? S.cart.map((c, i) => `<div class="citem"><div class="ims">${stepsOf(c.cat).flatMap(k => picked(c, k).map(id => `<img src="${imgOf(k, id)}" alt="">`)).slice(0, 5).join('')}</div><div class="d"><b>${N(catBy(c.cat))}</b><p>${esc(describe(c))}</p><button class="rc-link" style="width:auto;margin:0;padding:0;text-align:start" data-a="rm" data-i="${i}">${t('remove')}</button></div><div style="display:grid;gap:6px;justify-items:end"><span class="pr">${money(mealPrice(c) * c.qty)}</span><div class="qty"><button data-a="q" data-i="${i}" data-d="-1" aria-label="-">−</button><output>${num(c.qty)}</output><button data-a="q" data-i="${i}" data-d="1" aria-label="+">+</button></div></div></div>`).join('') : `<div class="empty"><p>${t('empty')}</p><button class="cta" data-a="keep">${t('heroCta')}</button></div>`}
   </div><form id="coForm" novalidate>
     <h3 class="sec">${t('details')}</h3>
     <div class="two"><div class="field"><label for="cName">${t('name')}</label><input id="cName" name="name" autocomplete="name" value="${esc(form.name)}"><span class="err"></span></div>
