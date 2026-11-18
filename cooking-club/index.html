@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Cooking Club | Build your bite</title>
+<title>The Cooking Club</title>
 <meta name="description" content="Cooking Club: build your own noodles, beef burgers, chicken burgers, hot dogs and loaded fries. Drag, drop, order — we cook it and deliver it hot.">
 <meta name="theme-color" content="#e2321f">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,6 +42,7 @@ svg{display:block}
 .bar{position:fixed;top:0;inset-inline:0;z-index:30;display:flex;align-items:center;gap:12px;padding:12px clamp(12px,2.5vw,28px);pointer-events:none}
 .bar > *{pointer-events:auto}
 .brand{display:flex;flex-direction:column;align-items:center;background:var(--paper);padding:8px 14px 6px;transform:rotate(-2deg);box-shadow:var(--shadow);text-decoration:none;color:var(--ink);border:3px solid var(--ink)}
+.brand i,.rc-head i{display:block;font-style:normal;font-family:"Space Mono",monospace;font-size:.58rem;letter-spacing:.3em;line-height:1;font-weight:700}
 .brand b{font-family:"Anton",sans-serif;font-size:1.5rem;line-height:.95;letter-spacing:.02em}
 .brand small{font-family:var(--f-mono);font-size:.6rem;letter-spacing:.18em}
 .chips{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;margin-inline:auto;padding:4px}
@@ -97,6 +98,11 @@ svg{display:block}
   border:12px solid var(--red);border-inline-start:0;border-radius:0 50% 50% 0 / 0 50% 50% 0;box-shadow:8px 0 30px rgba(0,0,0,.4);
   display:flex;flex-direction:column;justify-content:center;gap:1.2vh;padding:90px 0 210px}
 :root[dir="rtl"] .tray{border-radius:50% 0 0 50% / 50% 0 0 50%;box-shadow:-8px 0 30px rgba(0,0,0,.4)}
+.tray.many{display:grid;grid-template-columns:repeat(2,max-content);align-content:center;gap:24px 14px;padding-inline-start:18px}
+.tray.many .bowlbtn{margin:0;width:min(11vh,90px)}
+.tray.many .bowlbtn .nm{top:auto;bottom:-14px;inset-inline-start:50%;transform:translateX(-50%);font-size:.66rem;padding:1px 6px}
+:root[dir="rtl"] .tray.many .bowlbtn .nm{transform:translateX(50%)}
+.tray.many .bowlbtn .nm i{display:none}
 .bowlbtn{position:relative;align-self:flex-start;margin-inline-start:calc(var(--arc,0) * 1px + 16px);width:min(14vh,104px);aspect-ratio:1;border-radius:50%;border:0;padding:0;background:radial-gradient(circle at 40% 35%,#fff,#eae6df 62%,#cfc9be 64%,#f7f5f0 70%,#d9d3c8);box-shadow:0 8px 14px rgba(0,0,0,.35),inset 0 -4px 6px rgba(0,0,0,.12);touch-action:none;transition:transform .15s}
 .bowlbtn svg{position:absolute;inset:13%;width:74%;height:74%;pointer-events:none}
 .bowlbtn:hover{transform:scale(1.06) rotate(-4deg)}
@@ -110,7 +116,7 @@ svg{display:block}
 .stage{position:relative;width:min(64vh,46vw,640px);aspect-ratio:1;pointer-events:auto;margin-inline-start:min(4vw,60px)}
 .stage svg{width:100%;height:100%;overflow:visible;filter:drop-shadow(0 22px 22px rgba(0,0,0,.35))}
 .stage.dropok svg{filter:drop-shadow(0 0 0 var(--yellow)) drop-shadow(0 0 14px var(--yellow))}
-.hand{position:absolute;width:24%;top:14%;inset-inline-end:-6%;pointer-events:none;transform-origin:80% 20%;opacity:0}
+.hand{position:absolute;width:15%;top:8%;inset-inline-end:-6%;pointer-events:none;transform-origin:80% 20%;opacity:0}
 .hand.go{animation:hand .9s ease}
 @keyframes hand{0%{opacity:0;transform:translate(40px,-30px) rotate(10deg)}25%{opacity:1;transform:none}60%{opacity:1;transform:translate(-14px,10px) rotate(-6deg)}100%{opacity:0;transform:translate(30px,-30px)}}
 .toast{position:absolute;bottom:18%;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;font-weight:800;padding:8px 16px;white-space:nowrap;opacity:0;transition:opacity .25s;pointer-events:none;z-index:4}
@@ -211,6 +217,8 @@ svg{display:block}
 .seg{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
 .seg button{flex:1 1 100px;border:3px solid var(--ink);background:#fff;padding:8px;font-weight:800;font-size:.9rem;min-height:46px}
 .seg button[aria-checked="true"]{background:var(--ink);color:#fff}
+.paybox{background:var(--paper);border:3px solid var(--ink);padding:12px 12px 4px;margin:-4px 0 12px}
+.paynote{font-size:.78rem;color:#555;margin:0 0 8px}
 .sum{background:var(--paper);border:3px dashed var(--ink);padding:12px 14px;font-family:var(--f-mono);margin:12px 0}
 .sum div{display:flex;justify-content:space-between}
 .sum .g{font-weight:700;font-size:1.15rem;border-top:2px dashed var(--ink);margin-top:6px;padding-top:6px}
@@ -230,6 +238,14 @@ svg{display:block}
 @keyframes drop{from{transform:translateY(-90px);opacity:0}}
 .pop{animation:pop .45s cubic-bezier(.3,1.6,.5,1) both;transform-box:fill-box;transform-origin:center}
 @keyframes pop{from{transform:scale(1.8);opacity:0}}
+.smoke path{opacity:0;animation:smoke 4.2s ease-out infinite;transform-box:fill-box;transform-origin:center bottom}
+@keyframes smoke{0%{opacity:0;transform:translateY(30px) scaleX(.7)}25%{opacity:.5}70%{opacity:.25}100%{opacity:0;transform:translateY(-130px) scaleX(1.6)}}
+.puff circle{opacity:0;animation:puff 1.1s ease-out both;transform-box:fill-box;transform-origin:center}
+@keyframes puff{0%{opacity:.75;transform:scale(.3)}100%{opacity:0;transform:scale(1.9) translateY(-30px)}}
+.blending{animation:shake .1s linear 14;transform-box:fill-box;transform-origin:50% 100%}
+@keyframes shake{25%{transform:rotate(-1.6deg) translateX(-3px)}75%{transform:rotate(1.6deg) translateX(3px)}}
+.swirl{animation:swirl .45s linear 3;transform-box:fill-box;transform-origin:center}
+@keyframes swirl{to{transform:rotate(360deg)}}
 .steam path{animation:steam 3s ease-in-out infinite;opacity:0}
 .steam path:nth-child(2){animation-delay:1s}.steam path:nth-child(3){animation-delay:2s}
 @keyframes steam{0%{opacity:0;transform:translateY(10px)}40%{opacity:.55}100%{opacity:0;transform:translateY(-40px)}}
@@ -242,7 +258,7 @@ svg{display:block}
 <div class="grain"></div>
 
 <header class="bar">
-  <a class="brand" href="#" id="brandLink"><b>COOKING<br>CLUB</b><small data-t="tagline"></small></a>
+  <a class="brand" href="#" id="brandLink"><i>THE</i><b>COOKING<br>CLUB</b><small data-t="tagline"></small></a>
   <nav class="chips" id="chips" aria-label="Menu"></nav>
   <button class="tbtn" id="langBtn" aria-label="Language"></button>
   <button class="tbtn" id="cartBtn"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h3l2.4 11h10l2-8H7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.8"/><circle cx="17" cy="20" r="1.8"/></svg><span class="badge" id="cartN"></span></button>
@@ -302,32 +318,32 @@ const toEn = s => String(s).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.inde
 let LANG = store.get('cc-lang', (navigator.language || '').startsWith('ar') ? 'ar' : 'en');
 const T = {
   en: {
-    tagline: 'STREET FOOD DELIVERY', heroTitle: 'Build <span>your</span> bite.', heroSub: 'Noodles, smash burgers, crispy chicken, hot dogs and loaded fries. Pick it, drag it, stack it. We cook it and ride it to your door, hot.',
+    tagline: 'STREET FOOD DELIVERY', heroTitle: 'Build <span>your</span> bite.', heroSub: 'Pizza, noodles, smash burgers, crispy chicken, hot dogs, loaded fries and fresh juice blended from whole fruit. Pick it, drag it, stack it. We cook it and ride it to your door, hot.',
     heroCta: 'Start building →', from: 'from', step: 'Step', of: '/', back: 'Back', next: 'Next', skip: 'Skip', done: 'Done ✓',
     dragHint: 'Drag your pick onto the dish, or tap to add.', dragOne: 'Pick one: drag it onto the dish, or tap it.', required: 'Required',
     total: 'TOTAL', order: 'Order my', addCart: 'Add to order', anotherHint: 'Build something else', receiptBtn: 'Receipt',
     cart: 'Your order', empty: 'Your order is empty. Go build something tasty!', sides: 'Drinks & sides', details: 'Delivery details',
     name: 'Name', phone: 'Mobile', area: 'Area', address: 'Full address', addrPh: 'Street, building, floor, apartment', notes: 'Notes for the kitchen', optional: '(optional)',
-    pickArea: 'Choose your area', pay: 'Payment', cash: 'Cash', card: 'Card on delivery', instapay: 'InstaPay', subtotal: 'Subtotal', delivery: 'Delivery', place: 'Place order',
+    pickArea: 'Choose your area', pay: 'Payment', cash: 'Cash', card: 'Visa / Mastercard', wallet: 'Mobile wallet', gov: 'Governorate', cardNo: 'Card number', cardName: 'Name on card', exp: 'Expiry (MM/YY)', cvv: 'CVV', walletProv: 'Wallet', walletNo: 'Wallet number', errCard: 'Check the card number', errExp: 'Check the expiry date', errCvv: 'CVV is 3 or 4 digits', errCardName: 'Write the name on the card', errWallet: 'Enter the wallet mobile number', payNote: 'Test mode: no money is charged until the payment gateway is connected.', paidCard: 'Card', paidWallet: 'Wallet', subtotal: 'Subtotal', delivery: 'Delivery', place: 'Place order',
     keep: '+ Build another', close: 'Close', remove: 'Remove', errName: 'Tell us your name', errPhone: 'Enter a valid Egyptian mobile (01xxxxxxxxx)', errArea: 'Choose your area', errAddr: 'Add street, building and floor',
     thanks: 'Order sent to the kitchen!', eta: 'Arriving in 35–45 min. We will call you if we need anything.', orderNo: 'Order', again: 'Order again', home: 'Back home',
     howT: ['Pick a dish', 'Build it', 'Watch the receipt', 'We deliver'], howD: ['Noodles, beef or chicken burger, hot dog or loaded fries.', 'Drag ingredients from the tray onto your dish, step by step.', 'Every pick prints on the receipt with its price. No surprises.', 'Add drinks, enter your address, pay how you like.'],
-    hours: 'Hours & delivery', hoursD: [['Open', 'Every day, 12 PM – 3 AM'], ['Delivery', 'Cairo & Giza, 35–45 min'], ['Pay', 'Cash, card on delivery, InstaPay'], ['Branches', 'Nasr City · Maadi · Sheikh Zayed']],
+    hours: 'Hours & delivery', hoursD: [['Open', 'Every day, 12 PM – 3 AM'], ['Delivery', 'All Alexandria, 30–45 min (Cairo & Giza too)'], ['Pay', 'Cash, Visa / Mastercard, mobile wallets'], ['Branches', 'Smouha · Sidi Bishr · Agami']],
     hungry: 'Hungry?', hungryD: 'The whole order takes about two minutes, and it is actually fun.', foot: '© Cooking Club. Built by you, cooked by us.',
     added: 'Added', removed: 'Removed', dropHere: 'Drop it on the dish!', max: 'That is plenty!', curr: 'EGP', added2cart: 'Added to your order 🎉', items: 'items', free: 'Free'
   },
   ar: {
-    tagline: 'أكل شارع ديليفري', heroTitle: 'اعمل <span>أكلتك</span> بإيدك.', heroSub: 'نودلز، سماش برجر، فراخ كرسبي، هوت دوج وبطاطس محمّلة. اختار واسحب ورصّ، وإحنا نطبخ ونوصّلهالك سخنة.',
+    tagline: 'أكل شارع ديليفري', heroTitle: 'اعمل <span>أكلتك</span> بإيدك.', heroSub: 'بيتزا، نودلز، سماش برجر، فراخ كرسبي، هوت دوج، بطاطس محمّلة، وعصير فريش بتعمله من الفاكهة بنفسك. اختار واسحب ورصّ، وإحنا نطبخ ونوصّلهالك سخنة.',
     heroCta: 'يلا نبدأ ←', from: 'من', step: 'خطوة', of: '/', back: 'رجوع', next: 'التالي', skip: 'تخطّي', done: 'خلصت ✓',
     dragHint: 'اسحب اختيارك على الطبق، أو دوس عليه.', dragOne: 'اختار واحد: اسحبه على الطبق أو دوس عليه.', required: 'مطلوب',
     total: 'الإجمالي', order: 'اطلب', addCart: 'ضيف للطلب', anotherHint: 'اعمل أكلة تانية', receiptBtn: 'الفاتورة',
     cart: 'طلبك', empty: 'طلبك فاضي. يلا اعمل حاجة حلوة!', sides: 'مشروبات وحاجات جنب', details: 'بيانات التوصيل',
     name: 'الاسم', phone: 'الموبايل', area: 'المنطقة', address: 'العنوان بالتفصيل', addrPh: 'الشارع، العمارة، الدور، الشقة', notes: 'ملاحظات للمطبخ', optional: '(اختياري)',
-    pickArea: 'اختار منطقتك', pay: 'الدفع', cash: 'كاش', card: 'فيزا عند الاستلام', instapay: 'إنستاباي', subtotal: 'المجموع', delivery: 'التوصيل', place: 'أكّد الطلب',
+    pickArea: 'اختار منطقتك', pay: 'الدفع', cash: 'كاش', card: 'فيزا / ماستركارد', wallet: 'محفظة موبايل', gov: 'المحافظة', cardNo: 'رقم الكارت', cardName: 'الاسم على الكارت', exp: 'تاريخ الانتهاء (MM/YY)', cvv: 'CVV', walletProv: 'المحفظة', walletNo: 'رقم المحفظة', errCard: 'راجع رقم الكارت', errExp: 'راجع تاريخ الانتهاء', errCvv: 'الـ CVV ٣ أو ٤ أرقام', errCardName: 'اكتب الاسم اللي على الكارت', errWallet: 'اكتب رقم موبايل المحفظة', payNote: 'وضع تجريبي: مفيش فلوس بتتخصم لحد ما بوابة الدفع تتربط.', paidCard: 'كارت', paidWallet: 'محفظة', subtotal: 'المجموع', delivery: 'التوصيل', place: 'أكّد الطلب',
     keep: '+ اعمل أكلة تانية', close: 'اقفل', remove: 'شيل', errName: 'اكتب اسمك', errPhone: 'اكتب رقم موبايل مصري صح (01xxxxxxxxx)', errArea: 'اختار منطقتك', errAddr: 'اكتب الشارع والعمارة والدور',
     thanks: 'طلبك اتبعت للمطبخ!', eta: 'هيوصلك خلال ٣٥–٤٥ دقيقة. هنكلمك لو احتجنا حاجة.', orderNo: 'طلب رقم', again: 'اطلب تاني', home: 'الرئيسية',
     howT: ['اختار الأكلة', 'اعملها بإيدك', 'تابع الفاتورة', 'إحنا نوصّل'], howD: ['نودلز، برجر لحمة أو فراخ، هوت دوج أو بطاطس محمّلة.', 'اسحب المكونات من الصينية على الطبق خطوة بخطوة.', 'كل اختيار بيتطبع في الفاتورة بسعره. من غير مفاجآت.', 'زوّد مشروبات، اكتب عنوانك، وادفع زي ما تحب.'],
-    hours: 'المواعيد والتوصيل', hoursD: [['مفتوحين', 'كل يوم من ١٢ الضهر لـ ٣ الفجر'], ['التوصيل', 'القاهرة والجيزة، ٣٥–٤٥ دقيقة'], ['الدفع', 'كاش، فيزا عند الاستلام، إنستاباي'], ['الفروع', 'مدينة نصر · المعادي · الشيخ زايد']],
+    hours: 'المواعيد والتوصيل', hoursD: [['مفتوحين', 'كل يوم من ١٢ الضهر لـ ٣ الفجر'], ['التوصيل', 'كل إسكندرية، ٣٠–٤٥ دقيقة (والقاهرة والجيزة كمان)'], ['الدفع', 'كاش، فيزا وماستركارد، محافظ الموبايل'], ['الفروع', 'سموحة · سيدي بشر · العجمي']],
     hungry: 'جعان؟', hungryD: 'الطلب كله بياخد حوالي دقيقتين، وكمان ممتع.', foot: '© كوكينج كلَب. إنت تعملها، وإحنا نطبخها.',
     added: 'اتضاف', removed: 'اتشال', dropHere: 'سيبه على الطبق!', max: 'كده كفاية!', curr: 'ج.م', added2cart: 'اتضاف لطلبك 🎉', items: 'أصناف', free: 'ببلاش'
   }
@@ -340,6 +356,14 @@ const money = n => LANG === 'ar' ? `${num(n)} ${t('curr')}` : `${t('curr')} ${n}
 /* ================= menu data ================= */
 const I = (id, en, ar, price, ic, extra = {}) => ({ id, en, ar, price, ic, ...extra });
 const DISHES = [
+  { id: 'pizza', en: 'Pizza', ar: 'بيتزا', noun: { en: 'pizza', ar: 'البيتزا' }, tag: { en: 'STONE OVEN', ar: 'فرن حجر' }, kind: 'pizza', hot: 1,
+    steps: [
+      { k: 'base', en: 'Roll the dough', ar: 'اختار العجينة', short: { en: 'Dough', ar: 'عجينة' }, req: true, items: [I('classic', 'Classic dough', 'عجينة كلاسيك', 80, 'dough', { c: '#e9b46a', w: 20 }), I('thin', 'Thin & crispy', 'رفيعة مقرمشة', 85, 'dough', { c: '#efc27e', w: 12 }), I('stuffed', 'Cheese-stuffed crust', 'أطراف محشية جبنة', 110, 'dough', { c: '#e2a95e', w: 28, stuffed: 1 })] },
+      { k: 'sauce', en: 'Spread the sauce', ar: 'افرد الصوص', short: { en: 'Sauce', ar: 'صوص' }, req: true, items: [I('tomato', 'Tomato', 'طماطم', 0, 'sauce', { c: '#c0301b' }), I('bbq', 'BBQ', 'باربكيو', 10, 'sauce', { c: '#5e2210' }), I('white', 'White garlic', 'وايت بالتوم', 15, 'sauce', { c: '#f1e6c6' }), I('pesto', 'Pesto', 'بيستو', 20, 'sauce', { c: '#5a7f22' })] },
+      { k: 'cheese', en: 'Rain the cheese', ar: 'رش الجبنة', short: { en: 'Cheese', ar: 'جبنة' }, multi: true, items: [I('mozz', 'Mozzarella', 'موتزاريلا', 25, 'shred', { c: '#fbf1cf' }), I('ched', 'Cheddar', 'شيدر', 20, 'shred', { c: '#f2a12a' }), I('romy', 'Roumy', 'جبنة رومي', 20, 'shred', { c: '#efd690' })] },
+      { k: 'tops', en: 'Top your pizza', ar: 'حط المكونات', short: { en: 'Toppings', ar: 'مكونات' }, multi: true, items: [I('pep', 'Pepperoni', 'بيبروني', 35, 'pepperoni'), I('chicken', 'Chicken', 'فراخ', 35, 'bites'), I('beef', 'Minced beef', 'لحمة مفرومة', 40, 'mince'), I('mush', 'Mushroom', 'مشروم', 15, 'shiitake'), I('olive', 'Olives', 'زيتون', 10, 'olives'), I('pepper', 'Green pepper', 'فلفل أخضر', 10, 'pepperRings'), I('onion', 'Onion', 'بصل', 5, 'onion'), I('tomato', 'Tomato', 'طماطم', 5, 'tomatoSlices'), I('corn', 'Corn', 'ذرة', 10, 'corn')] },
+      { k: 'finish', en: 'Finishing touch', ar: 'اللمسة الأخيرة', short: { en: 'Finish', ar: 'إضافات' }, multi: true, items: [I('basil', 'Fresh basil', 'ريحان فريش', 5, 'basil'), I('chili', 'Chili flakes', 'شطة مجروشة', 0, 'chiliFlakes'), I('oregano', 'Oregano', 'أوريجانو', 0, 'oregano'), I('ranch', 'Ranch drizzle', 'صوص رانش', 10, 'sauce', { c: '#f4f1e2' })] }
+    ] },
   { id: 'noodles', en: 'Noodles', ar: 'نودلز', noun: { en: 'bowl', ar: 'البول' }, tag: { en: 'HOT', ar: 'سخن' }, kind: 'bowl',
     steps: [
       { k: 'base', en: 'Choose your noodles', ar: 'اختار النودلز', short: { en: 'Noodles', ar: 'نودلز' }, req: true, items: [
@@ -402,16 +426,26 @@ const DISHES = [
         I('jalapeno', 'Jalapeño', 'هالبينو', 10, 'jalapeno'), I('scallion', 'Spring onion', 'بصل أخضر', 10, 'scallion'), I('crispy', 'Crispy onion', 'بصل مقرمش', 10, 'crisponion')] },
       { k: 'sauce', en: 'Drizzle', ar: 'الصوص', short: { en: 'Sauce', ar: 'صوص' }, multi: true, items: [
         I('ketchup', 'Ketchup', 'كاتشب', 0, 'sauce', { c: '#c8231a' }), I('ranch', 'Ranch', 'رانش', 10, 'sauce', { c: '#eef0e2' }), I('bbq', 'BBQ', 'باربكيو', 10, 'sauce', { c: '#5e2210' }), I('buffalo', 'Buffalo', 'بافلو', 15, 'sauce', { c: '#d9481f' })] }
+    ] },
+  { id: 'juice', en: 'Juice Studio', ar: 'استوديو العصير', noun: { en: 'juice', ar: 'العصير' }, tag: { en: 'FROM FRUIT', ar: 'من الفاكهة' }, kind: 'juice',
+    steps: [
+      { k: 'fruits', en: 'Drop in the fruit', ar: 'حط الفاكهة في الخلاط', short: { en: 'Fruit', ar: 'فاكهة' }, req: true, multi: true, max: 3, items: [I('orange', 'Orange', 'برتقال', 10, 'fruit', { c: '#f7931e' }), I('mango', 'Mango', 'مانجا', 15, 'fruit', { c: '#f6a623' }), I('strawberry', 'Strawberry', 'فراولة', 15, 'fruit', { c: '#d8283a' }), I('banana', 'Banana', 'موز', 10, 'fruit', { c: '#f3df8f' }), I('kiwi', 'Kiwi', 'كيوي', 20, 'fruit', { c: '#86b43a' }), I('watermelon', 'Watermelon', 'بطيخ', 10, 'fruit', { c: '#ee4a5b' }), I('guava', 'Guava', 'جوافة', 10, 'fruit', { c: '#f4b4a0' }), I('lemon', 'Lemon', 'ليمون', 5, 'fruit', { c: '#e9d93a' })] },
+      { k: 'base', en: 'Pour the base', ar: 'صب القاعدة', short: { en: 'Base', ar: 'قاعدة' }, items: [I('water', 'Water', 'مية', 0, 'liquid', { c: '#cfe8f6', mix: 0 }), I('milk', 'Milk', 'لبن', 10, 'liquid', { c: '#fbf8f0', mix: .35 }), I('yogurt', 'Yogurt', 'زبادي', 15, 'liquid', { c: '#f6f1e2', mix: .45 })] },
+      { k: 'extras', en: 'Add the extras', ar: 'زوّد الإضافات', short: { en: 'Extras', ar: 'إضافات' }, multi: true, items: [I('ice', 'Ice', 'تلج', 0, 'ice'), I('honey', 'Honey', 'عسل', 5, 'honey'), I('mint', 'Mint', 'نعناع', 0, 'mint'), I('cream', 'Ice cream scoop', 'بولة آيس كريم', 15, 'scoop')] },
+      { k: 'blend', en: 'Blend it!', ar: 'شغّل الخلاط!', short: { en: 'Blend', ar: 'خلط' }, req: true, items: [I('blend', 'Blend', 'اخلط', 0, 'blendBtn')] },
+      { k: 'cup', en: 'Pour into a cup', ar: 'صبه في الكوباية', short: { en: 'Cup', ar: 'كوباية' }, req: true, items: [I('s', 'Small · 250 ml', 'صغير · ٢٥٠ مل', 20, 'cup', { s: .8 }), I('m', 'Medium · 350 ml', 'وسط · ٣٥٠ مل', 30, 'cup', { s: 1 }), I('l', 'Large · 500 ml', 'كبير · ٥٠٠ مل', 40, 'cup', { s: 1.18 })] }
     ] }
 ];
 const EXTRAS = [
   I('cola', 'Cola', 'كولا', 25, ''), I('lemon', 'Lemon mint', 'ليمون نعناع', 35, ''), I('water', 'Water', 'مياه', 10, ''),
   I('rings', 'Onion rings', 'حلقات بصل', 45, ''), I('mozz', 'Mozzarella sticks', 'أصابع موتزاريلا', 65, ''), I('cookie', 'Choco cookie', 'كوكي شوكولاتة', 30, '')
 ];
-const AREAS = [
-  I('nasr', 'Nasr City', 'مدينة نصر', 20), I('heliopolis', 'Heliopolis', 'مصر الجديدة', 25), I('maadi', 'Maadi', 'المعادي', 20), I('zamalek', 'Zamalek', 'الزمالك', 30),
-  I('dokki', 'Dokki & Mohandessin', 'الدقي والمهندسين', 30), I('tagamoa', 'New Cairo', 'التجمع', 40), I('zayed', 'Sheikh Zayed', 'الشيخ زايد', 20), I('october', '6th of October', '٦ أكتوبر', 35)
+const AX = (id, en, ar, fee) => I(id, en, ar, fee, '');
+const GOVS = [
+  { id: 'alex', en: 'Alexandria', ar: 'الإسكندرية', areas: [AX('smouha', 'Smouha', 'سموحة', 15), AX('sidigaber', 'Sidi Gaber', 'سيدي جابر', 15), AX('sporting', 'Sporting', 'سبورتنج', 15), AX('cleopatra', 'Cleopatra', 'كليوباترا', 15), AX('ibrahimia', 'Ibrahimia', 'الإبراهيمية', 15), AX('camp', 'Camp Shezar', 'كامب شيزار', 15), AX('raml', 'Raml Station', 'محطة الرمل', 20), AX('stanley', 'Stanley', 'ستانلي', 20), AX('roushdy', 'Roushdy', 'رشدي', 20), AX('kafrabdo', 'Kafr Abdo', 'كفر عبده', 20), AX('gleem', 'Gleem', 'جليم', 20), AX('sanstefano', 'San Stefano', 'سان ستيفانو', 20), AX('zizinia', 'Zizinia', 'زيزينيا', 20), AX('laurent', 'Laurent', 'لوران', 20), AX('sabapasha', 'Saba Pasha', 'صبا باشا', 20), AX('bolkly', 'Bolkly', 'بولكلي', 20), AX('fleming', 'Fleming', 'فلمنج', 20), AX('azarita', 'Azarita', 'الأزاريطة', 20), AX('moharrambek', 'Moharram Bek', 'محرم بك', 20), AX('babsharq', 'Bab Sharq', 'باب شرق', 20), AX('mansheya', 'Mansheya', 'المنشية', 25), AX('gomrok', 'Gomrok & Anfoushi', 'الجمرك والأنفوشي', 25), AX('karmouz', 'Karmouz', 'كرموز', 25), AX('sidibishr', 'Sidi Bishr', 'سيدي بشر', 20), AX('miami', 'Miami', 'ميامي', 25), AX('asafra', 'Asafra', 'العصافرة', 25), AX('mandara', 'Mandara', 'المندرة', 30), AX('montaza', 'Montaza', 'المنتزه', 30), AX('maamoura', 'Maamoura', 'المعمورة', 35), AX('abuqir', 'Abu Qir', 'أبو قير', 40), AX('agami', 'Agami', 'العجمي', 30), AX('bitash', 'Bitash', 'البيطاش', 30), AX('hanoville', 'Hanoville', 'الهانوفيل', 30), AX('dekheila', 'Dekheila', 'الدخيلة', 30), AX('amreya', 'Amreya', 'العامرية', 40), AX('kingmariout', 'King Mariout', 'كينج مريوط', 45), AX('borgelarab', 'Borg El Arab', 'برج العرب', 55)] },
+  { id: 'cairo', en: 'Cairo & Giza', ar: 'القاهرة والجيزة', areas: [AX('nasr', 'Nasr City', 'مدينة نصر', 35), AX('heliopolis', 'Heliopolis', 'مصر الجديدة', 35), AX('maadi', 'Maadi', 'المعادي', 35), AX('zamalek', 'Zamalek', 'الزمالك', 40), AX('dokki', 'Dokki & Mohandessin', 'الدقي والمهندسين', 40), AX('tagamoa', 'New Cairo', 'التجمع', 45), AX('zayed', 'Sheikh Zayed', 'الشيخ زايد', 45), AX('october', '6th of October', '٦ أكتوبر', 45)] }
 ];
+const AREAS = GOVS.flatMap(g => g.areas);
 const dishBy = id => DISHES.find(d => d.id === id);
 const itemBy = (dish, stepK, id) => dish.steps.find(s => s.k === stepK).items.find(i => i.id === id);
 
@@ -463,6 +497,13 @@ const CL = {
   bites(r) { let s = ''; for (let i = 0; i < 7; i++) { const a = i * .9 + r(), d = i ? 24 : 0; s += `<g transform="translate(${f1(Math.cos(a) * d)} ${f1(Math.sin(a) * d)}) rotate(${f1(r() * 90)})"><path d="M-12-8l10-5 12 4 3 10-8 9-13-1z" fill="#d98a2b" stroke="#a65e14" stroke-width="2"/><circle cx="-3" cy="-1" r="2" fill="#f4bf6a"/><circle cx="5" cy="4" r="1.6" fill="#f4bf6a"/></g>`; } return s; },
   onion() { return [0, 1, 2].map(i => `<ellipse cx="${(i - 1) * 16}" cy="${(i % 2) * 8 - 4}" rx="${22 - i * 2}" ry="${16 - i}" fill="rgba(250,238,250,.75)" stroke="#a15997" stroke-width="3"/>`).join(''); },
   pickles(r) { let s = ''; for (let i = 0; i < 5; i++) { const a = i * 1.25, d = i ? 22 : 0; s += `<g transform="translate(${f1(Math.cos(a) * d)} ${f1(Math.sin(a) * d)})"><circle r="13" fill="#5f8f2c" stroke="#3f6a1a" stroke-width="2"/><circle r="8" fill="#a9c867"/><circle cx="-3" cy="-2" r="1.4" fill="#e9f2c5"/><circle cx="3" cy="2" r="1.4" fill="#e9f2c5"/></g>`; } return s; },
+  pepperoni(r) { let s = ''; for (let i = 0; i < 5; i++) { const a = i * 1.26 + r(), d = i ? 24 : 0, x = f1(Math.cos(a) * d), y = f1(Math.sin(a) * d); s += `<circle cx="${x}" cy="${y}" r="17" fill="#9e2418"/><circle cx="${x}" cy="${y}" r="14.5" fill="#c33a2a"/><circle cx="${f1(+x - 5)}" cy="${f1(+y - 4)}" r="2.4" fill="#7c150c"/><circle cx="${f1(+x + 5)}" cy="${f1(+y + 3)}" r="2" fill="#7c150c"/><circle cx="${f1(+x + 1)}" cy="${f1(+y + 7)}" r="1.6" fill="#ec7b62"/>`; } return s; },
+  olives(r) { let s = ''; for (let i = 0; i < 7; i++) { const a = r() * 6.28, d = Math.sqrt(r()) * 30; s += `<circle cx="${f1(Math.cos(a) * d)}" cy="${f1(Math.sin(a) * d)}" r="8.5" fill="none" stroke="#1d1d1b" stroke-width="7"/><circle cx="${f1(Math.cos(a) * d - 2)}" cy="${f1(Math.sin(a) * d - 3)}" r="2" fill="#6b6b66"/>`; } return s; },
+  pepperRings(r) { let s = ''; for (let i = 0; i < 5; i++) { const a = r() * 6.28, d = Math.sqrt(r()) * 26; s += `<ellipse cx="${f1(Math.cos(a) * d)}" cy="${f1(Math.sin(a) * d)}" rx="15" ry="12" fill="none" stroke="#2f7d25" stroke-width="5" transform="rotate(${f1(r() * 180)} ${f1(Math.cos(a) * d)} ${f1(Math.sin(a) * d)})"/>`; } return s; },
+  tomatoSlices(r) { let s = ''; for (let i = 0; i < 4; i++) { const a = i * 1.57 + r(), d = i ? 22 : 0, x = Math.cos(a) * d, y = Math.sin(a) * d; s += `<circle cx="${f1(x)}" cy="${f1(y)}" r="16" fill="#c8301c"/><circle cx="${f1(x)}" cy="${f1(y)}" r="12.5" fill="#ef5a3c"/>${[0, 2.1, 4.2].map(q => `<ellipse cx="${f1(x + Math.cos(q) * 6)}" cy="${f1(y + Math.sin(q) * 6)}" rx="2.4" ry="1.4" fill="#f6d27a"/>`).join('')}`; } return s; },
+  basil(r) { let s = ''; for (let i = 0; i < 4; i++) s += `<g transform="rotate(${f1(i * 90 + r() * 30)}) translate(0 -14)"><path d="M0 0C-12-6-12-26 0-32C12-26 12-6 0 0Z" fill="#2f8a33"/><path d="M0-2C-1-12-1-22 0-30" stroke="#6fbf5a" stroke-width="1.6" fill="none"/></g>`; return s; },
+  chiliFlakes(r) { let s = ''; for (let i = 0; i < 40; i++) { const a = r() * 6.28, d = Math.sqrt(r()) * 36; s += `<rect x="${f1(Math.cos(a) * d)}" y="${f1(Math.sin(a) * d)}" width="4" height="2.6" fill="${r() > .3 ? '#b8230f' : '#f2c14e'}" transform="rotate(${f1(r() * 180)} ${f1(Math.cos(a) * d)} ${f1(Math.sin(a) * d)})"/>`; } return s; },
+  oregano(r) { let s = ''; for (let i = 0; i < 46; i++) { const a = r() * 6.28, d = Math.sqrt(r()) * 36; s += `<rect x="${f1(Math.cos(a) * d)}" y="${f1(Math.sin(a) * d)}" width="3" height="2" fill="${r() > .5 ? '#4e6a22' : '#6e8a35'}"/>`; } return s; },
   shred(r, c = '#fbf1cf') { let s = ''; for (let i = 0; i < 30; i++) { const a = r() * 6.28, d = Math.sqrt(r()) * 34; s += `<rect x="${f1(Math.cos(a) * d)}" y="${f1(Math.sin(a) * d)}" width="4" height="13" rx="2" fill="${c}" stroke="#e1cf96" stroke-width=".8" transform="rotate(${f1(r() * 180)} ${f1(Math.cos(a) * d)} ${f1(Math.sin(a) * d)})"/>`; } return s; }
 };
 // overlays over a circular area
@@ -498,7 +539,68 @@ const BL = {
 const LAYER_FN = { patty: 'patty', smash: 'smash', crispy: 'crispy', grilled: 'grilled', cheese: 'cheese', lettuce: 'lettuce', tomato: 'tomato', onion: 'onion', pickles: 'pickles', jalapeno: 'jalapeno', bacon: 'bacon', sauce: 'sauce' };
 
 // ---------- dish renderers ----------
-const steam = (x, y, s = 1) => `<g class="steam" transform="translate(${x} ${y}) scale(${s})" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"><path d="M-30 0c-10-16 10-24 0-40"/><path d="M0 0c-10-16 10-24 0-40"/><path d="M30 0c-10-16 10-24 0-40"/></g>`;
+const steamOld = (x, y, s = 1) => `<g class="steam" transform="translate(${x} ${y}) scale(${s})" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"><path d="M-30 0c-10-16 10-24 0-40"/><path d="M0 0c-10-16 10-24 0-40"/><path d="M30 0c-10-16 10-24 0-40"/></g>`;
+const steam = (x, y, s = 1) => `<g transform="translate(${x} ${y}) scale(${s})" pointer-events="none"><g class="smoke" filter="url(#smk)" fill="none" stroke="#fff" stroke-linecap="round">${[[-55, 16], [-20, 22], [15, 18], [50, 24], [-5, 14]].map(([dx, w], i) => `<path d="M${dx} 0c-18-22 18-40 0-62c-14-18 14-34 0-52" stroke-width="${w}" style="animation-delay:${(i * .7).toFixed(1)}s"/>`).join('')}</g></g>`;
+const puff = (x, y) => `<g class="puff" pointer-events="none" filter="url(#smk)">${[[-30, 0, 30], [25, -10, 26], [0, -30, 34], [-10, 18, 22], [35, 15, 20]].map(([dx, dy, r], i) => `<circle cx="${x + dx}" cy="${y + dy}" r="${r}" fill="#fff" style="animation-delay:${i * .06}s"/>`).join('')}</g>`;
+function hexRgb(h) { const n = parseInt(h.slice(1), 16); return [n >> 16 & 255, n >> 8 & 255, n & 255]; }
+function mixHex(list, toward = '#ffffff', k = 0) { if (!list.length) return '#f0c060'; const ws = list.map((_, i) => i ? .5 / (list.length - 1) : (list.length > 1 ? .5 : 1)); const c = list.map(hexRgb).reduce((a, b, j) => a.map((v, i) => v + b[i] * ws[j]), [0, 0, 0]); const w = hexRgb(toward); return '#' + c.map((v, i) => Math.round(v + (w[i] - v) * k).toString(16).padStart(2, '0')).join(''); }
+const FR = {
+  orange: () => `<circle r="34" fill="#f28a17"/><circle r="34" fill="url(#gl)"/>${Array.from({ length: 14 }, (_, i) => `<circle cx="${f1(Math.cos(i) * 20)}" cy="${f1(Math.sin(i * 1.7) * 20)}" r="1.4" fill="#d06f0c"/>`).join('')}<path d="M2-34c6-10 18-10 22-4-8 4-16 6-22 4z" fill="#3f8a2f"/>`,
+  mango: () => `<defs><linearGradient id="mg" x1="0" x2="1"><stop offset="0" stop-color="#d9431c"/><stop offset=".5" stop-color="#f59a1d"/><stop offset="1" stop-color="#e8c23a"/></linearGradient></defs><ellipse rx="38" ry="28" fill="url(#mg)" transform="rotate(-20)"/><ellipse rx="38" ry="28" fill="url(#gl)" transform="rotate(-20)"/>`,
+  strawberry: () => `<path d="M0 34C-26 18-34-6-24-20 -14-30 14-30 24-20 34-6 26 18 0 34Z" fill="#d6202f"/>${Array.from({ length: 16 }, (_, i) => `<ellipse cx="${f1(((i * 37) % 40) - 20)}" cy="${f1(((i * 23) % 44) - 18)}" rx="1.6" ry="2.4" fill="#f6e08a"/>`).join('')}<path d="M-18-22l8 4 4-10 6 9 8-6 0 10 10 2-14 2h-16z" fill="#3a8a2c"/>`,
+  banana: () => `<path d="M-36 -10C-30 26 20 34 38 6 40 2 36 0 32 4 16 22-18 18-28-14Z" fill="#f2d24a" stroke="#c7a520" stroke-width="2"/><path d="M-36-10l-4-6 6 0z" fill="#5b4a1a"/>`,
+  kiwi: () => `<circle r="32" fill="#6e4b25"/><circle r="27" fill="#7fb23a"/><ellipse rx="9" ry="7" fill="#e9efc9"/>${Array.from({ length: 18 }, (_, i) => `<ellipse cx="${f1(Math.cos(i * .35) * 16)}" cy="${f1(Math.sin(i * .35) * 16)}" rx="2.4" ry="1.2" fill="#1b1408" transform="rotate(${f1(i * 20)} ${f1(Math.cos(i * .35) * 16)} ${f1(Math.sin(i * .35) * 16)})"/>`).join('')}`,
+  watermelon: () => `<path d="M-38 -8A40 40 0 0 0 38 -8Z" fill="#2f7a24"/><path d="M-33 -8A34 34 0 0 0 33 -8Z" fill="#e8f2c8"/><path d="M-30 -8A31 31 0 0 0 30 -8Z" fill="#ee4a5b"/>${[-16, -4, 8, 18].map((x, i) => `<ellipse cx="${x}" cy="${4 + (i % 2) * 6}" rx="2" ry="3.2" fill="#1c120c"/>`).join('')}`,
+  guava: () => `<circle r="32" fill="#b9cc5a"/><circle r="32" fill="url(#gl)"/><circle r="20" fill="#f4a59a" opacity=".0"/><path d="M0-32c4-6 10-8 14-6" stroke="#5b4a1a" stroke-width="3" fill="none"/>`,
+  lemon: () => `<ellipse rx="34" ry="26" fill="#ecd52f"/><ellipse rx="34" ry="26" fill="url(#gl)"/><path d="M-34 0l-6-2 6-3zM34 0l6 2-6 3z" fill="#d7bf20"/>`
+};
+function renderPizza(dish, sel, pos, fresh) {
+  const C = 250; let s = `<circle cx="${C}" cy="${C + 12}" r="244" fill="rgba(0,0,0,.35)"/><circle cx="${C}" cy="${C}" r="242" fill="#c98a4b"/>${Array.from({ length: 14 }, (_, i) => `<path d="M${30 + i * 32} 40 Q${50 + i * 32} 250 ${30 + i * 32} 460" stroke="rgba(110,60,20,.18)" stroke-width="3" fill="none"/>`).join('')}<circle cx="${C}" cy="${C}" r="242" fill="none" stroke="#9b6532" stroke-width="6"/>`;
+  const base = sel.base[0] ? itemBy(dish, 'base', sel.base[0]) : null;
+  if (!base) return s + `<text x="250" y="262" text-anchor="middle" font-family="Anton,Lalezar" font-size="34" fill="#fff">${LANG === 'ar' ? 'اختار العجينة' : 'PICK YOUR DOUGH'}</text>`;
+  const R = 216, IR = R - base.w; const fp = k => fresh === k ? 'pop' : '';
+  s += `<g class="${fp('base:' + base.id)}"><circle cx="${C}" cy="${C}" r="${R}" fill="${base.c}"/><circle cx="${C}" cy="${C}" r="${R}" fill="url(#gl)"/>${dots('crust' + base.id, R, 70, (x, y, r) => Math.hypot(x, y) > IR ? `<circle cx="${f1(C + x)}" cy="${f1(C + y)}" r="${f1(2 + r() * 4)}" fill="#a8641f" opacity="${f1(.3 + r() * .4)}"/>` : '')}<circle cx="${C}" cy="${C}" r="${IR}" fill="#f6dfae"/>${base.stuffed ? `<circle cx="${C}" cy="${C}" r="${R - base.w / 2}" fill="none" stroke="#f8e08a" stroke-width="7" stroke-dasharray="4 10" stroke-linecap="round"/>` : ''}</g>`;
+  const sc = sel.sauce[0] ? itemBy(dish, 'sauce', sel.sauce[0]) : null;
+  if (sc) { const r = rng('pz' + sc.id); let d = ''; for (let i = 0; i <= 48; i++) { const a = i / 48 * 6.283, rr = IR - 8 + (r() - .5) * 8; d += (i ? 'L' : 'M') + f1(C + Math.cos(a) * rr) + ' ' + f1(C + Math.sin(a) * rr); } s += `<path d="${d}Z" fill="${sc.c}" class="${fp('sauce:' + sc.id)}"/>`; }
+  sel.cheese.forEach(id => { const it = itemBy(dish, 'cheese', id); s += `<g class="${fp('cheese:' + id)}"><circle cx="${C}" cy="${C}" r="${IR - 14}" fill="${it.c}" opacity=".35"/>${dots('ch' + id, IR - 16, 280, (x, y, r) => `<rect x="${f1(C + x)}" y="${f1(C + y)}" width="5" height="${f1(10 + r() * 8)}" rx="2.5" fill="${it.c}" stroke="rgba(0,0,0,.08)" stroke-width=".8" transform="rotate(${f1(r() * 180)} ${f1(C + x)} ${f1(C + y)})"/>`)}${dots('brown' + id, IR - 30, 26, (x, y, r) => `<ellipse cx="${f1(C + x)}" cy="${f1(C + y)}" rx="${f1(4 + r() * 6)}" ry="${f1(3 + r() * 4)}" fill="#d9952f" opacity=".45"/>`)}</g>`; });
+  ['tops', 'finish'].forEach(st => sel[st].forEach((id, k) => { const it = itemBy(dish, st, id); const key = st + ':' + id; if (it.ic === 'sauce') { s += `<g transform="translate(${C} ${C})" class="${fp(key)}">${drizzle(id, 150, it.c, 6)}</g>`; return; }
+    const r = rng('p' + id); const n = st === 'finish' ? 4 : 6; let g = ''; for (let i = 0; i < n; i++) { let x, y; if (i === 0 && pos[key]) [x, y] = pos[key]; else { const a = i / n * 6.283 + r() * .8 + k, d = 40 + r() * (IR - 90); x = C + Math.cos(a) * d; y = C + Math.sin(a) * d; } g += `<g transform="translate(${f1(x)} ${f1(y)}) scale(.62) rotate(${f1(r() * 360)})">${CL[it.ic](rng(id + i))}</g>`; } s += `<g class="${fp(key)}">${g}</g>`; }));
+  if (sel.cheese.length) s += [0, 45, 90, 135].map(d => { const a = d * Math.PI / 180; return `<line x1="${f1(C - Math.cos(a) * R)}" y1="${f1(C - Math.sin(a) * R)}" x2="${f1(C + Math.cos(a) * R)}" y2="${f1(C + Math.sin(a) * R)}" stroke="rgba(90,45,10,.28)" stroke-width="2.5"/>`; }).join('');
+  if (sel.cheese.length || sc) s += steam(C, 120, 1.1);
+  return s;
+}
+function renderJuice(dish, sel, pos, fresh) {
+  const fruits = sel.fruits.map(id => itemBy(dish, 'fruits', id)); const base = sel.base[0] ? itemBy(dish, 'base', sel.base[0]) : null; const blended = sel.blend.length > 0; const cup = sel.cup[0] ? itemBy(dish, 'cup', sel.cup[0]) : null;
+  const mix = mixHex(fruits.map(f => f.c), '#fbf3e3', base ? base.mix : 0); const ex = sel.extras;
+  let s = `<ellipse cx="250" cy="462" rx="232" ry="22" fill="rgba(0,0,0,.3)"/><rect x="18" y="440" width="464" height="22" rx="8" fill="#c98a4b"/>`;
+  // blender
+  const JL = 128, JR = 252, JT = 120, JB = 360; const jx = (y, side) => side < 0 ? JL - (JB - y) * .08 : JR + (JB - y) * .08;
+  let jar = '';
+  const liqTop = blended ? (cup ? 270 : 190) : base ? 300 : null;
+  if (liqTop !== null) jar += `<path d="M${f1(jx(liqTop, -1) + 6)} ${liqTop} L${f1(jx(liqTop, 1) - 6)} ${liqTop} L${JR - 6} ${JB - 4} L${JL + 6} ${JB - 4}Z" fill="${blended ? mix : base.c}" opacity="${blended ? .95 : .75}" class="${fresh === 'base:' + (base && base.id) ? 'pop' : ''}"/>${blended ? `<path d="M${f1(jx(liqTop, -1) + 10)} ${liqTop + 8} Q190 ${liqTop - 4} ${f1(jx(liqTop, 1) - 10)} ${liqTop + 8}" stroke="#fff" stroke-width="4" opacity=".35" fill="none"/>${dots('bub', 40, 14, (x, y, r) => `<circle cx="${f1(190 + x * 1.3)}" cy="${f1(liqTop + 30 + Math.abs(y))}" r="${f1(2 + r() * 3)}" fill="#fff" opacity=".45"/>`)}` : ''}`;
+  if (!blended) fruits.forEach((f, i) => { const r = rng('jf' + f.id); for (let j = 0; j < 2; j++) { const x = 160 + r() * 60, y = 320 - i * 52 - j * 22 + r() * 10; jar += `<g transform="translate(${f1(x)} ${f1(y)}) scale(.62) rotate(${f1(r() * 60 - 30)})" class="${fresh === 'fruits:' + f.id ? 'drop' : ''}">${FR[f.id]()}</g>`; } });
+  if (!blended && ex.includes('ice')) jar += [0, 1, 2].map(i => `<rect x="${150 + i * 26}" y="${150 + (i % 2) * 18}" width="24" height="24" rx="4" fill="rgba(230,245,255,.7)" stroke="#fff" stroke-width="2" transform="rotate(${i * 20} ${162 + i * 26} ${162})"/>`).join('');
+  if (!blended && ex.includes('mint')) jar += `<g transform="translate(205 170) scale(.5)">${CL.basil(rng('mint'))}</g>`;
+  if (!blended && ex.includes('honey')) jar += `<path d="M200 120 C196 160 206 200 196 250" stroke="#d99a1f" stroke-width="7" fill="none" stroke-linecap="round" opacity=".9"/>`;
+  if (!blended && ex.includes('cream')) jar += `<circle cx="180" cy="190" r="22" fill="#f6ecd0"/><circle cx="180" cy="190" r="22" fill="url(#gl)"/>`;
+  const blending = fresh === 'blend:blend';
+  s += `<g class="${blending ? 'blending' : ''}"><rect x="112" y="${JB}" width="156" height="80" rx="14" fill="#c42a1c"/><rect x="112" y="${JB}" width="156" height="14" rx="6" fill="#8f180f"/><circle cx="190" cy="${JB + 46}" r="16" fill="#1d1d1d"/><circle cx="190" cy="${JB + 46}" r="6" fill="#ffd23f"/>
+    <g>${jar}${blending ? `<g class="swirl" transform="translate(190 260)"><path d="M-40 0a40 40 0 1 1 40 40" stroke="#fff" stroke-width="5" fill="none" opacity=".7"/><path d="M-22 0a22 22 0 1 1 22 22" stroke="#fff" stroke-width="4" fill="none" opacity=".6"/></g>` : ''}</g>
+    <path d="M${JL} ${JB} L${f1(jx(JT, -1))} ${JT} L${f1(jx(JT, 1))} ${JT} L${JR} ${JB}Z" fill="rgba(255,255,255,.18)" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><path d="M${f1(jx(JT, -1) + 10)} ${JT + 20} L${JL + 8} ${JB - 20}" stroke="#fff" stroke-width="6" opacity=".45" stroke-linecap="round"/>
+    <rect x="${f1(jx(JT, -1) - 6)}" y="${JT - 22}" width="${f1(jx(JT, 1) - jx(JT, -1) + 12)}" height="22" rx="8" fill="#141414"/><path d="M${JR} 160 q40 6 34 70 q-4 40 -34 50" stroke="#141414" stroke-width="12" fill="none" stroke-linecap="round"/></g>`;
+  if (!fruits.length) s += `<text x="190" y="250" text-anchor="middle" font-family="Anton,Lalezar" font-size="26" fill="#fff">${LANG === 'ar' ? 'حط الفاكهة هنا' : 'DROP FRUIT IN'}</text>`;
+  // glass
+  if (cup) { const k = cup.s, gx = 390, gb = 440, gh = 210 * k, tw = 64 * k, bw = 48 * k; const fill = gb - gh * .85;
+    s += `<g class="${fresh === 'cup:' + cup.id ? 'drop' : ''}"><path d="M${gx - bw} ${gb} L${gx - tw} ${gb - gh} L${gx + tw} ${gb - gh} L${gx + bw} ${gb}Z" fill="rgba(255,255,255,.2)"/>
+      <path d="M${f1(gx - bw - (tw - bw) * .85 + 3)} ${f1(fill)} L${f1(gx + bw + (tw - bw) * .85 - 3)} ${f1(fill)} L${gx + bw - 3} ${gb - 4} L${gx - bw + 3} ${gb - 4}Z" fill="${mix}"/>
+      ${ex.includes('ice') ? [0, 1].map(i => `<rect x="${f1(gx - 26 + i * 26)}" y="${f1(fill + 4 + i * 8)}" width="22" height="22" rx="4" fill="rgba(240,250,255,.6)" stroke="#fff" stroke-width="2"/>`).join('') : ''}
+      <path d="M${gx - bw} ${gb} L${gx - tw} ${gb - gh} L${gx + tw} ${gb - gh} L${gx + bw} ${gb}Z" fill="none" stroke="#fff" stroke-width="4" stroke-linejoin="round"/><path d="M${f1(gx - tw + 10)} ${f1(gb - gh + 16)} L${f1(gx - bw + 6)} ${gb - 16}" stroke="#fff" stroke-width="5" opacity=".45" stroke-linecap="round"/>
+      <rect x="${gx + 10}" y="${f1(gb - gh - 70)}" width="9" height="${f1(gh * .7 + 70)}" fill="#e2321f" transform="rotate(12 ${gx + 14} ${gb - gh})"/><rect x="${gx + 10}" y="${f1(gb - gh - 70)}" width="9" height="${f1(gh * .7 + 70)}" fill="url(#strp)" transform="rotate(12 ${gx + 14} ${gb - gh})"/>
+      ${ex.includes('cream') ? `<circle cx="${gx}" cy="${f1(fill - 14)}" r="${f1(30 * k)}" fill="#f6ecd0"/><circle cx="${gx}" cy="${f1(fill - 14)}" r="${f1(30 * k)}" fill="url(#gl)"/>` : ''}
+      ${ex.includes('mint') ? `<g transform="translate(${gx - 18} ${f1(gb - gh - 6)}) scale(.45)">${CL.basil(rng('m2'))}</g>` : ''}
+      ${fruits[0] ? `<g transform="translate(${f1(gx - tw + 4)} ${f1(gb - gh + 4)}) scale(.55)">${FR[fruits[0].id]()}</g>` : ''}</g>`; }
+  return s;
+}
 function renderBowl(dish, sel, pos, fresh) {
   const C = 250; let s = `<ellipse cx="${C}" cy="${C + 14}" rx="238" ry="236" fill="rgba(0,0,0,.35)"/><circle cx="${C}" cy="${C}" r="236" fill="#c42a1c"/><circle cx="${C}" cy="${C}" r="227" fill="none" stroke="#fff" stroke-width="5"/><circle cx="${C}" cy="${C}" r="216" fill="none" stroke="#fff" stroke-width="2.5"/><circle cx="${C}" cy="${C}" r="206" fill="#8f180f"/>`;
   const broth = sel.broth[0] ? itemBy(dish, 'broth', sel.broth[0]) : null;
@@ -565,9 +667,10 @@ function renderFries(dish, sel, pos, fresh) {
   sel.sauce.forEach(id => { const it = itemBy(dish, 'sauce', id); s += `<g transform="translate(${C} ${CY})" class="${fresh === 'sauce:' + id ? 'pop' : ''}">${drizzle(id, 140, it.c, 7)}</g>`; });
   return s;
 }
-const RENDER = { bowl: renderBowl, burger: renderBurger, hotdog: renderHotdog, fries: renderFries };
-const DEFS = `<defs><radialGradient id="gl" cx="38%" cy="32%" r="70%"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></radialGradient></defs>`;
-function dishSVG(dish, sel, pos = {}, fresh = null) { return DEFS + RENDER[dish.kind](dish, sel, pos, fresh); }
+const RENDER = { bowl: renderBowl, burger: renderBurger, hotdog: renderHotdog, fries: renderFries, pizza: renderPizza, juice: renderJuice };
+const DEFS = `<defs><filter id="smk" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="7"/></filter><pattern id="strp" width="9" height="16" patternUnits="userSpaceOnUse"><rect width="9" height="8" fill="#fff"/></pattern><radialGradient id="gl" cx="38%" cy="32%" r="70%"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".55" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></radialGradient></defs>`;
+const HOT = { bowl: 1, burger: 1, hotdog: 1, fries: 1, pizza: 1 };
+function dishSVG(dish, sel, pos = {}, fresh = null) { return DEFS + RENDER[dish.kind](dish, sel, pos, fresh) + (fresh && HOT[dish.kind] ? puff(250, dish.kind === 'burger' ? 230 : 210) : ''); }
 
 // ---------- icons for tray bowls (viewBox -60 -60 120 120) ----------
 function icon(it) {
@@ -584,6 +687,14 @@ function icon(it) {
     case 'curlyfries': return `<path d="M0 0m-26 0a26 26 0 1 1 26 26a18 18 0 1 1-18-18a10 10 0 1 1 10 10" fill="none" stroke="#c98d1d" stroke-width="12" stroke-linecap="round"/><path d="M0 0m-26 0a26 26 0 1 1 26 26a18 18 0 1 1-18-18a10 10 0 1 1 10 10" fill="none" stroke="#f3b84a" stroke-width="8" stroke-linecap="round"/>`;
     case 'wedges': return [-20, 10].map((x, i) => `<path d="M${x - 26} ${i * 18 - 4} Q${x} ${i * 18 - 40} ${x + 26} ${i * 18 - 4}Z" fill="#f2c063" stroke="#8a5320" stroke-width="5" stroke-linejoin="round"/>`).join('');
     case 'shred': return CL.shred(r, it.c);
+    case 'dough': return `<circle r="50" fill="${it.c}"/><circle r="${50 - it.w * .45}" fill="#f6dfae"/>${it.stuffed ? `<circle r="${50 - it.w * .22}" fill="none" stroke="#f8e08a" stroke-width="4" stroke-dasharray="3 7"/>` : ''}`;
+    case 'fruit': return `<g transform="scale(1.25)">${FR[it.id]()}</g>`;
+    case 'ice': return [[-18, -10], [12, -16], [-4, 14]].map(([x, y], i) => `<rect x="${x - 15}" y="${y - 15}" width="30" height="30" rx="6" fill="rgba(200,230,250,.85)" stroke="#fff" stroke-width="3" transform="rotate(${i * 20} ${x} ${y})"/>`).join('');
+    case 'honey': return `<path d="M-30-20h60v46a14 14 0 0 1-14 14h-32a14 14 0 0 1-14-14z" fill="#e3a21f"/><rect x="-34" y="-34" width="68" height="16" rx="6" fill="#8a5a1a"/><ellipse cx="-12" cy="0" rx="6" ry="14" fill="#fff" opacity=".35"/>`;
+    case 'mint': return `<g transform="scale(1.3)">${CL.basil(r)}</g>`;
+    case 'scoop': return `<path d="M-26 6 L0 50 L26 6Z" fill="#d9a15a"/><circle cy="-6" r="30" fill="#f6ecd0"/><circle cy="-6" r="30" fill="url(#gl)"/>`;
+    case 'blendBtn': return `<rect x="-30" y="22" width="60" height="26" rx="6" fill="#c42a1c"/><path d="M-26 22 L-34-44 L34-44 L26 22Z" fill="rgba(255,255,255,.5)" stroke="#555" stroke-width="3"/><path d="M-22 10 L-28-26 L28-26 L22 10Z" fill="#f6a623"/><path d="M-14-8a14 14 0 1 1 14 14" stroke="#fff" stroke-width="4" fill="none"/><circle cy="35" r="6" fill="#ffd23f"/>`;
+    case 'cup': { const k = it.s; return `<path d="M${-22 * k} ${40} L${-30 * k} ${40 - 90 * k} L${30 * k} ${40 - 90 * k} L${22 * k} 40Z" fill="#f6a623" stroke="#777" stroke-width="3"/><rect x="${6 * k}" y="${40 - 112 * k}" width="6" height="${50 * k}" fill="#e2321f" transform="rotate(12)"/>`; }
     default:
       if (CL[it.ic] && !BL[LAYER_FN[it.ic]]) return CL[it.ic](r);
       if (BL[LAYER_FN[it.ic]]) { const n = it.n || 1; let y = 30 + (n - 1) * 8, s = ''; for (let i = 0; i < n; i++) { const res = BL[LAYER_FN[it.ic]](0, y, 92, it); s += res.s; y -= res.h + 2; } return s; }
@@ -596,7 +707,7 @@ function buildCollage() {
   const el = $('#collage'); const r = rng('collage' + Math.floor(Math.random() * 1e6));
   const words = [['SMASH!', '#e2321f', '#ffd23f'], ['كوكينج<br>كلَب', '#ffd23f', '#e2321f'], ['HOT', '#f4ead6', '#1d4fc4'], ['نودلز', '#e2321f', '#fff'], ['CRISPY', '#ffd23f', '#141414'], ['برجر', '#f4ead6', '#e2321f'],
     ['100%<br>BEEF', '#141414', '#ffd23f'], ['طازة', '#1d4fc4', '#ffd23f'], ['FAST!', '#f4ead6', '#e2321f'], ['كرسبي', '#e2321f', '#ffd23f'], ['NOODLES', '#ffd23f', '#1d4fc4'], ['جعان؟', '#f4ead6', '#141414'],
-    ['OPEN<br>LATE', '#e2321f', '#f4ead6'], ['فراخ', '#ffd23f', '#e2321f'], ['YUM', '#1d4fc4', '#f4ead6'], ['ساخن!', '#141414', '#e2321f'], ['COOKING<br>CLUB', '#ffd23f', '#e2321f'], ['DELIVERY', '#f4ead6', '#1d4fc4']];
+    ['OPEN<br>LATE', '#e2321f', '#f4ead6'], ['فراخ', '#ffd23f', '#e2321f'], ['YUM', '#1d4fc4', '#f4ead6'], ['ساخن!', '#141414', '#e2321f'], ['THE<br>COOKING<br>CLUB', '#ffd23f', '#e2321f'], ['DELIVERY', '#f4ead6', '#1d4fc4']];
   const art = [{ d: 'beef', sel: { bun: ['sesame'], patty: ['double'], cheese: ['cheddar'], veg: ['lettuce', 'tomato'], sauce: ['ketchup'] } }, { d: 'noodles', sel: { base: ['curly'], broth: ['spicy'], protein: ['egg', 'chicken'], greens: ['scallion', 'nori'], finish: ['sesame'] } }, { d: 'fries', sel: { base: ['classic'], cheese: ['sauce'], protein: [], tops: ['jalapeno'], sauce: ['ketchup'] } }, { d: 'chicken', sel: { bun: ['brioche'], patty: ['crispy'], cheese: [], veg: ['lettuce', 'pickles'], sauce: ['garlic'] } }];
   let h = ''; const cols = 6, rows = 5; let wi = 0, ai = 0;
   for (let row = 0; row < rows; row++) for (let col = 0; col < cols; col++) {
@@ -607,7 +718,7 @@ function buildCollage() {
     const isArt = (row + col) % 4 === 1 && ai < 8;
     let inner, bg, fg;
     if (isArt) { const a = art[ai++ % art.length]; const d = dishBy(a.d); const full = Object.assign(blankSel(d), a.sel); bg = ['#f4ead6', '#ffd23f', '#1d4fc4'][ai % 3]; fg = '#000'; inner = `<svg viewBox="0 0 500 500">${dishSVG(d, full)}</svg>`; }
-    else { const wd = words[wi++ % words.length]; bg = wd[1]; fg = wd[2]; const fs = 3 + r() * 3.5; inner = `<div class="pt" style="font-size:${f1(fs)}vw">${wd[0]}<span class="ps">COOKING CLUB · EST. 2026</span></div>`; }
+    else { const wd = words[wi++ % words.length]; bg = wd[1]; fg = wd[2]; const fs = 3 + r() * 3.5; inner = `<div class="pt" style="font-size:${f1(fs)}vw">${wd[0]}<span class="ps">THE COOKING CLUB · EST. 2026</span></div>`; }
     h += `<div class="poster" style="left:${f1(x)}%;top:${f1(y)}%;width:${f1(w)}%;height:${f1(hh)}%;transform:rotate(${f1(rot)}deg);background:${bg};color:${fg};clip-path:polygon(${pts.join(',')});z-index:${Math.floor(r() * 5)};--ht:${f1(.25 + r() * .5)}">${inner}</div>`;
   }
   el.innerHTML = h;
@@ -649,15 +760,16 @@ function openDish(id) {
   if (S.dish !== id || !S.sel || !Object.keys(S.sel).length) { S.dish = id; S.sel = blankSel(dishBy(id)); S.pos = {}; S.step = 0; rcPrev = new Set(); }
   S.view = 'build'; $('#home').hidden = true; $('#foot').hidden = true; $('#build').hidden = false;
   window.scrollTo(0, 0); renderChips(); renderBuild(true);
-  if (location.hash !== '#build') history.pushState({ b: 1 }, '', '#build');
+  if (location.hash !== '#build') { try { history.pushState({ b: 1 }, '', '#build'); } catch (e) {} }
 }
-function goHome() { S.view = 'home'; $('#build').hidden = true; $('#home').hidden = false; $('#foot').hidden = false; renderChips(); if (location.hash) history.pushState({}, '', location.pathname); }
+function goHome() { S.view = 'home'; $('#build').hidden = true; $('#home').hidden = false; $('#foot').hidden = false; renderChips(); if (location.hash) { try { history.pushState({}, '', location.pathname); } catch (e) {} } }
 window.addEventListener('popstate', () => { if (location.hash !== '#build' && S.view === 'build') { S.view = 'home'; $('#build').hidden = true; $('#home').hidden = false; $('#foot').hidden = false; renderChips(); } });
 const D = () => dishBy(S.dish);
 function renderBuild(focus) { renderTray(); renderStage(); renderStepCard(focus); renderReceipt(); }
 function renderTray() {
   const st = D().steps[S.step]; const n = st.items.length;
   $('#tray').setAttribute('aria-label', N(st));
+  $('#tray').classList.toggle('many', n > 5 && innerWidth > 900);
   $('#tray').innerHTML = st.items.map((it, i) => { const tt = n > 1 ? (i / (n - 1)) * 2 - 1 : 0; const arc = Math.round(70 * (1 - tt * tt)); const on = S.sel[st.k].includes(it.id);
     return `<button class="bowlbtn ${on ? 'on' : ''}" style="--arc:${arc}" data-item="${it.id}" aria-pressed="${on}"><svg viewBox="-60 -60 120 120" aria-hidden="true">${DEFS}${icon(it)}</svg><span class="nm">${N(it)}<i>${it.price ? '+' + money(it.price) : t('free')}</i></span></button>`; }).join('');
 }
@@ -687,7 +799,7 @@ function renderReceipt() {
   const lines = []; d.steps.forEach(s => { if (!S.sel[s.k].length) lines.push({ key: s.k + ':-', n: N(s.short), p: '—', f: false }); else S.sel[s.k].forEach(id => { const it = itemBy(d, s.k, id); lines.push({ key: s.k + ':' + id, n: N(it), sub: N(s.short), p: it.price ? num(it.price) : t('free'), f: true }); }); });
   const now = new Set(lines.filter(l => l.f).map(l => l.key));
   const date = new Date().toLocaleString(LANG === 'ar' ? 'ar-EG' : 'en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-  $('#receipt').innerHTML = `<div class="rc-head"><b>COOKING<br>CLUB</b><small>${t('tagline')}</small><small class="meta">${date}</small></div>
+  $('#receipt').innerHTML = `<div class="rc-head"><i>THE</i><b>COOKING<br>CLUB</b><small>${t('tagline')}</small><small class="meta">${date}</small></div>
     <ul class="rc-lines">${lines.map(l => `<li class="${l.f ? 'f' : ''} ${l.f && !rcPrev.has(l.key) ? 'new' : ''}"><span class="n">${esc(l.n)}${l.f ? `<small>${esc(l.sub)}</small>` : ''}</span><span>${l.p}</span></li>`).join('')}</ul>
     <div class="rc-tot"><span>${t('total')}</span><span>${money(total)}</span></div>
     <div class="barcode" style="--bc:${barcode(S.dish + total)}"></div><div class="rc-no">${String(total * 7919 + 100003).slice(0, 12).split('').join(' ')}</div>
@@ -707,10 +819,11 @@ function toggleItem(itemId, dropPt) {
   const key = st.k + ':' + itemId;
   if (arr.includes(itemId)) { if (dropPt && st.multi) { S.pos[key] = dropPt; S.fresh = key; renderStage(); return; } S.sel[st.k] = arr.filter(x => x !== itemId); delete S.pos[key]; say(t('removed') + ': ' + N(it)); }
   else {
-    if (st.multi) { if (arr.length >= 6) { toast(t('max')); return; } arr.push(itemId); } else S.sel[st.k] = [itemId];
+    if (st.multi) { if (arr.length >= (st.max || 6)) { toast(t('max')); return; } arr.push(itemId); } else S.sel[st.k] = [itemId];
     if (dropPt) S.pos[key] = dropPt; S.fresh = key; say(t('added') + ': ' + N(it)); hand(); toast(`+ ${N(it)}`);
   }
   renderBuild(false);
+  if (S.dish === 'juice' && st.k === 'blend' && S.sel.blend.length) setTimeout(() => { if (S.view === 'build') renderStage(); }, 1500);
 }
 let tT; function toast(m) { const e = $('#toast'); e.textContent = m; e.classList.add('on'); clearTimeout(tT); tT = setTimeout(() => e.classList.remove('on'), 1100); }
 function hand() { const h = $('#hand'); h.classList.remove('go'); void h.getBBox; requestAnimationFrame(() => h.classList.add('go')); }
@@ -734,7 +847,7 @@ window.addEventListener('pointerup', e => {
   const d = drag; drag = null; $('#stage').classList.remove('dropok');
   if (d.ghost) d.ghost.remove();
   if (!d.moved) { toggleItem(d.id); return; }
-  if (overStage(e)) { const r = $('#dish').getBoundingClientRect(); const x = (e.clientX - r.left) / r.width * 500, y = (e.clientY - r.top) / r.height * 500; const dx = x - 250, dy = y - 250, m = Math.hypot(dx, dy), max = 150; const pt = m > max ? [250 + dx / m * max, 250 + dy / m * max] : [x, y]; toggleItem(d.id, D().kind === 'bowl' ? pt : null); }
+  if (overStage(e)) { const r = $('#dish').getBoundingClientRect(); const x = (e.clientX - r.left) / r.width * 500, y = (e.clientY - r.top) / r.height * 500; const dx = x - 250, dy = y - 250, m = Math.hypot(dx, dy), max = 150; const pt = m > max ? [250 + dx / m * max, 250 + dy / m * max] : [x, y]; toggleItem(d.id, D().kind === 'bowl' || D().kind === 'pizza' ? pt : null); }
   else toast(t('dropHere'));
 });
 window.addEventListener('pointercancel', () => { if (drag && drag.ghost) drag.ghost.remove(); drag = null; });
@@ -750,7 +863,11 @@ function addToCart() {
 }
 
 /* ================= CHECKOUT SHEET ================= */
-let form = store.get('cc-cust', { name: '', phone: '', area: '', address: '', notes: '' });
+let form = Object.assign({ name: '', phone: '', gov: 'alex', area: '', address: '', notes: '' }, store.get('cc-cust', {}));
+if (!GOVS.some(g => g.id === form.gov)) form.gov = 'alex';
+const pay = { card: '', cname: '', exp: '', cvv: '', wprov: 'vodafone', wno: '' };
+const WALLETS = [['vodafone', 'Vodafone Cash', 'فودافون كاش'], ['orange', 'Orange Cash', 'أورانج كاش'], ['etisalat', 'e& cash', 'اتصالات كاش'], ['we', 'WE Pay', 'وي باي']];
+const luhn = n => { let sum = 0, alt = false; for (let i = n.length - 1; i >= 0; i--) { let d = +n[i]; if (alt) { d *= 2; if (d > 9) d -= 9; } sum += d; alt = !alt; } return n.length >= 13 && sum % 10 === 0; };
 function totals() { const sub = S.cart.reduce((a, c) => a + selPrice(dishBy(c.dish), c.sel) * c.qty, 0) + EXTRAS.reduce((a, x) => a + (S.extras[x.id] || 0) * x.price, 0); const ar = AREAS.find(a => a.id === form.area); const fee = ar ? ar.price : 0; return { sub, fee, total: sub + fee }; }
 function openSheet() { $('#sheet').hidden = false; document.body.style.overflow = 'hidden'; renderSheet(); setTimeout(() => $('#sheetTitle') && $('#sheetTitle').focus(), 30); }
 function closeSheet() { $('#sheet').hidden = true; document.body.style.overflow = ''; }
@@ -767,11 +884,16 @@ function renderSheet() {
     <h3 class="sec">${t('details')}</h3>
     <div class="two"><div class="field"><label for="cName">${t('name')}</label><input id="cName" name="name" autocomplete="name" value="${esc(form.name)}"><span class="err"></span></div>
     <div class="field"><label for="cPhone">${t('phone')}</label><input id="cPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" value="${esc(form.phone)}" placeholder="01xxxxxxxxx"><span class="err"></span></div></div>
-    <div class="field"><label for="cArea">${t('area')}</label><select id="cArea" name="area"><option value="">${t('pickArea')}</option>${AREAS.map(a => `<option value="${a.id}" ${form.area === a.id ? 'selected' : ''}>${N(a)} · ${money(a.price)}</option>`).join('')}</select><span class="err"></span></div>
+    <div class="two"><div class="field"><label for="cGov">${t('gov')}</label><select id="cGov" name="gov">${GOVS.map(g => `<option value="${g.id}" ${form.gov === g.id ? 'selected' : ''}>${N(g)}</option>`).join('')}</select></div>
+    <div class="field"><label for="cArea">${t('area')}</label><select id="cArea" name="area"><option value="">${t('pickArea')}</option>${GOVS.find(g => g.id === form.gov).areas.map(a => `<option value="${a.id}" ${form.area === a.id ? 'selected' : ''}>${N(a)} · ${money(a.price)}</option>`).join('')}</select><span class="err"></span></div></div>
     <div class="field"><label for="cAddr">${t('address')}</label><textarea id="cAddr" name="address" autocomplete="street-address" placeholder="${t('addrPh')}">${esc(form.address)}</textarea><span class="err"></span></div>
     <div class="field"><label for="cNotes">${t('notes')} <small>${t('optional')}</small></label><input id="cNotes" name="notes" value="${esc(form.notes)}"></div>
     <div class="field"><label>${t('pay')}</label></div>
-    <div class="seg" role="radiogroup" aria-label="${t('pay')}">${['cash', 'card', 'instapay'].map(p => `<button type="button" role="radio" aria-checked="${S.pay === p}" data-a="pay" data-p="${p}">${t(p)}</button>`).join('')}</div>
+    <div class="seg" role="radiogroup" aria-label="${t('pay')}">${['cash', 'card', 'wallet'].map(p => `<button type="button" role="radio" aria-checked="${S.pay === p}" data-a="pay" data-p="${p}">${p === 'card' ? '💳 ' : p === 'wallet' ? '📱 ' : '💵 '}${t(p)}</button>`).join('')}</div>
+    ${S.pay === 'card' ? `<div class="paybox"><div class="field"><label for="pCard">${t('cardNo')}</label><input id="pCard" data-pay="card" inputmode="numeric" autocomplete="cc-number" dir="ltr" placeholder="4242 4242 4242 4242" value="${esc(pay.card)}"><span class="err"></span></div>
+      <div class="field"><label for="pName">${t('cardName')}</label><input id="pName" data-pay="cname" autocomplete="cc-name" dir="ltr" value="${esc(pay.cname)}"><span class="err"></span></div>
+      <div class="two"><div class="field"><label for="pExp">${t('exp')}</label><input id="pExp" data-pay="exp" inputmode="numeric" autocomplete="cc-exp" dir="ltr" placeholder="08/28" value="${esc(pay.exp)}"><span class="err"></span></div><div class="field"><label for="pCvv">${t('cvv')}</label><input id="pCvv" data-pay="cvv" inputmode="numeric" autocomplete="cc-csc" dir="ltr" maxlength="4" value="${esc(pay.cvv)}"><span class="err"></span></div></div><p class="paynote">${t('payNote')}</p></div>` : ''}
+    ${S.pay === 'wallet' ? `<div class="paybox"><div class="two"><div class="field"><label for="pWp">${t('walletProv')}</label><select id="pWp" data-pay="wprov">${WALLETS.map(w => `<option value="${w[0]}" ${pay.wprov === w[0] ? 'selected' : ''}>${LANG === 'ar' ? w[2] : w[1]}</option>`).join('')}</select></div><div class="field"><label for="pWn">${t('walletNo')}</label><input id="pWn" data-pay="wno" type="tel" inputmode="tel" dir="ltr" placeholder="01xxxxxxxxx" value="${esc(pay.wno)}"><span class="err"></span></div></div><p class="paynote">${t('payNote')}</p></div>` : ''}
     <div class="sum"><div><span>${t('subtotal')}</span><span>${money(tt.sub)}</span></div><div><span>${t('delivery')}</span><span>${form.area ? money(tt.fee) : '—'}</span></div><div class="g"><span>${t('total')}</span><span>${money(tt.total)}</span></div></div>
     <button class="cta" style="width:100%;justify-content:center" ${S.cart.length ? '' : 'disabled'}>${t('place')}</button>
   </form></div>`;
@@ -785,24 +907,30 @@ function renderSheet() {
     if (a === 'pay') { S.pay = b.dataset.p; renderSheet(); }
   };
   const fm = $('#coForm');
-  fm.oninput = e => { form[e.target.name] = e.target.value; store.set('cc-cust', form); };
-  fm.onchange = e => { if (e.target.name === 'area') { form.area = e.target.value; store.set('cc-cust', form); const pos = P.scrollTop; renderSheet(); P.scrollTop = pos; } };
+  fm.oninput = e => { const el = e.target; if (el.dataset.pay) { let v = el.value; if (el.dataset.pay === 'card') { v = toEn(v).replace(/\D/g, '').slice(0, 19); el.value = v.replace(/(.{4})/g, '$1 ').trim(); } if (el.dataset.pay === 'exp') { v = toEn(v).replace(/\D/g, '').slice(0, 4); el.value = v.length > 2 ? v.slice(0, 2) + '/' + v.slice(2) : v; } if (el.dataset.pay === 'cvv') { v = toEn(v).replace(/\D/g, '').slice(0, 4); el.value = v; } pay[el.dataset.pay] = el.value; return; } if (!el.name) return; form[el.name] = el.value; store.set('cc-cust', form); };
+  fm.onchange = e => { if (e.target.dataset.pay) { pay[e.target.dataset.pay] = e.target.value; return; } if (e.target.name === 'gov') { form.gov = e.target.value; form.area = ''; store.set('cc-cust', form); const pos = P.scrollTop; renderSheet(); P.scrollTop = pos; return; } if (e.target.name === 'area') { form.area = e.target.value; store.set('cc-cust', form); const pos = P.scrollTop; renderSheet(); P.scrollTop = pos; } };
   fm.onsubmit = e => { e.preventDefault(); placeOrder(); };
 }
 function placeOrder() {
   const phone = toEn(form.phone).replace(/[\s-]/g, '');
   const errs = {}; if (form.name.trim().length < 2) errs.name = t('errName'); if (!/^(\+?20|0)?1[0125]\d{8}$/.test(phone)) errs.phone = t('errPhone'); if (!form.area) errs.area = t('errArea'); if (form.address.trim().length < 8) errs.address = t('errAddr');
+  const perr = {};
+  if (S.pay === 'card') { const n = toEn(pay.card).replace(/\D/g, ''); if (!luhn(n)) perr.card = t('errCard'); if (pay.cname.trim().length < 2) perr.cname = t('errCardName'); const m = /^(\d{2})\/(\d{2})$/.exec(pay.exp); const now = new Date(); if (!m || +m[1] < 1 || +m[1] > 12 || new Date(2000 + +m[2], +m[1], 0) < new Date(now.getFullYear(), now.getMonth(), 1)) perr.exp = t('errExp'); if (!/^\d{3,4}$/.test(pay.cvv)) perr.cvv = t('errCvv'); }
+  if (S.pay === 'wallet' && !/^(\+?20|0)?1[0125]\d{8}$/.test(toEn(pay.wno).replace(/[\s-]/g, ''))) perr.wno = t('errWallet');
   $$('#coForm .field').forEach(f => { f.classList.remove('bad'); const er = f.querySelector('.err'); if (er) er.textContent = ''; });
-  let first = null; for (const k in errs) { const inp = $(`#coForm [name="${k}"]`); const f = inp.closest('.field'); f.classList.add('bad'); f.querySelector('.err').textContent = errs[k]; inp.setAttribute('aria-invalid', 'true'); first = first || inp; }
+  for (const k in perr) { const inp = $(`#coForm [data-pay="${k}"]`); if (!inp) continue; const f = inp.closest('.field'); f.classList.add('bad'); f.querySelector('.err').textContent = perr[k]; }
+  let first = Object.keys(perr).length ? $(`#coForm [data-pay="${Object.keys(perr)[0]}"]`) : null; for (const k in errs) { const inp = $(`#coForm [name="${k}"]`); const f = inp.closest('.field'); f.classList.add('bad'); f.querySelector('.err').textContent = errs[k]; inp.setAttribute('aria-invalid', 'true'); first = first || inp; }
   if (first) { first.focus(); return; }
   const tt = totals(); S.orderNo = Math.floor(10000 + Math.random() * 90000);
-  const orders = store.get('cc-orders', []); orders.push({ no: S.orderNo, at: new Date().toISOString(), cart: S.cart, extras: S.extras, pay: S.pay, total: tt.total, customer: { ...form, phone } }); store.set('cc-orders', orders.slice(-20));
+  const orders = store.get('cc-orders', []); const paidWith = S.pay === 'card' ? `${t('paidCard')} •••• ${toEn(pay.card).replace(/\D/g, '').slice(-4)}` : S.pay === 'wallet' ? `${t('paidWallet')} ${(WALLETS.find(w => w[0] === pay.wprov) || [, ''])[LANG === 'ar' ? 2 : 1]}` : t('cash');
+  orders.push({ no: S.orderNo, at: new Date().toISOString(), cart: S.cart, extras: S.extras, pay: S.pay, paidWith, total: tt.total, customer: { ...form, phone } }); store.set('cc-orders', orders.slice(-20));
   const lines = S.cart.map(c => { const d = dishBy(c.dish); return `<div class="l"><span>${num(c.qty)}× ${N(d)}</span><span>${num(selPrice(d, c.sel) * c.qty)}</span></div>` + d.steps.flatMap(s => c.sel[s.k].map(id => `<div class="l sub"><span>+ ${N(itemBy(d, s.k, id))}</span></div>`)).join(''); }).join('') +
     EXTRAS.filter(x => S.extras[x.id]).map(x => `<div class="l"><span>${num(S.extras[x.id])}× ${N(x)}</span><span>${num(S.extras[x.id] * x.price)}</span></div>`).join('');
   $('#panel').innerHTML = `<div class="panel-h"><h2 id="sheetTitle" tabindex="-1">${t('orderNo')} #${num(S.orderNo)}</h2><button class="sbtn" data-a="close" aria-label="${t('close')}">✕</button></div>
    <div class="done"><h2>${t('thanks')}</h2><p>${t('eta')}</p><div class="printer" aria-hidden="true"></div>
-   <div class="longrc"><div class="rc-head"><b>COOKING<br>CLUB</b><small>${t('tagline')}</small><small class="meta">#${num(S.orderNo)} · ${esc(form.name)}</small></div>${lines}<hr><div class="l"><span>${t('delivery')}</span><span>${num(tt.fee)}</span></div><div class="l"><span>${t('pay')}</span><span>${t(S.pay)}</span></div><hr><div class="l" style="font-weight:700;font-size:1rem"><span>${t('total')}</span><span>${money(tt.total)}</span></div><div class="barcode" style="--bc:${barcode(S.orderNo)}"></div></div>
+   <div class="longrc"><div class="rc-head"><i>THE</i><b>COOKING<br>CLUB</b><small>${t('tagline')}</small><small class="meta">#${num(S.orderNo)} · ${esc(form.name)}</small></div>${lines}<hr><div class="l"><span>${t('delivery')}</span><span>${num(tt.fee)}</span></div><div class="l"><span>${t('pay')}</span><span>${esc(paidWith)}</span></div><hr><div class="l" style="font-weight:700;font-size:1rem"><span>${t('total')}</span><span>${money(tt.total)}</span></div><div class="barcode" style="--bc:${barcode(S.orderNo)}"></div></div>
    <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px"><button class="cta" data-a="again">${t('again')}</button><button class="sbtn" data-a="home">${t('home')}</button></div></div>`;
+  pay.card = pay.cvv = pay.exp = '';
   S.cart = []; S.extras = {}; saveCart(); renderCartN(); if (S.view === 'build') renderReceipt();
   $('#panel').onclick = e => { const b = e.target.closest('[data-a]'); if (!b) return; closeSheet(); if (b.dataset.a === 'again') openDish(S.dish || 'noodles'); if (b.dataset.a === 'home') goHome(); };
   $('#sheetTitle').focus();
