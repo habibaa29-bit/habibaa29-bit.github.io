@@ -1,0 +1,1381 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>بيتزا بإيدك | اعمل البيتزا بتاعتك</title>
+<meta name="description" content="بيتزا بإيدك: اختار عجينتك، افردها، حط الصوص والجبنة والمكونات بنفسك، والشيك بيتكتب قدامك بخط الإيد. الشيف يخبزها ويوصّلهالك سخنة.">
+<meta name="theme-color" content="#d2401f">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Marhey:wght@400;600;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fbf3e8; --surface:#fffaf3; --surface-2:#f6ead9; --ink:#2b1a12; --muted:#765f4d;
+  --tomato:#d2401f; --tomato-hover:#b4321555; --tomato-d:#a92f14; --on-accent:#fff;
+  --basil:#3b7a39; --cheese:#f3b63f; --line:#e8d6bf;
+  --wood1:#c99059; --wood2:#b77d48; --wood3:#d9a46c;
+  --paper:#fffdf3; --paper-line:#cfdcef; --paper-margin:#e8a0a0; --pen:#1d3b8f; --pen-red:#c0392b;
+  --shadow:0 12px 34px rgba(70,35,10,.16);
+  --radius:18px;
+  --f-body:"Tajawal",system-ui,"Segoe UI",Tahoma,sans-serif;
+  --f-disp:"Marhey","Tajawal",system-ui,sans-serif;
+  --f-hand:"Aref Ruqaa","Marhey",serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#17100b; --surface:#221811; --surface-2:#2c2017; --ink:#f6eadb; --muted:#c4ad95;
+  --tomato:#ff6b47; --tomato-d:#ff8b6c; --on-accent:#1b0d06; --basil:#7cc477; --cheese:#f6c45a; --line:#3e2d20;
+  --wood1:#7a5233; --wood2:#694529; --wood3:#87603e;
+  --shadow:0 12px 34px rgba(0,0,0,.45); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#17100b; --surface:#221811; --surface-2:#2c2017; --ink:#f6eadb; --muted:#c4ad95;
+  --tomato:#ff6b47; --tomato-d:#ff8b6c; --on-accent:#1b0d06; --basil:#7cc477; --cheese:#f6c45a; --line:#3e2d20;
+  --wood1:#7a5233; --wood2:#694529; --wood3:#87603e;
+  --shadow:0 12px 34px rgba(0,0,0,.45); color-scheme:dark}
+
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 17px/1.7 var(--f-body);overflow-x:hidden}
+img,svg{display:block;max-width:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--cheese);outline-offset:3px;border-radius:8px}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.wrap{width:min(1120px,100% - 32px);margin-inline:auto}
+h1,h2,h3{font-family:var(--f-disp);line-height:1.25;margin:0 0 .4em;font-weight:700}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5em;border:0;border-radius:999px;padding:.75em 1.5em;font-weight:800;font-size:1rem;text-decoration:none;transition:transform .15s,background .2s,box-shadow .2s;min-height:48px}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--tomato);color:var(--on-accent);box-shadow:0 6px 0 var(--tomato-d)}
+.btn-primary:hover{filter:brightness(1.06)}
+.btn-primary:active{box-shadow:0 2px 0 var(--tomato-d);transform:translateY(4px)}
+.btn-ghost{background:transparent;border:2px solid var(--line);color:var(--ink)}
+.btn-ghost:hover{background:var(--surface-2)}
+.btn[disabled]{opacity:.45;cursor:not-allowed;box-shadow:none;transform:none}
+.btn-sm{min-height:40px;padding:.45em 1em;font-size:.92rem}
+
+/* ============ SITE ============ */
+.topbar{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.topbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:68px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--f-disp);font-size:1.35rem;font-weight:700;text-decoration:none;white-space:nowrap}
+.logo svg{width:40px;height:40px}
+.nav{display:flex;gap:4px;align-items:center}
+.nav a{text-decoration:none;padding:8px 12px;border-radius:10px;font-weight:500;color:var(--muted)}
+.nav a:hover{color:var(--ink);background:var(--surface-2)}
+@media (max-width:820px){.nav a{display:none}}
+
+.hero{padding:56px 0 40px;overflow:hidden}
+.hero .wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center}
+.eyebrow{display:inline-block;font-weight:800;color:var(--tomato);background:color-mix(in srgb,var(--tomato) 12%,transparent);padding:4px 14px;border-radius:999px;font-size:.92rem;margin-bottom:14px}
+.hero h1{font-size:clamp(2.3rem,5.6vw,4rem)}
+.hero h1 em{font-style:normal;color:var(--tomato);position:relative;white-space:nowrap}
+.hero h1 em::after{content:"";position:absolute;inset-inline:0;bottom:-.08em;height:.32em;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 20' preserveAspectRatio='none'%3E%3Cpath d='M2 14 C40 4 80 18 120 8 S180 6 198 12' fill='none' stroke='%23f3b63f' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center/100% 100%;z-index:-1}
+.hero p.lead{font-size:1.15rem;color:var(--muted);max-width:34em;margin:0 0 26px}
+.hero-cta{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.hero-facts{display:flex;flex-wrap:wrap;gap:22px;margin-top:30px;color:var(--muted);font-size:.95rem}
+.hero-facts b{display:block;color:var(--ink);font-family:var(--f-disp);font-size:1.4rem}
+.hero-art{position:relative;aspect-ratio:1;max-width:520px;width:100%;margin-inline:auto}
+.hero-board{position:absolute;inset:4%;border-radius:50%;background:radial-gradient(circle at 40% 35%,var(--wood3),var(--wood1) 60%,var(--wood2));box-shadow:var(--shadow),inset 0 0 0 10px rgba(0,0,0,.06)}
+.hero-pizza{position:absolute;inset:10%;animation:spin 60s linear infinite}
+.hero-note{position:absolute;bottom:2%;left:-2%;width:46%;background:var(--paper);color:var(--pen);font-family:var(--f-hand);padding:14px 16px 18px;border-radius:4px;transform:rotate(-7deg);box-shadow:var(--shadow);font-size:1.05rem;line-height:1.7;
+  background-image:repeating-linear-gradient(transparent 0 27px,var(--paper-line) 27px 28px);background-position:0 6px}
+.hero-note b{display:block;color:var(--pen-red);font-weight:700}
+.hero-note s{color:#8a8a8a}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (max-width:860px){.hero .wrap{grid-template-columns:1fr}.hero-art{max-width:380px}}
+
+section.block{padding:70px 0}
+.sec-head{text-align:center;max-width:640px;margin:0 auto 40px}
+.sec-head h2{font-size:clamp(1.8rem,4vw,2.6rem)}
+.sec-head p{color:var(--muted);margin:0}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;counter-reset:s}
+.steps li{list-style:none;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 20px;position:relative}
+.steps li::before{counter-increment:s;content:counter(s,arabic-indic);position:absolute;top:-16px;inset-inline-start:18px;width:38px;height:38px;border-radius:50%;background:var(--tomato);color:var(--on-accent);display:grid;place-items:center;font-family:var(--f-disp);font-weight:700}
+.steps .ic{width:56px;height:56px;margin-bottom:10px}
+.steps h3{font-size:1.15rem}
+.steps p{margin:0;color:var(--muted);font-size:.96rem}
+.steps ol{padding:0;margin:0}
+@media (max-width:900px){.steps{grid-template-columns:repeat(2,1fr);row-gap:30px}}
+@media (max-width:520px){.steps{grid-template-columns:1fr}}
+
+.menu-band{background:var(--surface-2)}
+.menu-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px}
+.menu-card{background:var(--surface);border-radius:var(--radius);padding:22px;border:1px solid var(--line)}
+.menu-card h3{font-size:1.2rem;display:flex;align-items:center;gap:8px}
+.menu-card ul{list-style:none;margin:0;padding:0}
+.menu-card li{display:flex;align-items:baseline;gap:8px;padding:6px 0;border-bottom:1px dashed var(--line)}
+.menu-card li:last-child{border:0}
+.menu-card li span:first-child{flex:1}
+.menu-card li .p{font-weight:800;color:var(--tomato);white-space:nowrap}
+.menu-note{text-align:center;color:var(--muted);margin-top:22px;font-size:.95rem}
+
+.feats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+.feat{padding:22px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--line)}
+.feat .big{font-family:var(--f-disp);font-size:2rem;color:var(--tomato);line-height:1.2}
+.feat p{margin:.3em 0 0;color:var(--muted)}
+
+.visit .wrap{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.visit .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:26px}
+.visit dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:8px 16px}
+.visit dt{font-weight:800}
+.visit dd{margin:0;color:var(--muted)}
+.cta-card{background:var(--tomato)!important;color:var(--on-accent);border:0!important;display:flex;flex-direction:column;justify-content:center;align-items:flex-start}
+.cta-card h2{font-size:1.9rem}
+.cta-card .btn{background:var(--on-accent);color:var(--tomato);box-shadow:none}
+@media (max-width:760px){.visit .wrap{grid-template-columns:1fr}}
+footer.site{padding:30px 0 40px;color:var(--muted);text-align:center;font-size:.92rem;border-top:1px solid var(--line);margin-top:40px}
+
+/* ============ APP (game overlay) ============ */
+body.app-open{overflow:hidden}
+.app{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;height:100dvh}
+.app[hidden]{display:none}
+.app-top{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line);background:var(--surface)}
+.app-top .logo{font-size:1.1rem}
+.app-top .logo svg{width:32px;height:32px}
+.stepper{flex:1;display:flex;gap:6px;list-style:none;margin:0;padding:0;overflow-x:auto;scrollbar-width:none;justify-content:center}
+.stepper::-webkit-scrollbar{display:none}
+.stepper li{display:flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;font-size:.88rem;white-space:nowrap;color:var(--muted);font-weight:500}
+.stepper li .n{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--surface-2);font-weight:800;font-size:.8rem;flex:none}
+.stepper li.done .n{background:var(--basil);color:#fff}
+.stepper li.cur{background:color-mix(in srgb,var(--tomato) 14%,transparent);color:var(--ink);font-weight:800}
+.stepper li.cur .n{background:var(--tomato);color:var(--on-accent)}
+@media (max-width:1100px){.stepper li:not(.cur) .t{display:none}}
+.icon-btn{width:42px;height:42px;border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;flex:none}
+.icon-btn:hover{background:var(--surface-2)}
+
+.app-body{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 370px}
+.work{min-height:0;overflow:auto;padding:22px clamp(16px,3vw,36px)}
+.game{display:flex;gap:28px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+.game[hidden],.form-panel[hidden]{display:none}
+.stage-col{flex:0 1 auto;width:min(100%,460px,calc(100dvh - 210px));min-width:260px}
+.stage{position:relative;aspect-ratio:1;width:100%;border-radius:24px;overflow:hidden;
+  background:
+   radial-gradient(circle at 30% 25%,rgba(255,255,255,.22),transparent 40%),
+   repeating-linear-gradient(92deg,rgba(0,0,0,.05) 0 2px,transparent 2px 13px),
+   repeating-linear-gradient(88deg,rgba(255,255,255,.05) 0 1px,transparent 1px 29px),
+   linear-gradient(160deg,var(--wood3),var(--wood1) 55%,var(--wood2));
+  box-shadow:var(--shadow),inset 0 0 0 1px rgba(0,0,0,.08);touch-action:manipulation;user-select:none;-webkit-user-select:none}
+.stage.interactive{touch-action:none;cursor:crosshair}
+.stage.roll{cursor:grab}
+.stage.oven{background:radial-gradient(ellipse at 50% 115%,#ff9d2e 0,#d24d12 25%,#5a1f0b 55%,#1f0d06 80%)}
+.stage.oven::before{content:"";position:absolute;inset:0;background:
+   repeating-linear-gradient(0deg,transparent 0 38px,rgba(0,0,0,.35) 38px 41px),
+   repeating-linear-gradient(90deg,transparent 0 70px,rgba(0,0,0,.25) 70px 73px);opacity:.5;pointer-events:none;mask:radial-gradient(circle at 50% 50%,transparent 46%,#000 64%)}
+.stage.oven.heating::after{content:"";position:absolute;inset:-10%;background:radial-gradient(circle at 50% 110%,rgba(255,170,60,.55),transparent 55%);animation:flick .5s ease-in-out infinite alternate;pointer-events:none}
+@keyframes flick{from{opacity:.55}to{opacity:1}}
+.layers{position:absolute;inset:0;transition:filter .2s linear}
+.layers > *{position:absolute;inset:0;width:100%;height:100%}
+.flour{position:absolute;width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.85);pointer-events:none;animation:puff .8s ease-out forwards}
+@keyframes puff{to{transform:translate(var(--dx),var(--dy)) scale(2.4);opacity:0}}
+.pin{position:absolute;width:62%;left:50%;top:50%;transform:translate(-50%,-50%) rotate(var(--rot,-12deg));pointer-events:none;filter:drop-shadow(0 8px 6px rgba(0,0,0,.3));transition:opacity .3s}
+.pin.off{opacity:0}
+.stage-hint{position:absolute;inset-inline:12px;bottom:12px;text-align:center;font-weight:800;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6);font-size:.95rem;pointer-events:none;transition:opacity .3s}
+.stage-hint:empty{opacity:0}
+
+.controls{flex:1 1 320px;max-width:520px;min-width:0}
+.controls h2{font-size:1.6rem;margin-bottom:.15em}
+.controls .sub{color:var(--muted);margin:0 0 16px}
+.opts{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.opt{position:relative;display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:start;padding:12px 14px;border-radius:14px;border:2px solid var(--line);background:var(--surface);transition:border-color .15s,transform .15s,background .15s;min-height:56px}
+.opt:hover{border-color:color-mix(in srgb,var(--tomato) 50%,var(--line))}
+.opt[aria-pressed="true"],.opt[aria-checked="true"]{border-color:var(--tomato);background:color-mix(in srgb,var(--tomato) 8%,var(--surface))}
+.opt[aria-pressed="true"]::after,.opt[aria-checked="true"]::after{content:"✓";position:absolute;top:8px;inset-inline-end:10px;width:22px;height:22px;border-radius:50%;background:var(--tomato);color:var(--on-accent);display:grid;place-items:center;font-size:.8rem;font-weight:800}
+.opt b{font-size:1rem}
+.opt small{color:var(--muted);font-size:.84rem;line-height:1.4}
+.opt .pr{font-weight:800;color:var(--tomato);font-size:.92rem}
+.opt .sw{width:30px;height:30px;border-radius:50%;margin-bottom:4px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.15)}
+.tops{grid-template-columns:repeat(auto-fill,minmax(98px,1fr))}
+.tops .opt{align-items:center;text-align:center;padding:10px 6px}
+.tops .opt svg{width:40px;height:40px}
+.tops .opt .cnt{position:absolute;top:6px;inset-inline-start:8px;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:var(--basil);color:#fff;font-size:.75rem;font-weight:800;display:grid;place-items:center}
+.tops .opt .cnt:empty{display:none}
+.tops .opt[aria-pressed="true"]::after{content:"👆"; background:none; font-size:1rem}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px}
+.meter{position:relative;height:18px;border-radius:999px;background:var(--surface-2);overflow:hidden;border:1px solid var(--line);margin:14px 0 6px}
+.meter > i{position:absolute;inset-block:0;inset-inline-start:0;width:0;background:linear-gradient(90deg,var(--cheese),var(--tomato));border-radius:inherit;transition:width .12s}
+.meter .zone{position:absolute;inset-block:0;background:repeating-linear-gradient(45deg,rgba(59,122,57,.35) 0 6px,rgba(59,122,57,.55) 6px 12px);border-inline:2px solid var(--basil)}
+.meter.heat{height:30px}
+.meter-lbl{display:flex;justify-content:space-between;font-size:.85rem;color:var(--muted)}
+.tip{display:flex;gap:10px;align-items:flex-start;background:var(--surface);border:1px dashed var(--line);border-radius:14px;padding:12px 14px;margin-top:16px;font-size:.95rem;color:var(--muted)}
+.tip b{color:var(--ink)}
+.result{font-family:var(--f-disp);font-size:1.35rem;margin-top:14px;min-height:1.6em}
+
+/* form panel */
+.form-panel{max-width:760px;margin-inline:auto}
+.form-panel h2{font-size:1.8rem}
+.form-panel .sub{color:var(--muted);margin:0 0 20px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.fgrid .full{grid-column:1/-1}
+@media (max-width:620px){.fgrid{grid-template-columns:1fr}}
+.field{display:flex;flex-direction:column;gap:6px}
+.field label,.field .lbl{font-weight:800;font-size:.95rem}
+.field .opt-lbl{font-weight:400;color:var(--muted);font-size:.85rem}
+.field input,.field select,.field textarea{width:100%;border:2px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 14px;min-height:48px;font-size:16px}
+.field textarea{min-height:84px;resize:vertical}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--tomato)}
+.field .err{color:var(--tomato);font-size:.85rem;min-height:1.2em;font-weight:500}
+.field.bad input,.field.bad select,.field.bad textarea{border-color:var(--tomato)}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg .opt{flex:1 1 120px;min-height:48px}
+.stepper-num{display:inline-flex;align-items:center;border:2px solid var(--line);border-radius:999px;overflow:hidden;background:var(--surface)}
+.stepper-num button{width:44px;height:44px;border:0;background:transparent;font-size:1.3rem;font-weight:800}
+.stepper-num button:hover{background:var(--surface-2)}
+.stepper-num output{min-width:36px;text-align:center;font-weight:800}
+.extras{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.extra{display:flex;align-items:center;gap:10px;justify-content:space-between;border:2px solid var(--line);border-radius:14px;padding:8px 12px;background:var(--surface)}
+.extra .stepper-num{border-width:1px}
+.extra .stepper-num button{width:34px;height:34px;font-size:1.1rem}
+.extra b{display:block;font-size:.98rem}
+.extra small{color:var(--tomato);font-weight:800}
+.recap{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:20px}
+.recap p{margin:0;color:var(--muted);font-size:.95rem}
+.recap p b{color:var(--ink)}
+.fsec{font-family:var(--f-disp);font-size:1.2rem;margin:26px 0 10px}
+.mini-pizza{width:120px;height:120px;flex:none}
+.done-box{text-align:center;padding:20px 0}
+.done-box .big{font-size:4rem;line-height:1}
+.done-box h2{font-size:2rem;margin-top:10px}
+.track{display:flex;justify-content:center;gap:0;margin:26px auto;max-width:520px;list-style:none;padding:0}
+.track li{flex:1;text-align:center;font-size:.85rem;color:var(--muted);position:relative;padding-top:38px}
+.track li::before{content:"";position:absolute;top:8px;left:50%;transform:translateX(-50%);width:22px;height:22px;border-radius:50%;background:var(--surface-2);border:3px solid var(--line);z-index:1}
+.track li::after{content:"";position:absolute;top:18px;right:50%;width:100%;height:3px;background:var(--line)}
+.track li:first-child::after{display:none}
+.track li.on{color:var(--ink);font-weight:800}
+.track li.on::before{background:var(--basil);border-color:var(--basil)}
+.track li.on::after{background:var(--basil)}
+
+.app-nav{position:relative;z-index:6;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px;border-top:1px solid var(--line);background:var(--surface)}
+.app-nav .msg{flex:1;text-align:center;color:var(--muted);font-size:.92rem}
+.app-nav .btn{min-width:120px}
+
+/* ============ CHECK (paper) ============ */
+.check-wrap{border-inline-start:1px solid var(--line);background:
+   radial-gradient(circle at 20% 10%,rgba(0,0,0,.03),transparent 50%),var(--surface-2);min-height:0;display:flex;flex-direction:column;padding:20px 22px}
+.peek{display:none}
+.paper{position:relative;flex:1;min-height:0;overflow:auto;background-color:var(--paper);color:var(--pen);font-family:var(--f-hand);
+  padding:22px 46px 30px 20px;transform:rotate(-.6deg);box-shadow:0 2px 2px rgba(0,0,0,.08),0 14px 30px rgba(60,30,10,.18);
+  background-image:linear-gradient(90deg,transparent calc(100% - 34px),var(--paper-margin) calc(100% - 34px),var(--paper-margin) calc(100% - 32px),transparent calc(100% - 32px)),
+    repeating-linear-gradient(transparent 0 33px,var(--paper-line) 33px 34px);
+  background-attachment:local;background-position:0 0,0 14px;line-height:34px;font-size:1.12rem;scrollbar-width:thin}
+.paper::before{content:"";position:absolute;top:0;inset-inline:0;height:10px;background:radial-gradient(circle at 8px -2px,var(--surface-2) 6px,transparent 7px) repeat-x;background-size:16px 10px}
+.ck-head{text-align:center;line-height:1.4;margin-bottom:6px;color:var(--pen-red)}
+.ck-head .nm{font-size:1.7rem;font-weight:700}
+.ck-head .meta{font-size:.95rem;color:var(--pen)}
+.ck-cust{margin:0;padding:0;list-style:none}
+.ck-cust .ln{white-space:normal}
+.ck-sec{font-family:var(--f-hand);font-size:1.2rem;margin:4px 0 0;color:var(--pen-red);font-weight:700;line-height:34px}
+.ck-list{list-style:none;margin:0;padding:0}
+.ln{position:relative;display:flex;gap:6px;align-items:baseline;white-space:nowrap}
+.ln .l{overflow:hidden;text-overflow:ellipsis}
+.ln .d{flex:1;border-bottom:2px dotted rgba(29,59,143,.35);transform:translateY(-6px);min-width:12px}
+.ln .p{font-weight:700}
+.ln.note{color:#5b6b9a;font-size:1rem}
+.ln.note .d{display:none}
+.ln.writing{animation:write var(--wd,.6s) steps(14,end) both}
+@keyframes write{from{clip-path:inset(0 0 0 100%)}to{clip-path:inset(0 0 0 0)}}
+.ln.struck{color:#8a93ad}
+.ln.struck::after{content:"";position:absolute;inset-inline:-4px;top:12px;height:12px;pointer-events:none;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 12' preserveAspectRatio='none'%3E%3Cpath d='M0 7 Q7 2 15 6 T30 6 T45 7 T60 5' fill='none' stroke='%23c0392b' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x;background-size:60px 12px;animation:strike .45s ease-out both}
+@keyframes strike{from{clip-path:inset(0 0 0 100%)}to{clip-path:inset(0 0 0 0)}}
+.pen{position:absolute;top:-14px;width:30px;height:30px;pointer-events:none;z-index:2;animation:penmove var(--wd,.6s) linear forwards}
+@keyframes penmove{0%{right:0;transform:rotate(0)}25%{transform:translateY(-3px)}50%{transform:translateY(2px)}75%{transform:translateY(-2px)}100%{right:100%;transform:none;opacity:0}}
+.ck-totals{margin-top:8px;border-top:2px solid rgba(29,59,143,.5)}
+.ck-totals .ln .p{font-weight:700}
+.ck-totals .grand{font-size:1.45rem;color:var(--pen-red);font-weight:700;margin-top:4px}
+.ck-totals .grand .p{position:relative}
+.ck-totals .grand .p::after{content:"";position:absolute;inset-inline:-4px;bottom:2px;height:8px;border-top:2px solid currentColor;border-bottom:2px solid currentColor;border-radius:40%}
+.bump{animation:bump .5s ease}
+@keyframes bump{40%{transform:scale(1.18) rotate(-3deg)}}
+.stamp{position:absolute;top:44%;left:50%;transform:translate(-50%,-50%) rotate(-14deg) scale(2.4);opacity:0;pointer-events:none;
+  border:4px double #1f8a3a;color:#1f8a3a;font-family:var(--f-disp);font-size:1.5rem;font-weight:700;padding:6px 16px;border-radius:12px;white-space:nowrap;line-height:1.4;text-align:center;mix-blend-mode:multiply}
+.stamp.on{animation:stamp .5s cubic-bezier(.2,1.6,.4,1) forwards}
+@keyframes stamp{to{opacity:.85;transform:translate(-50%,-50%) rotate(-14deg) scale(1)}}
+.empty-ck{color:#8b97b8;font-size:1rem}
+
+@media (max-width:980px){
+  .app-body{grid-template-columns:1fr}
+  .work{padding-bottom:90px}
+  .check-wrap{position:fixed;inset-inline:0;bottom:66px;z-index:5;height:70dvh;padding:0 12px 12px;border:0;background:transparent;transform:translateY(calc(100% - 58px));transition:transform .35s cubic-bezier(.3,.9,.3,1);pointer-events:none}
+  .check-wrap.open{transform:none}
+  .check-wrap:not(.open) .paper{visibility:hidden;transition:visibility 0s .35s}
+  .check-wrap > *{pointer-events:auto}
+  .peek{display:flex;align-items:center;gap:10px;height:58px;padding:0 16px;border-radius:18px 18px 0 0;background:var(--paper);color:var(--pen);font-family:var(--f-hand);font-size:1.15rem;border:0;width:100%;box-shadow:0 -6px 20px rgba(0,0,0,.18);flex:none}
+  .peek .last{flex:1;text-align:start;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;font-size:1rem;color:#5b6b9a}
+  .peek .tot{font-weight:700;color:var(--pen-red)}
+  .peek .chev{transition:transform .3s}
+  .check-wrap.open .peek .chev{transform:rotate(180deg)}
+  .peek.ping{animation:ping .6s}
+  .paper{transform:none;border-radius:0 0 12px 12px}
+  .stage-col{width:min(100%,40dvh,420px);position:sticky;top:0;z-index:3;padding-block:6px;background:var(--bg);box-shadow:0 0 0 100vmax var(--bg);clip-path:inset(0 -100vmax -10px)}
+  .tops{grid-template-columns:repeat(auto-fill,minmax(76px,1fr))}
+  .tops .opt{padding:8px 4px}.tops .opt svg{width:30px;height:30px}.tops .opt .pr{font-size:.8rem}
+  .controls .sub{font-size:.92rem}
+  .game{gap:18px}
+  .controls{flex-basis:100%;max-width:none}
+}
+@keyframes ping{30%{transform:translateY(-6px)}}
+@media (max-width:560px){.app-top .logo span{display:none}.app-nav .btn{min-width:0;padding-inline:1.1em}.app-nav .msg{font-size:.8rem}}
+
+/* svg anim */
+.fall{animation:fall .5s cubic-bezier(.3,1.4,.5,1) both;transform-box:fill-box;transform-origin:center}
+@keyframes fall{from{transform:translateY(-26px) scale(1.4);opacity:0}}
+.drop{animation:drop .38s cubic-bezier(.3,1.6,.5,1) both;transform-box:fill-box;transform-origin:center}
+@keyframes drop{from{transform:scale(1.9) translateY(-14px);opacity:0}}
+.melt .shred{transform:scale(1.65,1.35);transform-box:fill-box;transform-origin:center;transition:transform 1.4s}
+.cut{stroke-dasharray:400;stroke-dashoffset:400;animation:cut .5s ease-out forwards}
+@keyframes cut{to{stroke-dashoffset:0}}
+
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}.hero-pizza{animation:none}}
+
+@media print{
+  body > *:not(.app){display:none!important}
+  .app{position:static;height:auto;background:#fff}
+  .app-top,.app-nav,.work,.peek{display:none!important}
+  .app-body{display:block}
+  .check-wrap{position:static;transform:none;height:auto;background:#fff;padding:0}
+  .paper{transform:none;box-shadow:none;overflow:visible}
+}
+</style>
+</head>
+<body>
+
+<!-- shared SVG symbols -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <radialGradient id="gloss" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".12"/></radialGradient>
+    <linearGradient id="gPin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f1c891"/><stop offset=".45" stop-color="#d79a5c"/><stop offset="1" stop-color="#9b6331"/></linearGradient>
+    <symbol id="t-pep" viewBox="-20 -20 40 40"><circle r="17" fill="#a3221a"/><circle r="14.5" fill="#c3352a"/><circle cx="-5" cy="-4" r="2.4" fill="#8a1a12"/><circle cx="6" cy="3" r="2" fill="#8a1a12"/><circle cx="-1" cy="7" r="1.7" fill="#e8624f"/><circle cx="4" cy="-7" r="1.5" fill="#e8624f"/></symbol>
+    <symbol id="t-saus" viewBox="-20 -20 40 40"><path d="M-12-4c2-9 14-11 18-4 6 1 8 10 2 13-3 7-14 6-17 1-6-1-6-8-3-10z" fill="#6f3517"/><path d="M-7-3c2-4 7-4 9-1M1 5c3 0 5-2 5-4" stroke="#9a5329" stroke-width="2" fill="none" stroke-linecap="round"/></symbol>
+    <symbol id="t-chick" viewBox="-20 -20 40 40"><path d="M-14-6l12-8 14 5 2 12-10 8-15-3z" fill="#e2b476"/><path d="M-9-3l14 2M-8 4l14 1" stroke="#c48d4f" stroke-width="2" stroke-linecap="round"/></symbol>
+    <symbol id="t-mush" viewBox="-20 -20 40 40"><path d="M-16 2c0-11 8-16 16-16s16 5 16 16c-5 2-27 2-32 0z" fill="#c9b49a"/><path d="M-5 2h10l2 13h-14z" fill="#e8dccb"/><path d="M-12 0c4-2 20-2 24 0" stroke="#a48c70" stroke-width="2" fill="none"/></symbol>
+    <symbol id="t-pepper" viewBox="-20 -20 40 40"><path d="M-15 6c3-14 25-17 30-4" fill="none" stroke="#2f7d2b" stroke-width="7" stroke-linecap="round"/><path d="M-13 5c4-11 21-13 26-3" fill="none" stroke="#5aa64b" stroke-width="2.5" stroke-linecap="round"/></symbol>
+    <symbol id="t-onion" viewBox="-20 -20 40 40"><path d="M-16 8c2-17 30-19 32-2" fill="none" stroke="#9b4f8f" stroke-width="3.5" stroke-linecap="round"/><path d="M-11 9c2-11 21-12 23-1" fill="none" stroke="#d8b4d2" stroke-width="2.5" stroke-linecap="round"/></symbol>
+    <symbol id="t-olive" viewBox="-20 -20 40 40"><circle r="14" fill="#1f1f1f"/><circle r="6" fill="#5a3a2a"/><path d="M-9-6a11 11 0 0 1 8-5" stroke="#666" stroke-width="2.5" fill="none" stroke-linecap="round"/></symbol>
+    <symbol id="t-tom" viewBox="-20 -20 40 40"><circle r="17" fill="#d73a24"/><circle r="13" fill="#ee5a3c"/><g fill="#f6d27a"><ellipse cx="-6" cy="-3" rx="2" ry="3.5" transform="rotate(30 -6 -3)"/><ellipse cx="6" cy="-3" rx="2" ry="3.5" transform="rotate(-30 6 -3)"/><ellipse cx="0" cy="7" rx="2" ry="3.5"/></g><path d="M0 0L0-12M0 0l10 7M0 0l-10 7" stroke="#d73a24" stroke-width="2"/></symbol>
+    <symbol id="t-corn" viewBox="-20 -20 40 40"><g fill="#f5c423" stroke="#d99c0b" stroke-width="1.5"><rect x="-13" y="-8" width="9" height="9" rx="3"/><rect x="-2" y="-12" width="9" height="9" rx="3"/><rect x="2" y="1" width="9" height="9" rx="3"/><rect x="-10" y="4" width="9" height="9" rx="3"/></g></symbol>
+    <symbol id="t-jal" viewBox="-20 -20 40 40"><circle r="15" fill="#3e8a2f"/><circle r="10" fill="#bfe08a"/><g fill="#f4f1d0"><circle cx="-3" cy="-3" r="2"/><circle cx="3" cy="-2" r="2"/><circle cx="0" cy="4" r="2"/></g></symbol>
+    <symbol id="t-basil" viewBox="-20 -20 40 40"><path d="M-16 4C-12-12 8-16 17-8 10 6-6 14-16 4z" fill="#2f8a33"/><path d="M-14 3C-4-2 6-6 15-8" stroke="#64bb5a" stroke-width="1.8" fill="none" stroke-linecap="round"/></symbol>
+    <symbol id="i-pen" viewBox="0 0 32 32"><path d="M4 28l3-9L22 4l6 6-15 15z" fill="#1d3b8f"/><path d="M22 4l6 6 2-2-6-6z" fill="#e4b23c"/><path d="M4 28l3-9 6 6z" fill="#f2d9a6"/><path d="M4 28l1.6-4.6 3 3z" fill="#1d3b8f"/></symbol>
+    <symbol id="i-logo" viewBox="0 0 48 48"><circle cx="24" cy="24" r="22" fill="#e7b46f"/><circle cx="24" cy="24" r="17.5" fill="#d2401f"/><circle cx="24" cy="24" r="15" fill="#f8e4a8"/><circle cx="17" cy="19" r="3.6" fill="#c3352a"/><circle cx="29" cy="17" r="3.2" fill="#c3352a"/><circle cx="27" cy="30" r="3.6" fill="#c3352a"/><circle cx="17" cy="30" r="2.2" fill="#222"/><path d="M31 23c2-2 4-1 4 1" stroke="#2f8a33" stroke-width="2.4" fill="none" stroke-linecap="round"/></symbol>
+  </defs>
+</svg>
+
+<header class="topbar">
+  <div class="wrap">
+    <a class="logo" href="#top"><svg aria-hidden="true"><use href="#i-logo"/></svg>بيتزا بإيدك</a>
+    <nav class="nav" aria-label="الأقسام">
+      <a href="#how">إزاي بتشتغل</a>
+      <a href="#menu">المكونات والأسعار</a>
+      <a href="#why">ليه إحنا</a>
+      <a href="#visit">الفروع والمواعيد</a>
+      <button class="btn btn-primary btn-sm" data-open>اطلب دلوقتي</button>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <span class="eyebrow">أول مطعم بيتزا في مصر الطلب فيه لعبة</span>
+        <h1>النهارده <em>إنت الشيف</em><br>وإحنا علينا الفرن.</h1>
+        <p class="lead">اختار عجينتك، افردها بالنشّابة، افرد الصوص ورشّ الجبنة وحط المكونات اللي نفسك فيها. وكل حاجة بتضيفها بتتكتب في الشيك بخط الإيد قدامك. الشيف بتاعنا بيعملها زي ما صممتها بالظبط ويوصلهالك سخنة.</p>
+        <div class="hero-cta">
+          <button class="btn btn-primary" data-open>يلا نعمل البيتزا ←</button>
+          <a class="btn btn-ghost" href="#how">إزاي بتشتغل؟</a>
+        </div>
+        <div class="hero-facts">
+          <div><b>٥ أنواع</b>عجينة طازة</div>
+          <div><b>+١١</b>مكون تختار منهم</div>
+          <div><b>٤٥ دقيقة</b>لحد باب البيت</div>
+        </div>
+      </div>
+      <div class="hero-art" aria-hidden="true">
+        <div class="hero-board"></div>
+        <svg class="hero-pizza" id="heroPizza" viewBox="0 0 400 400"></svg>
+        <div class="hero-note">
+          <b>شيك رقم ٢٧</b>
+          عجينة رفيعة ........ ١٣٠<br>
+          <s>زيتون ............. ٢٠</s><br>
+          بيبروني ............ ٤٥<br>
+          موتزاريلا .......... ٣٥
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="how">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>إزاي بتشتغل؟</h2>
+        <p>٤ خطوات بسيطة، ولعبة لطيفة، وفي الآخر بيتزا عملتها بإيدك.</p>
+      </div>
+      <ol class="steps">
+        <li><svg class="ic" viewBox="0 0 56 56" aria-hidden="true"><path d="M28 6c-9 0-16 7-16 16 0 12 16 28 16 28s16-16 16-28c0-9-7-16-16-16z" fill="#d2401f"/><circle cx="28" cy="22" r="6" fill="#fff"/></svg><h3>بياناتك وعنوانك</h3><p>تكتب اسمك وعنوانك ومقاس البيتزا وعددها، وبعدين تبدأ اللعبة.</p></li>
+        <li><svg class="ic" viewBox="0 0 56 56" aria-hidden="true"><ellipse cx="28" cy="34" rx="20" ry="12" fill="#f0d39d"/><rect x="4" y="16" width="48" height="10" rx="5" fill="#d79a5c"/><rect x="0" y="18" width="8" height="6" rx="3" fill="#9b6331"/><rect x="48" y="18" width="8" height="6" rx="3" fill="#9b6331"/></svg><h3>اختار العجينة وافردها</h3><p>اسحب النشّابة على العجينة لحد ما تفرد خالص.</p></li>
+        <li><svg class="ic" viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="24" fill="#e8c088"/><circle cx="28" cy="28" r="19" fill="#c33a1f"/><circle cx="20" cy="22" r="5" fill="#a3221a"/><circle cx="34" cy="32" r="5" fill="#a3221a"/><circle cx="33" cy="19" r="3" fill="#222"/><path d="M18 34c3-3 6-2 7 0" stroke="#2f8a33" stroke-width="3" fill="none"/></svg><h3>صوص وجبنة ومكونات</h3><p>افرد الصوص بصباعك، رش الجبنة، وحط كل حتة في المكان اللي يعجبك.</p></li>
+        <li><svg class="ic" viewBox="0 0 56 56" aria-hidden="true"><rect x="8" y="6" width="40" height="46" rx="3" fill="#fffdf3" stroke="#cfdcef" stroke-width="2"/><path d="M14 18h22M14 26h26M14 34h18" stroke="#1d3b8f" stroke-width="2.5" stroke-linecap="round"/><path d="M14 44h12" stroke="#c0392b" stroke-width="3" stroke-linecap="round"/></svg><h3>الفرن والشيك</h3><p>دخّلها الفرن، اتابع الشيك اللي اتكتب بخط الإيد، وادفع بالطريقة اللي تريحك.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="block menu-band" id="menu">
+    <div class="wrap">
+      <div class="sec-head">
+        <h2>المكونات والأسعار</h2>
+        <p>الأسعار دي لمقاس الوسط (٣٠ سم). الصغير أرخص ٢٥٪، والكبير أغلى ٣٠٪.</p>
+      </div>
+      <div class="menu-grid" id="menuGrid"></div>
+      <p class="menu-note">كل الأسعار بالجنيه المصري وشاملة الضريبة.</p>
+    </div>
+  </section>
+
+  <section class="block" id="why">
+    <div class="wrap">
+      <div class="sec-head"><h2>ليه بيتزا بإيدك؟</h2><p>لأن أحلى بيتزا هي اللي إنت اخترت كل حتة فيها.</p></div>
+      <div class="feats">
+        <div class="feat"><div class="big">كل يوم</div><b>عجينة طازة</b><p>بنعجنها الصبح وبتتخمر ٢٤ ساعة عشان تبقى خفيفة وهشة.</p></div>
+        <div class="feat"><div class="big">٤٠٠°</div><b>فرن حجر</b><p>البيتزا بتستوي في ٩٠ ثانية، مقرمشة من تحت وطرية من جوه.</p></div>
+        <div class="feat"><div class="big">٤٥ د</div><b>توصيل سريع</b><p>بنوصّل في القاهرة والجيزة وبتوصلك وهي لسه سخنة.</p></div>
+        <div class="feat"><div class="big">✍️</div><b>شيك بخط الإيد</b><p>بتشوف حسابك بيتكتب سطر سطر، من غير أي مفاجآت.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block visit" id="visit">
+    <div class="wrap">
+      <div class="card">
+        <h2>الفروع والمواعيد</h2>
+        <dl>
+          <dt>المواعيد</dt><dd>كل يوم من ١٢ الضهر لحد ٢ بالليل</dd>
+          <dt>الفروع</dt><dd>مدينة نصر، المعادي، الشيخ زايد</dd>
+          <dt>التوصيل</dt><dd>القاهرة والجيزة، ورسوم التوصيل على حسب منطقتك</dd>
+          <dt>الدفع</dt><dd>كاش، فيزا عند الاستلام، أو إنستاباي</dd>
+        </dl>
+      </div>
+      <div class="card cta-card">
+        <h2>جعان؟ يلا نعجن.</h2>
+        <p>الطلب كله مش هياخد منك أكتر من ٣ دقايق، وهتستمتع بكل خطوة فيه.</p>
+        <button class="btn" data-open>ابدأ اللعبة واطلب</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site"><div class="wrap">© بيتزا بإيدك. اتعملت بحب، وبالنشّابة.</div></footer>
+
+<!-- ============ GAME APP ============ -->
+<div class="app" id="app" hidden role="dialog" aria-modal="true" aria-label="اعمل البيتزا بتاعتك">
+  <div class="app-top">
+    <a class="logo" href="#top" data-close><svg aria-hidden="true"><use href="#i-logo"/></svg><span>بيتزا بإيدك</span></a>
+    <ol class="stepper" id="stepper"></ol>
+    <button class="icon-btn" data-close aria-label="اقفل"><svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M3 3l12 12M15 3L3 15" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+  </div>
+  <div class="app-body">
+    <div class="work" id="work">
+      <section class="form-panel" id="formPanel"></section>
+      <div class="game" id="game" hidden>
+        <div class="stage-col">
+          <div class="stage" id="stage">
+            <div class="layers" id="layers">
+              <svg id="base" viewBox="0 0 400 400" aria-hidden="true">
+                <ellipse cx="200" cy="212" rx="176" ry="172" fill="rgba(0,0,0,.18)" id="doughShadow"/>
+                <path id="doughOuter" fill="#e8c088"/>
+                <path id="doughInner" fill="#f3dcae"/>
+                <circle id="stuffRing" cx="200" cy="200" r="0" fill="none" stroke="#f8e08a" stroke-width="7" stroke-dasharray="3 9" stroke-linecap="round" opacity="0"/>
+                <path id="doughGloss" fill="url(#gloss)"/>
+                <g id="doughDots" fill="rgba(255,255,255,.6)"></g>
+              </svg>
+              <canvas id="sauce" width="400" height="400" aria-hidden="true"></canvas>
+              <svg id="topSvg" viewBox="0 0 400 400" aria-hidden="true">
+                <g id="cheeseLayer"></g>
+                <g id="topLayer"></g>
+                <g id="cutLayer"></g>
+              </svg>
+            </div>
+            <div class="pin off" id="pin">
+              <svg viewBox="0 0 260 44" aria-hidden="true"><rect x="0" y="14" width="38" height="16" rx="8" fill="#8a5427"/><rect x="222" y="14" width="38" height="16" rx="8" fill="#8a5427"/><rect x="34" y="4" width="192" height="36" rx="18" fill="url(#gPin)"/><rect x="44" y="9" width="172" height="6" rx="3" fill="#fff" opacity=".3"/></svg>
+            </div>
+            <div class="stage-hint" id="hint"></div>
+          </div>
+        </div>
+        <div class="controls" id="controls"></div>
+      </div>
+    </div>
+
+    <aside class="check-wrap" id="checkWrap" aria-label="الشيك">
+      <button class="peek" id="peek" aria-expanded="false" aria-controls="paper">
+        <svg width="22" height="22" aria-hidden="true"><use href="#i-pen"/></svg>
+        <span>الشيك</span>
+        <span class="last" id="peekLast">لسه فاضي</span>
+        <span class="tot" id="peekTot"></span>
+        <svg class="chev" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 10l5-5 5 5" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>
+      </button>
+      <div class="paper" id="paper">
+        <div class="ck-head">
+          <div class="nm">بيتزا بإيدك</div>
+          <div class="meta" id="ckMeta"></div>
+        </div>
+        <ul class="ck-cust ck-list" id="ckCust"><li class="empty-ck">مستنيين بياناتك عشان نبدأ نكتب...</li></ul>
+        <div class="ck-sec" id="ckPizzaH" hidden>البيتزا</div>
+        <ul class="ck-list" id="ckPizza"></ul>
+        <div class="ck-sec" id="ckExtraH" hidden>حاجات جنب البيتزا</div>
+        <ul class="ck-list" id="ckExtra"></ul>
+        <ul class="ck-list ck-totals" id="ckTotals" hidden></ul>
+        <div class="stamp" id="stamp">اتبعت للمطبخ ✓</div>
+      </div>
+    </aside>
+  </div>
+  <div class="app-nav">
+    <button class="btn btn-ghost" id="prevBtn">→ رجوع</button>
+    <span class="msg" id="navMsg"></span>
+    <button class="btn btn-primary" id="nextBtn">التالي ←</button>
+  </div>
+  <div class="sr" aria-live="polite" id="live"></div>
+</div>
+
+<script>
+(() => {
+'use strict';
+/* ---------- helpers ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const NS = 'http://www.w3.org/2000/svg';
+const fmt = n => Number(n).toLocaleString('ar-EG');
+const money = n => fmt(n) + ' ج';
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const rnd = (a, b) => a + Math.random() * (b - a);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+const el = (tag, attrs = {}, ns) => { const e = ns ? document.createElementNS(NS, tag) : document.createElement(tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; };
+const toEn = s => String(s).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/* ---------- data ---------- */
+const SIZES = [
+  { id: 's', name: 'صغير', cm: 25, f: .75, desc: 'لفرد واحد' },
+  { id: 'm', name: 'وسط', cm: 30, f: 1, desc: 'لفرد أو اتنين' },
+  { id: 'l', name: 'كبير', cm: 35, f: 1.3, desc: 'لـ ٣ أو ٤ أفراد' }
+];
+const DOUGHS = [
+  { id: 'classic', name: 'عجينة كلاسيك', desc: 'هشة من بره وطرية من جوه', price: 120, color: '#e3b679', inner: '#f3dcae', crust: 20 },
+  { id: 'thin', name: 'رفيعة إيطالي', desc: 'مقرمشة وخفيفة', price: 130, color: '#e8c08a', inner: '#f6e3bb', crust: 11 },
+  { id: 'thick', name: 'سميكة (بان)', desc: 'تقيلة ومشبعة', price: 140, color: '#dba868', inner: '#f0d39d', crust: 30 },
+  { id: 'wheat', name: 'قمح كامل', desc: 'صحية وطعمها مميز', price: 145, color: '#b07c4b', inner: '#d1a273', crust: 20 },
+  { id: 'stuffed', name: 'أطراف محشية جبنة', desc: 'الأطراف مليانة موتزاريلا', price: 175, color: '#e0b073', inner: '#f3dcae', crust: 28, stuffed: true }
+];
+const SAUCES = [
+  { id: 'tomato', name: 'صوص طماطم إيطالي', desc: 'الكلاسيك اللي مايتغلطش فيه', price: 0, color: '#c4361c', dot: '#9e2512' },
+  { id: 'bbq', name: 'باربكيو مدخّن', desc: 'مسكّر وعليه تدخين خفيف', price: 15, color: '#6a2810', dot: '#4a1a08' },
+  { id: 'white', name: 'وايت صوص بالتوم', desc: 'كريمي وغني', price: 20, color: '#efe2bf', dot: '#d8c69a' },
+  { id: 'pesto', name: 'بيستو ريحان', desc: 'ريحان طازة وزيت زيتون', price: 30, color: '#567c28', dot: '#3b5a18' },
+  { id: 'none', name: 'من غير صوص', desc: 'عجينة وجبنة وبس', price: 0, color: null }
+];
+const CHEESES = [
+  { id: 'mozz', name: 'موتزاريلا', price: 35, color: '#fbf1cf', edge: '#e9d9a6' },
+  { id: 'ched', name: 'شيدر', price: 30, color: '#f0a53a', edge: '#d18820' },
+  { id: 'romy', name: 'جبنة رومي', price: 30, color: '#f1dc9c', edge: '#d8bf73' },
+  { id: 'parm', name: 'بارميزان', price: 40, color: '#fff6dc', edge: '#e2d4ac', tiny: true }
+];
+const TOPS = [
+  { id: 'pep', name: 'بيبروني', price: 45, size: 34 },
+  { id: 'saus', name: 'سجق', price: 40, size: 28 },
+  { id: 'chick', name: 'فراخ', price: 45, size: 30 },
+  { id: 'mush', name: 'مشروم', price: 25, size: 28 },
+  { id: 'pepper', name: 'فلفل أخضر', price: 15, size: 32 },
+  { id: 'onion', name: 'بصل', price: 10, size: 30 },
+  { id: 'olive', name: 'زيتون', price: 20, size: 18 },
+  { id: 'tom', name: 'طماطم', price: 10, size: 32 },
+  { id: 'corn', name: 'ذرة', price: 15, size: 18 },
+  { id: 'jal', name: 'هالبينو', price: 20, size: 20 },
+  { id: 'basil', name: 'ريحان', price: 10, size: 26 }
+];
+const EXTRAS = [
+  { id: 'pepsi', name: 'بيبسي كانز', price: 25 },
+  { id: 'water', name: 'مياه معدنية', price: 10 },
+  { id: 'juice', name: 'عصير مانجا فريش', price: 45 },
+  { id: 'garlic', name: 'عيش بالتوم', price: 45 },
+  { id: 'fries', name: 'بطاطس ودجز', price: 40 },
+  { id: 'wings', name: 'وينجز (٦ قطع)', price: 95 },
+  { id: 'brownie', name: 'براونيز بالشوكولاتة', price: 50 }
+];
+const AREAS = [
+  { id: 'nasr', name: 'مدينة نصر', fee: 20 }, { id: 'heliopolis', name: 'مصر الجديدة', fee: 25 },
+  { id: 'maadi', name: 'المعادي', fee: 20 }, { id: 'zamalek', name: 'الزمالك', fee: 30 },
+  { id: 'dokki', name: 'الدقي والمهندسين', fee: 30 }, { id: 'tagamoa', name: 'التجمع الخامس', fee: 40 },
+  { id: 'zayed', name: 'الشيخ زايد', fee: 20 }, { id: 'october', name: '٦ أكتوبر', fee: 35 },
+  { id: 'downtown', name: 'وسط البلد', fee: 30 }, { id: 'shubra', name: 'شبرا', fee: 35 }
+];
+const PAYS = [
+  { id: 'cash', name: 'كاش عند الاستلام', desc: 'جهّز الفكة لو تقدر' },
+  { id: 'card', name: 'فيزا عند الاستلام', desc: 'الطيار معاه ماكينة' },
+  { id: 'instapay', name: 'إنستاباي', desc: 'هنبعتلك رسالة بالتفاصيل' }
+];
+const STEPS = [
+  { id: 'info', t: 'بياناتك' }, { id: 'dough', t: 'العجينة' }, { id: 'roll', t: 'افردها' },
+  { id: 'sauce', t: 'الصوص' }, { id: 'cheese', t: 'الجبنة' }, { id: 'tops', t: 'المكونات' },
+  { id: 'oven', t: 'الفرن' }, { id: 'pay', t: 'الدفع' }
+];
+const byId = (arr, id) => arr.find(x => x.id === id);
+
+/* ---------- state ---------- */
+const newOrderNo = () => Math.floor(1000 + Math.random() * 9000);
+const S = {
+  step: 0, maxStep: 0, info: null, dough: null, roll: 0, sauce: null, sauceCov: 0, sauceDone: false,
+  cheeses: new Set(), tops: {}, activeTop: null, bake: null, bakeP: 0, extras: {}, pay: 'cash', note: '',
+  orderNo: newOrderNo(), placed: false
+};
+
+/* ---------- DOM refs ---------- */
+const app = $('#app'), stage = $('#stage'), layers = $('#layers'), controls = $('#controls'), formPanel = $('#formPanel'), game = $('#game');
+const nextBtn = $('#nextBtn'), prevBtn = $('#prevBtn'), navMsg = $('#navMsg'), hint = $('#hint'), pin = $('#pin');
+const ckCust = $('#ckCust'), ckPizza = $('#ckPizza'), ckExtra = $('#ckExtra'), ckTotals = $('#ckTotals'), paper = $('#paper');
+const live = $('#live');
+
+/* ============ CHECK (handwritten bill) ============ */
+const lines = []; // {key, slot, label, base, scale, kind, struck, li}
+let penFree = 0;
+function scheduleWrite(li, dur = 600) {
+  const now = performance.now();
+  const delay = clamp(penFree - now, 0, 1400);
+  penFree = now + delay + dur * .7;
+  li.style.setProperty('--wd', dur + 'ms');
+  li.style.animationDelay = delay + 'ms';
+  li.classList.add('writing');
+  const pen = el('svg', { class: 'pen', viewBox: '0 0 32 32', 'aria-hidden': 'true' }, true);
+  const u = el('use', {}, true); u.setAttribute('href', '#i-pen'); pen.appendChild(u);
+  pen.style.setProperty('--wd', dur + 'ms'); pen.style.animationDelay = delay + 'ms'; pen.style.right = '0';
+  setTimeout(() => { li.appendChild(pen); li.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, delay);
+  setTimeout(() => { pen.remove(); li.classList.remove('writing'); li.style.animationDelay = ''; }, delay + dur + 60);
+}
+function linePrice(l) {
+  if (l.base == null) return null;
+  if (l.scale) { const f = S.info ? byId(SIZES, S.info.size).f : 1; return Math.round(l.base * f / 5) * 5; }
+  return l.base * (l.qty || 1);
+}
+function lineHTML(l) {
+  const p = linePrice(l);
+  return `<span class="l">${esc(l.label)}</span><span class="d"></span>${p != null ? `<span class="p">${p === 0 ? 'ببلاش' : fmt(p)}</span>` : ''}`;
+}
+function writeLine(list, l, write = true) {
+  const li = el('li', { class: 'ln' + (l.kind === 'note' ? ' note' : '') });
+  li.innerHTML = lineHTML(l);
+  l.li = li;
+  list.appendChild(li);
+  if (write) scheduleWrite(li, clamp(l.label.length * 45, 380, 900));
+  return li;
+}
+function listFor(l) { return l.kind === 'extra' ? ckExtra : ckPizza; }
+function active(slot) { return lines.find(l => l.slot === slot && !l.struck); }
+function strike(l) {
+  if (!l || l.struck) return;
+  l.struck = true; l.li.classList.add('struck');
+}
+/** set (replace) a line in a slot. Strikes the old one if label differs. */
+function setSlot(slot, label, base, opts = {}) {
+  const cur = active(slot);
+  if (cur && cur.label === label && cur.base === base) return cur;
+  if (cur) strike(cur);
+  const l = { slot, label, base, scale: opts.scale !== false && opts.kind !== 'note' && opts.kind !== 'extra', kind: opts.kind || 'item', qty: opts.qty || 1, struck: false };
+  lines.push(l);
+  const list = listFor(l);
+  (l.kind === 'extra' ? $('#ckExtraH') : $('#ckPizzaH')).hidden = false;
+  writeLine(list, l);
+  say((opts.kind === 'note' ? '' : 'اتكتب في الشيك: ') + label);
+  updatePeek(label);
+  renderTotals();
+  return l;
+}
+function clearSlot(slot) { const cur = active(slot); if (cur) { strike(cur); updatePeek('اتشطب: ' + cur.label); say('اتشطب من الشيك: ' + cur.label); renderTotals(); } }
+function refreshPrices() { lines.forEach(l => { if (l.li) { const pe = l.li.querySelector('.p'); const p = linePrice(l); if (pe && p != null) pe.textContent = p === 0 ? 'ببلاش' : fmt(p); } }); renderTotals(); }
+
+function totals() {
+  const per = lines.filter(l => !l.struck && l.kind === 'item').reduce((a, l) => a + linePrice(l), 0);
+  const qty = S.info ? S.info.qty : 1;
+  const extras = lines.filter(l => !l.struck && l.kind === 'extra').reduce((a, l) => a + linePrice(l), 0);
+  const fee = S.info && S.info.mode === 'delivery' ? byId(AREAS, S.info.area).fee : 0;
+  const service = 0;
+  return { per, qty, pizzas: per * qty, extras, fee, service, total: per * qty + extras + fee };
+}
+let lastTotal = null;
+function renderTotals() {
+  const t = totals();
+  if (!lines.some(l => l.kind !== 'note' && !l.struck) && !S.info) { ckTotals.hidden = true; return; }
+  ckTotals.hidden = false;
+  const rows = [];
+  rows.push(`<li class="ln"><span class="l">البيتزا الواحدة</span><span class="d"></span><span class="p">${fmt(t.per)}</span></li>`);
+  if (t.qty > 1) rows.push(`<li class="ln"><span class="l">× ${fmt(t.qty)} بيتزا</span><span class="d"></span><span class="p">${fmt(t.pizzas)}</span></li>`);
+  if (t.extras) rows.push(`<li class="ln"><span class="l">حاجات جنب</span><span class="d"></span><span class="p">${fmt(t.extras)}</span></li>`);
+  if (S.info) rows.push(`<li class="ln"><span class="l">${S.info.mode === 'delivery' ? 'التوصيل' : 'استلام من الفرع'}</span><span class="d"></span><span class="p">${t.fee ? fmt(t.fee) : 'ببلاش'}</span></li>`);
+  rows.push(`<li class="ln grand"><span class="l">الإجمالي</span><span class="d"></span><span class="p" id="grandP">${money(t.total)}</span></li>`);
+  ckTotals.innerHTML = rows.join('');
+  if (lastTotal !== null && lastTotal !== t.total) { const g = $('#grandP'); g.style.display = 'inline-block'; g.classList.add('bump'); }
+  lastTotal = t.total;
+  $('#peekTot').textContent = money(t.total);
+}
+function updatePeek(txt) {
+  $('#peekLast').textContent = '✍️ ' + txt;
+  const p = $('#peek'); p.classList.remove('ping'); void p.offsetWidth; p.classList.add('ping');
+}
+function say(t) { live.textContent = ''; setTimeout(() => live.textContent = t, 30); }
+function writeCustomer() {
+  const i = S.info;
+  ckCust.innerHTML = '';
+  const area = byId(AREAS, i.area);
+  const rows = [
+    ['الاسم: ' + i.name],
+    ['موبايل: ' + fmt(i.phone).replace(/٬/g, '')],
+    i.mode === 'delivery' ? ['العنوان: ' + area.name + ' - ' + i.address] : ['استلام من فرع ' + i.branch],
+    ['الميعاد: ' + (i.when === 'now' ? 'دلوقتي حالاً' : i.time)]
+  ];
+  rows.forEach(([t]) => { const li = el('li', { class: 'ln note' }); li.innerHTML = `<span class="l">${esc(t)}</span>`; li.title = t; ckCust.appendChild(li); scheduleWrite(li, clamp(t.length * 35, 400, 900)); });
+  const sz = byId(SIZES, i.size);
+  $('#ckPizzaH').hidden = false;
+  $('#ckPizzaH').textContent = `البيتزا: ${sz.name} ${fmt(sz.cm)} سم${i.qty > 1 ? ' × ' + fmt(i.qty) : ''}`;
+  renderTotals();
+}
+function writeMeta() {
+  const d = new Date();
+  $('#ckMeta').textContent = `شيك رقم ${fmt(S.orderNo).replace(/٬/g, '')} — ${d.toLocaleDateString('ar-EG', { day: 'numeric', month: 'long' })}`;
+}
+
+/* ============ PIZZA RENDERING ============ */
+const CX = 200, CY = 200, RMAX = 172;
+const ph = [rnd(0, 6), rnd(0, 6), rnd(0, 6)];
+function blob(R, wob) {
+  let d = '';
+  for (let i = 0; i <= 90; i++) {
+    const t = i / 90 * Math.PI * 2;
+    const n = Math.sin(3 * t + ph[0]) * .5 + Math.sin(5 * t + ph[1]) * .3 + Math.sin(2 * t + ph[2]) * .2;
+    const r = R * (1 + wob * n);
+    d += (i ? 'L' : 'M') + (CX + r * Math.cos(t)).toFixed(1) + ' ' + (CY + r * Math.sin(t)).toFixed(1);
+  }
+  return d + 'Z';
+}
+const ease = p => 1 - Math.pow(1 - p, 2);
+function doughData() { return byId(DOUGHS, S.dough || 'classic'); }
+function innerR() { return RMAX - doughData().crust; }
+function drawDough() {
+  const d = doughData();
+  const p = S.roll;
+  const e = ease(p);
+  const R = RMAX * (.34 + .66 * e);
+  const wob = .13 * (1 - p) + .012;
+  const crust = d.crust * (.3 + .7 * e);
+  $('#doughOuter').setAttribute('d', blob(R, wob));
+  $('#doughOuter').setAttribute('fill', d.color);
+  $('#doughInner').setAttribute('d', blob(Math.max(4, R - crust), wob));
+  $('#doughInner').setAttribute('fill', d.inner);
+  $('#doughGloss').setAttribute('d', blob(R, wob));
+  $('#doughGloss').style.opacity = 1 - .6 * p;
+  const sh = $('#doughShadow'); sh.setAttribute('rx', R + 4); sh.setAttribute('ry', R); sh.setAttribute('cy', CY + 6 + 8 * (1 - p));
+  const ring = $('#stuffRing'); ring.setAttribute('r', R - crust / 2); ring.setAttribute('opacity', d.stuffed ? .4 + .6 * p : 0);
+  $('#base').style.opacity = S.dough ? 1 : .45;
+}
+// flour dots on dough
+(function () { const g = $('#doughDots'); for (let i = 0; i < 40; i++) { const a = rnd(0, 6.28), r = Math.sqrt(Math.random()) * 140; g.appendChild(el('circle', { cx: CX + r * Math.cos(a), cy: CY + r * Math.sin(a), r: rnd(.6, 1.8), opacity: rnd(.2, .7) }, true)); } })();
+
+/* sauce canvas */
+const cv = $('#sauce'), ctx = cv.getContext('2d');
+const DPR = Math.min(2, window.devicePixelRatio || 1);
+cv.width = 400 * DPR; cv.height = 400 * DPR; ctx.scale(DPR, DPR);
+const GRID = 14; let cells = [];
+function resetCells() {
+  cells = []; const r = innerR() - 10;
+  for (let x = CX - r; x <= CX + r; x += GRID) for (let y = CY - r; y <= CY + r; y += GRID) if (Math.hypot(x - CX, y - CY) <= r) cells.push({ x, y, c: false });
+}
+function clearSauce() { ctx.clearRect(0, 0, 400, 400); S.sauceCov = 0; resetCells(); }
+function dab(x, y, sc) {
+  ctx.save(); ctx.beginPath(); ctx.arc(CX, CY, innerR() - 3, 0, Math.PI * 2); ctx.clip();
+  ctx.globalAlpha = .55; ctx.fillStyle = sc.color;
+  for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.arc(x + rnd(-5, 5), y + rnd(-5, 5), rnd(18, 26), 0, Math.PI * 2); ctx.fill(); }
+  ctx.globalAlpha = .5; ctx.fillStyle = sc.dot;
+  for (let k = 0; k < 2; k++) { ctx.beginPath(); ctx.arc(x + rnd(-20, 20), y + rnd(-20, 20), rnd(1, 2.6), 0, Math.PI * 2); ctx.fill(); }
+  ctx.restore();
+  let changed = false;
+  for (const c of cells) if (!c.c && Math.hypot(c.x - x, c.y - y) < 27) { c.c = true; changed = true; }
+  if (changed) S.sauceCov = cells.filter(c => c.c).length / cells.length;
+}
+function fillSauce(sc) {
+  const r = innerR() - 3;
+  ctx.save(); ctx.beginPath(); ctx.arc(CX, CY, r, 0, Math.PI * 2); ctx.clip();
+  ctx.globalAlpha = .9; ctx.fillStyle = sc.color; ctx.fill();
+  ctx.globalAlpha = .4; ctx.fillStyle = sc.dot;
+  for (let k = 0; k < 160; k++) { const a = rnd(0, 6.28), rr = Math.sqrt(Math.random()) * r; ctx.beginPath(); ctx.arc(CX + rr * Math.cos(a), CY + rr * Math.sin(a), rnd(1, 3), 0, Math.PI * 2); ctx.fill(); }
+  ctx.restore();
+  cells.forEach(c => c.c = true); S.sauceCov = 1;
+}
+
+/* cheese */
+function sprinkleCheese(id) {
+  const c = byId(CHEESES, id);
+  const g = el('g', { 'data-cg': id }, true);
+  const r = innerR() - 8;
+  const n = c.tiny ? 110 : 75;
+  for (let i = 0; i < n; i++) {
+    const a = rnd(0, 6.28), rr = Math.sqrt(Math.random()) * r;
+    const x = CX + rr * Math.cos(a), y = CY + rr * Math.sin(a);
+    const w = el('g', { transform: `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${rnd(0, 180).toFixed(0)})` }, true);
+    const s = c.tiny ? el('circle', { r: rnd(1, 2), fill: c.color, stroke: c.edge, 'stroke-width': .6, class: 'shred fall' }, true)
+      : el('rect', { x: -2, y: -6, width: rnd(3, 4.4).toFixed(1), height: rnd(9, 14).toFixed(1), rx: 2, fill: c.color, stroke: c.edge, 'stroke-width': .8, class: 'shred fall' }, true);
+    s.style.animationDelay = (Math.random() * .7).toFixed(2) + 's';
+    w.appendChild(s); g.appendChild(w);
+  }
+  $('#cheeseLayer').appendChild(g);
+}
+function removeCheese(id) { const g = $(`#cheeseLayer [data-cg="${id}"]`); if (g) g.remove(); }
+
+/* toppings */
+function topGroup(id) { let g = $(`#topLayer [data-tg="${id}"]`); if (!g) { g = el('g', { 'data-tg': id }, true); $('#topLayer').appendChild(g); } return g; }
+function placeTop(id, x, y, animate = true) {
+  const t = byId(TOPS, id);
+  const arr = S.tops[id] || (S.tops[id] = []);
+  if (arr.length >= 40) { flashMsg('كفاية كده من ' + t.name + ' 😄'); return false; }
+  const r = rnd(0, 360), s = t.size * rnd(.88, 1.1);
+  arr.push({ x, y });
+  const w = el('g', { transform: `translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${r.toFixed(0)})` }, true);
+  const u = el('use', { x: -s / 2, y: -s / 2, width: s, height: s, class: animate ? 'drop' : '' }, true);
+  u.setAttribute('href', '#t-' + id);
+  w.appendChild(u); topGroup(id).appendChild(w);
+  if (arr.length === 1) setSlot('top-' + id, t.name, t.price);
+  return true;
+}
+function removeTop(id) { const g = $(`#topLayer [data-tg="${id}"]`); if (g) g.remove(); delete S.tops[id]; clearSlot('top-' + id); }
+function scatter(id, n = 8) {
+  const r = innerR() - 18;
+  let placed = 0;
+  for (let i = 0; i < n * 6 && placed < n; i++) {
+    const a = rnd(0, 6.28), rr = Math.sqrt(rnd(.03, 1)) * r;
+    const x = CX + rr * Math.cos(a), y = CY + rr * Math.sin(a);
+    const near = (S.tops[id] || []).some(p => Math.hypot(p.x - x, p.y - y) < byId(TOPS, id).size * .9);
+    if (near) continue;
+    if (!placeTop(id, x, y)) break;
+    placed++;
+  }
+}
+function drawCuts() {
+  const g = $('#cutLayer'); g.innerHTML = '';
+  const r = RMAX - 4;
+  [0, 45, 90, 135].forEach((deg, i) => {
+    const a = deg * Math.PI / 180;
+    const ln = el('line', { x1: CX - r * Math.cos(a), y1: CY - r * Math.sin(a), x2: CX + r * Math.cos(a), y2: CY + r * Math.sin(a), stroke: 'rgba(80,40,15,.5)', 'stroke-width': 2.5, 'stroke-linecap': 'round', class: 'cut' }, true);
+    ln.style.animationDelay = (i * .25) + 's';
+    g.appendChild(ln);
+  });
+}
+function applyBake(p) {
+  const k = clamp(p / 70, 0, 1.5);
+  let f = `sepia(${(k * .35).toFixed(2)}) saturate(${(1 + k * .35).toFixed(2)}) brightness(${(1 - k * .12).toFixed(2)})`;
+  if (p > 85) f = `sepia(.7) saturate(1.2) brightness(${(.88 - (p - 85) / 100).toFixed(2)}) contrast(1.15)`;
+  layers.style.filter = p > 0 ? f : '';
+  $('#cheeseLayer').classList.toggle('melt', p > 30);
+}
+
+/* ============ POINTER on stage ============ */
+let drag = null;
+function pt(e) { const r = stage.getBoundingClientRect(); return { x: (e.clientX - r.left) / r.width * 400, y: (e.clientY - r.top) / r.height * 400, px: e.clientX - r.left, py: e.clientY - r.top, w: r.width }; }
+stage.addEventListener('pointerdown', e => {
+  const id = STEPS[S.step].id;
+  const p = pt(e);
+  if (id === 'roll' && S.roll < 1) { drag = { last: p }; stage.setPointerCapture(e.pointerId); movePin(p); }
+  else if (id === 'sauce' && S.sauce && S.sauce !== 'none' && !S.sauceDone) { drag = { last: p }; stage.setPointerCapture(e.pointerId); dab(p.x, p.y, byId(SAUCES, S.sauce)); sauceProgress(); }
+  else if (id === 'tops') {
+    if (!S.activeTop) { flashMsg('اختار مكوّن الأول من اللي جنب البيتزا'); return; }
+    const d = Math.hypot(p.x - CX, p.y - CY);
+    if (d > innerR() - 6) { flashMsg('حطها جوه البيتزا مش على الأطراف 😉'); return; }
+    if (placeTop(S.activeTop, p.x, p.y)) updateTopCounts();
+  }
+});
+stage.addEventListener('pointermove', e => {
+  if (!drag) return;
+  const id = STEPS[S.step].id; const p = pt(e);
+  const dist = Math.hypot(p.x - drag.last.x, p.y - drag.last.y);
+  if (id === 'roll') {
+    movePin(p, drag.last);
+    const R = RMAX * (.34 + .66 * ease(S.roll));
+    if (Math.hypot(p.x - CX, p.y - CY) < R + 40 && dist > 0) {
+      S.roll = clamp(S.roll + dist / 4200, 0, 1);
+      drawDough(); rollProgress();
+      if (Math.random() < .25) flour(p);
+    }
+  } else if (id === 'sauce' && !S.sauceDone) {
+    const sc = byId(SAUCES, S.sauce); const steps = Math.ceil(dist / 6);
+    for (let i = 1; i <= steps; i++) dab(drag.last.x + (p.x - drag.last.x) * i / steps, drag.last.y + (p.y - drag.last.y) * i / steps, sc);
+    sauceProgress();
+  }
+  drag.last = p;
+});
+const endDrag = () => { drag = null; };
+stage.addEventListener('pointerup', endDrag); stage.addEventListener('pointercancel', endDrag);
+function movePin(p, last) {
+  pin.style.left = (p.x / 4) + '%'; pin.style.top = (p.y / 4) + '%';
+  if (last) { const dx = p.x - last.x, dy = p.y - last.y; if (Math.hypot(dx, dy) > 2) { const ang = Math.atan2(dy, dx) * 180 / Math.PI + 90; pin.style.setProperty('--rot', ((ang + 360) % 180 - 90).toFixed(0) * .4 + 'deg'); } }
+}
+function flour(p) {
+  const f = el('span', { class: 'flour' });
+  f.style.left = p.px + 'px'; f.style.top = p.py + 'px';
+  f.style.setProperty('--dx', rnd(-30, 30) + 'px'); f.style.setProperty('--dy', rnd(-30, 30) + 'px');
+  stage.appendChild(f); setTimeout(() => f.remove(), 800);
+}
+let msgT;
+function flashMsg(t) { hint.textContent = t; clearTimeout(msgT); msgT = setTimeout(() => setHint(), 1800); }
+function setHint() {
+  const id = STEPS[S.step].id;
+  const h = {
+    dough: S.dough ? '' : 'اختار العجينة اللي تحبها',
+    roll: S.roll < 1 ? 'اسحب النشّابة على العجينة ⟵ ⟶' : '',
+    sauce: !S.sauce ? 'اختار الصوص الأول' : (!S.sauceDone ? 'حرّك صباعك على العجينة وافرد الصوص' : ''),
+    cheese: '',
+    tops: S.activeTop ? 'اضغط على البيتزا عشان تحط ' + byId(TOPS, S.activeTop).name : 'اختار مكوّن واضغط على البيتزا',
+    oven: ''
+  }[id] || '';
+  hint.textContent = h;
+}
+
+/* ============ STEPS UI ============ */
+function renderStepper() {
+  $('#stepper').innerHTML = STEPS.map((s, i) => `<li class="${i === S.step ? 'cur' : ''} ${i < S.maxStep || (i < S.step) ? 'done' : ''}" ${i === S.step ? 'aria-current="step"' : ''}><span class="n">${i < S.step ? '✓' : fmt(i + 1)}</span><span class="t">${s.t}</span></li>`).join('');
+  const cur = $('#stepper .cur'); if (cur) cur.scrollIntoView({ inline: 'center', block: 'nearest' });
+}
+function canNext() {
+  switch (STEPS[S.step].id) {
+    case 'info': return true; // validated on click
+    case 'dough': return !!S.dough;
+    case 'roll': return S.roll >= 1;
+    case 'sauce': return S.sauceDone;
+    case 'cheese': return true;
+    case 'tops': return true;
+    case 'oven': return !!S.bake;
+    case 'pay': return true;
+  }
+}
+function navState() {
+  const id = STEPS[S.step].id;
+  prevBtn.hidden = S.step === 0 || S.placed;
+  nextBtn.hidden = S.placed;
+  nextBtn.disabled = !canNext();
+  nextBtn.textContent = id === 'info' ? 'يلا نبدأ اللعبة ←' : id === 'pay' ? 'أكّد الطلب ✓' : 'التالي ←';
+  const msgs = {
+    info: 'الخطوة ١ من ٨', dough: S.dough ? '' : 'اختار عجينة عشان تكمّل', roll: S.roll < 1 ? `فردت ${fmt(Math.round(S.roll * 100))}٪` : 'تمام كده! 👌',
+    sauce: S.sauceDone ? 'الصوص تمام 👌' : (S.sauce ? `الصوص ${fmt(Math.round(S.sauceCov * 100))}٪` : 'اختار صوص'),
+    cheese: S.cheeses.size ? '' : 'ممكن تكمّل من غير جبنة، بس ليه؟ 😅', tops: '', oven: S.bake ? '' : 'لازم تخبزها الأول', pay: S.placed ? '' : ''
+  };
+  navMsg.textContent = S.placed ? '' : (msgs[id] || '');
+}
+function go(i) {
+  S.step = clamp(i, 0, STEPS.length - 1);
+  S.maxStep = Math.max(S.maxStep, S.step);
+  const id = STEPS[S.step].id;
+  const isForm = id === 'info' || id === 'pay';
+  formPanel.hidden = !isForm; game.hidden = isForm;
+  stage.className = 'stage';
+  pin.classList.add('off');
+  if (id === 'roll') { stage.classList.add('interactive', 'roll'); pin.classList.toggle('off', S.roll >= 1); }
+  if (id === 'sauce' || id === 'tops') stage.classList.add('interactive');
+  if (id === 'oven') stage.classList.add('oven');
+  ({ info: viewInfo, dough: viewDough, roll: viewRoll, sauce: viewSauce, cheese: viewCheese, tops: viewTops, oven: viewOven, pay: viewPay })[id]();
+  renderStepper(); navState(); setHint();
+  $('#work').scrollTop = 0;
+  const h = (isForm ? formPanel : controls).querySelector('h2'); if (h) { h.tabIndex = -1; h.focus({ preventScroll: true }); }
+}
+nextBtn.addEventListener('click', () => {
+  const id = STEPS[S.step].id;
+  if (id === 'info') { if (submitInfo()) go(1); return; }
+  if (id === 'pay') { placeOrder(); return; }
+  if (canNext()) go(S.step + 1);
+});
+prevBtn.addEventListener('click', () => go(S.step - 1));
+
+/* --- info --- */
+function viewInfo() {
+  const i = S.info || store.get('pz-cust', null) || {};
+  const v = (k, d = '') => esc(i[k] ?? d);
+  formPanel.innerHTML = `
+  <h2>قبل ما نبدأ.. عرّفنا بيك</h2>
+  <p class="sub">هنكتب البيانات دي في أول الشيك، وبعدها تبدأ تعمل البيتزا بإيدك.</p>
+  <form id="infoForm" novalidate>
+    <div class="fgrid">
+      <div class="field"><label for="fName">اسمك</label><input id="fName" name="name" autocomplete="name" value="${v('name')}" placeholder="مثلاً: حبيبة"><span class="err"></span></div>
+      <div class="field"><label for="fPhone">رقم الموبايل</label><input id="fPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" style="text-align:right" value="${v('phone')}" placeholder="01xxxxxxxxx"><span class="err"></span></div>
+      <div class="field full"><span class="lbl">هتستلمها إزاي؟</span>
+        <div class="seg" role="radiogroup" aria-label="طريقة الاستلام" data-name="mode">
+          <button type="button" class="opt" role="radio" data-v="delivery"><b>🛵 توصيل للبيت</b><small>على حسب منطقتك</small></button>
+          <button type="button" class="opt" role="radio" data-v="pickup"><b>🏪 هاخدها من الفرع</b><small>من غير رسوم توصيل</small></button>
+        </div></div>
+      <div class="field" data-for="delivery"><label for="fArea">المنطقة</label><select id="fArea" name="area"><option value="">اختار منطقتك</option>${AREAS.map(a => `<option value="${a.id}" ${i.area === a.id ? 'selected' : ''}>${a.name} (توصيل ${fmt(a.fee)} ج)</option>`).join('')}</select><span class="err"></span></div>
+      <div class="field" data-for="delivery"><label for="fMark">علامة مميزة <span class="opt-lbl">(اختياري)</span></label><input id="fMark" name="mark" value="${v('mark')}" placeholder="جنب الصيدلية مثلاً"><span class="err"></span></div>
+      <div class="field full" data-for="delivery"><label for="fAddr">العنوان بالتفصيل</label><textarea id="fAddr" name="address" autocomplete="street-address" placeholder="الشارع، رقم العمارة، الدور، الشقة">${v('address')}</textarea><span class="err"></span></div>
+      <div class="field full" data-for="pickup"><label for="fBranch">الفرع</label><select id="fBranch" name="branch">${['مدينة نصر', 'المعادي', 'الشيخ زايد'].map(b => `<option ${i.branch === b ? 'selected' : ''}>${b}</option>`).join('')}</select><span class="err"></span></div>
+      <div class="field full"><span class="lbl">مقاس البيتزا</span>
+        <div class="seg" role="radiogroup" aria-label="المقاس" data-name="size">
+          ${SIZES.map(s => `<button type="button" class="opt" role="radio" data-v="${s.id}"><b>${s.name} — ${fmt(s.cm)} سم</b><small>${s.desc}</small></button>`).join('')}
+        </div></div>
+      <div class="field"><span class="lbl" id="qtyL">كام بيتزا بالتصميم ده؟</span>
+        <div class="stepper-num" role="group" aria-labelledby="qtyL"><button type="button" data-q="1" aria-label="زوّد">+</button><output id="qtyOut">${fmt(i.qty || 1)}</output><button type="button" data-q="-1" aria-label="قلّل">−</button></div></div>
+      <div class="field"><span class="lbl">عايزها إمتى؟</span>
+        <div class="seg" role="radiogroup" aria-label="الميعاد" data-name="when">
+          <button type="button" class="opt" role="radio" data-v="now"><b>دلوقتي</b></button>
+          <button type="button" class="opt" role="radio" data-v="later"><b>ميعاد تاني</b></button>
+        </div>
+        <input type="time" id="fTime" name="time" value="${v('time', '20:00')}" aria-label="الساعة" hidden style="margin-top:8px"></div>
+    </div>
+  </form>`;
+  const f = { mode: i.mode || 'delivery', size: i.size || 'm', when: i.when || 'now', qty: i.qty || 1 };
+  formPanel._f = f;
+  const sync = () => {
+    $$('.seg', formPanel).forEach(sg => $$('.opt', sg).forEach(b => b.setAttribute('aria-checked', b.dataset.v === f[sg.dataset.name])));
+    $$('[data-for]', formPanel).forEach(x => x.hidden = x.dataset.for !== f.mode);
+    $('#fTime').hidden = f.when !== 'later';
+    $('#qtyOut').textContent = fmt(f.qty);
+  };
+  formPanel.onclick = e => {
+    const b = e.target.closest('.seg .opt'); if (b) { f[b.closest('.seg').dataset.name] = b.dataset.v; sync(); }
+    const q = e.target.closest('[data-q]'); if (q) { f.qty = clamp(f.qty + +q.dataset.q, 1, 10); sync(); }
+  };
+  $('#infoForm').addEventListener('submit', e => { e.preventDefault(); if (submitInfo()) go(1); });
+  sync();
+}
+function submitInfo() {
+  const f = formPanel._f; const fd = new FormData($('#infoForm'));
+  const data = { ...f, name: fd.get('name').trim(), phone: toEn(fd.get('phone')).replace(/[\s-]/g, ''), area: fd.get('area'), address: fd.get('address').trim(), mark: fd.get('mark').trim(), branch: fd.get('branch'), time: fd.get('time') };
+  const errs = {};
+  if (data.name.length < 2) errs.name = 'اكتب اسمك عشان نعرف ننادي عليك 🙂';
+  if (!/^(\+?20|0)?1[0125]\d{8}$/.test(data.phone)) errs.phone = 'الرقم مش مظبوط، لازم يكون ١١ رقم ويبدأ بـ ٠١';
+  if (data.mode === 'delivery') {
+    if (!data.area) errs.area = 'اختار منطقتك';
+    if (data.address.length < 8) errs.address = 'اكتب العنوان بالتفصيل (الشارع ورقم العمارة والدور)';
+  }
+  $$('.field', formPanel).forEach(x => { x.classList.remove('bad'); const er = x.querySelector('.err'); if (er) er.textContent = ''; });
+  let first = null;
+  for (const k in errs) { const inp = $(`[name="${k}"]`, formPanel); const fl = inp.closest('.field'); fl.classList.add('bad'); fl.querySelector('.err').textContent = errs[k]; inp.setAttribute('aria-invalid', 'true'); first = first || inp; }
+  if (first) { first.focus(); return false; }
+  if (data.phone.startsWith('+20')) data.phone = '0' + data.phone.slice(3); else if (data.phone.startsWith('20')) data.phone = '0' + data.phone.slice(2); else if (!data.phone.startsWith('0')) data.phone = '0' + data.phone;
+  if (data.when === 'later') { const [h, m] = data.time.split(':').map(Number); data.time = new Date(2000, 0, 1, h, m).toLocaleTimeString('ar-EG', { hour: 'numeric', minute: '2-digit' }); }
+  const prev = S.info;
+  S.info = data;
+  store.set('pz-cust', { ...data, time: fd.get('time') });
+  const changed = !prev || JSON.stringify(prev) !== JSON.stringify(data);
+  if (changed) { writeCustomer(); refreshPrices(); }
+  return true;
+}
+
+/* --- dough --- */
+function viewDough() {
+  drawDough();
+  controls.innerHTML = `
+    <h2>اختار العجينة</h2>
+    <p class="sub">دي أساس كل حاجة. اختار براحتك، وتقدر ترجع تغيّرها بعدين.</p>
+    <div class="opts" role="radiogroup" aria-label="نوع العجينة">
+      ${DOUGHS.map(d => `<button class="opt" role="radio" aria-checked="${S.dough === d.id}" data-d="${d.id}"><span class="sw" style="background:radial-gradient(circle at 40% 35%,${d.inner},${d.color})"></span><b>${d.name}</b><small>${d.desc}</small><span class="pr">${money(scaled(d.price))}</span></button>`).join('')}
+    </div>
+    <div class="tip">💡 <span>الأسعار هنا لمقاس <b>${byId(SIZES, S.info.size).name}</b>. كل حاجة تختارها هتلاقيها اتكتبت في الشيك على طول.</span></div>`;
+  controls.onclick = e => {
+    const b = e.target.closest('[data-d]'); if (!b) return;
+    S.dough = b.dataset.d; const d = doughData();
+    $$('[data-d]', controls).forEach(x => x.setAttribute('aria-checked', x === b));
+    setSlot('dough', d.name, d.price);
+    drawDough();
+    if (S.sauceDone && S.sauce !== 'none') { clearSauce(); fillSauce(byId(SAUCES, S.sauce)); }
+    navState(); setHint();
+  };
+}
+const scaled = b => Math.round(b * byId(SIZES, S.info ? S.info.size : 'm').f / 5) * 5;
+
+/* --- roll --- */
+let rollNoted = false;
+function viewRoll() {
+  drawDough();
+  controls.innerHTML = `
+    <h2>افرد العجينة بإيدك</h2>
+    <p class="sub">امسك النشّابة واسحبها على العجينة يمين وشمال وفوق وتحت لحد ما تفرد وتبقى دايرة كاملة.</p>
+    <div class="meter" role="progressbar" aria-label="الفرد" aria-valuemin="0" aria-valuemax="100" id="rollMeter"><i></i></div>
+    <div class="meter-lbl"><span>كورة عجين</span><span>بيتزا ${fmt(byId(SIZES, S.info.size).cm)} سم</span></div>
+    <div class="row"><button class="btn btn-ghost btn-sm" id="rollBtn">مش عارف أسحب؟ افرد بالزرار</button></div>
+    <div class="tip">🤌 <span><b>سر الصنعة:</b> الشيف بتاعنا بيفرد من النص للأطراف عشان الحرف يفضل منفوخ.</span></div>`;
+  rollProgress();
+  $('#rollBtn').onclick = () => { S.roll = clamp(S.roll + .2, 0, 1); drawDough(); rollProgress(); };
+}
+function rollProgress() {
+  const m = $('#rollMeter'); if (!m) return;
+  const v = Math.round(S.roll * 100);
+  m.querySelector('i').style.width = v + '%'; m.setAttribute('aria-valuenow', v);
+  if (S.roll >= 1) {
+    pin.classList.add('off'); stage.classList.remove('roll', 'interactive');
+    if (!rollNoted) { rollNoted = true; setSlot('note-roll', 'اتفردت بإيد ' + S.info.name.split(' ')[0] + ' 💪', null, { kind: 'note' }); flashMsg('برافو! العجينة اتفردت مظبوط 👏'); }
+  }
+  navState();
+}
+
+/* --- sauce --- */
+function viewSauce() {
+  controls.innerHTML = `
+    <h2>افرد الصوص</h2>
+    <p class="sub">اختار الصوص، وبعدين حرّك صباعك أو الماوس على العجينة عشان تفرده.</p>
+    <div class="opts" role="radiogroup" aria-label="الصوص">
+      ${SAUCES.map(s => `<button class="opt" role="radio" aria-checked="${S.sauce === s.id}" data-s="${s.id}"><span class="sw" style="background:${s.color || 'repeating-linear-gradient(45deg,#ddd 0 4px,#fff 4px 8px)'}"></span><b>${s.name}</b><small>${s.desc}</small><span class="pr">${s.price ? '+' + money(scaled(s.price)) : 'ببلاش'}</span></button>`).join('')}
+    </div>
+    <div class="meter" role="progressbar" aria-label="الصوص" aria-valuemin="0" aria-valuemax="100" id="sauceMeter"><i></i></div>
+    <div class="row"><button class="btn btn-ghost btn-sm" id="sauceAuto">افردهولي إنت</button><button class="btn btn-ghost btn-sm" id="sauceReset">امسح وابدأ تاني</button></div>`;
+  sauceProgress();
+  controls.onclick = e => {
+    const b = e.target.closest('[data-s]');
+    if (b) {
+      const id = b.dataset.s; if (id === S.sauce) return;
+      S.sauce = id; const s = byId(SAUCES, id);
+      $$('[data-s]', controls).forEach(x => x.setAttribute('aria-checked', x === b));
+      clearSauce(); S.sauceDone = id === 'none';
+      setSlot('sauce', s.name, s.price);
+      stage.classList.toggle('interactive', id !== 'none');
+      sauceProgress(); setHint();
+    }
+    if (e.target.closest('#sauceAuto') && S.sauce && S.sauce !== 'none') { fillSauce(byId(SAUCES, S.sauce)); sauceProgress(); }
+    if (e.target.closest('#sauceReset') && S.sauce && S.sauce !== 'none') { clearSauce(); S.sauceDone = false; stage.classList.add('interactive'); sauceProgress(); setHint(); }
+  };
+}
+function sauceProgress() {
+  const m = $('#sauceMeter'); if (!m) return;
+  if (!S.sauceDone && S.sauceCov >= .85) { fillSauce(byId(SAUCES, S.sauce)); S.sauceDone = true; flashMsg('الصوص اتفرد حلو أوي 😋'); stage.classList.remove('interactive'); }
+  if (S.sauceCov >= 1 && S.sauce !== 'none') S.sauceDone = true;
+  const v = S.sauce === 'none' ? 100 : Math.round(S.sauceCov * 100);
+  m.querySelector('i').style.width = v + '%'; m.setAttribute('aria-valuenow', v);
+  m.parentElement && (m.hidden = !S.sauce || S.sauce === 'none');
+  const auto = $('#sauceAuto'), rs = $('#sauceReset');
+  if (auto) auto.hidden = !S.sauce || S.sauce === 'none' || S.sauceDone;
+  if (rs) rs.hidden = !S.sauce || S.sauce === 'none' || S.sauceCov === 0;
+  navState(); if (!drag) setHint();
+}
+
+/* --- cheese --- */
+function viewCheese() {
+  controls.innerHTML = `
+    <h2>رشّ الجبنة</h2>
+    <p class="sub">اختار نوع أو أكتر، وكل ما تختار نوع هيترش على البيتزا على طول.</p>
+    <div class="opts" aria-label="الجبنة">
+      ${CHEESES.map(c => `<button class="opt" aria-pressed="${S.cheeses.has(c.id)}" data-c="${c.id}"><span class="sw" style="background:${c.color};border:2px solid ${c.edge}"></span><b>${c.name}</b><span class="pr">+${money(scaled(c.price))}</span></button>`).join('')}
+    </div>
+    <div class="tip">🧀 <span>تقدر تدوس تاني على الجبنة عشان تشيلها، وهتلاقيها اتشطبت في الشيك.</span></div>`;
+  controls.onclick = e => {
+    const b = e.target.closest('[data-c]'); if (!b) return;
+    const id = b.dataset.c, c = byId(CHEESES, id);
+    if (S.cheeses.has(id)) { S.cheeses.delete(id); removeCheese(id); clearSlot('cheese-' + id); }
+    else { S.cheeses.add(id); sprinkleCheese(id); setSlot('cheese-' + id, c.name, c.price); }
+    b.setAttribute('aria-pressed', S.cheeses.has(id)); navState();
+  };
+}
+
+/* --- toppings --- */
+function viewTops() {
+  if (!S.activeTop) S.activeTop = 'pep';
+  controls.innerHTML = `
+    <h2>حط المكونات</h2>
+    <p class="sub">اختار مكوّن، واضغط على البيتزا في المكان اللي عايزه فيه. كل نوع بيتحسب مرة واحدة مهما حطيت منه.</p>
+    <div class="opts tops" aria-label="المكونات">
+      ${TOPS.map(t => `<button class="opt" aria-pressed="${S.activeTop === t.id}" data-t="${t.id}"><span class="cnt"></span><svg viewBox="0 0 40 40" aria-hidden="true"><use href="#t-${t.id}" width="40" height="40"/></svg><b>${t.name}</b><span class="pr">${money(scaled(t.price))}</span></button>`).join('')}
+    </div>
+    <div class="row">
+      <button class="btn btn-ghost btn-sm" id="scat">وزّعلي <span id="scatN"></span></button>
+      <button class="btn btn-ghost btn-sm" id="rmTop">شيل <span id="rmN"></span></button>
+    </div>`;
+  updateTopCounts();
+  controls.onclick = e => {
+    const b = e.target.closest('[data-t]');
+    if (b) { S.activeTop = b.dataset.t; $$('[data-t]', controls).forEach(x => x.setAttribute('aria-pressed', x === b)); updateTopCounts(); setHint(); }
+    if (e.target.closest('#scat')) { scatter(S.activeTop); updateTopCounts(); }
+    if (e.target.closest('#rmTop')) { removeTop(S.activeTop); updateTopCounts(); }
+  };
+}
+function updateTopCounts() {
+  $$('[data-t]', controls).forEach(b => { const n = (S.tops[b.dataset.t] || []).length; b.querySelector('.cnt').textContent = n ? fmt(n) : ''; b.setAttribute('aria-label', byId(TOPS, b.dataset.t).name + (n ? ` (${n} حتة)` : '')); });
+  const t = byId(TOPS, S.activeTop);
+  if ($('#scatN')) { $('#scatN').textContent = t.name; $('#rmN').textContent = t.name; $('#rmTop').hidden = !(S.tops[S.activeTop] || []).length; }
+  navState();
+}
+
+/* --- oven --- */
+let bakeRAF = 0, bakeStart = 0;
+const BAKE_MS = 7000, ZONE = [55, 80];
+function viewOven() {
+  applyBake(S.bakeP);
+  controls.innerHTML = `
+    <h2>دخّلها الفرن 🔥</h2>
+    <p class="sub">اضغط "دخّلها" وراقب الحرارة. طلّعها لما المؤشر يبقى في المنطقة الخضرا عشان تستوي مظبوط.</p>
+    <div class="meter heat" role="progressbar" aria-label="درجة السوا" aria-valuemin="0" aria-valuemax="100" id="heat"><span class="zone" style="inset-inline-start:${ZONE[0]}%;width:${ZONE[1] - ZONE[0]}%"></span><i></i></div>
+    <div class="meter-lbl"><span>نيّة</span><span>مظبوطة</span><span>محروقة</span></div>
+    <div class="row"><button class="btn btn-primary" id="bakeBtn">${S.bake ? 'اخبزها تاني' : 'دخّلها الفرن'}</button></div>
+    <div class="result" id="bakeRes" aria-live="polite">${S.bake ? bakeText(S.bake) : ''}</div>
+    <div class="tip">👨‍🍳 <span>متقلقش، دي لعبة! الشيف هيخبز البيتزا الحقيقية في فرن الحجر على أحسن ما يكون.</span></div>`;
+  heatUI();
+  $('#bakeBtn').onclick = () => {
+    if (bakeRAF) return stopBake();
+    S.bake = null; S.bakeP = 0; $('#cutLayer').innerHTML = ''; applyBake(0); $('#bakeRes').textContent = '';
+    stage.classList.add('heating'); bakeStart = performance.now();
+    $('#bakeBtn').textContent = 'طلّعها! 🍕'; navState();
+    const tick = now => {
+      S.bakeP = clamp((now - bakeStart) / BAKE_MS * 100, 0, 100);
+      applyBake(S.bakeP); heatUI();
+      if (S.bakeP >= 100) return stopBake();
+      bakeRAF = requestAnimationFrame(tick);
+    };
+    bakeRAF = requestAnimationFrame(tick);
+  };
+}
+function heatUI() { const m = $('#heat'); if (!m) return; m.querySelector('i').style.width = S.bakeP + '%'; m.setAttribute('aria-valuenow', Math.round(S.bakeP)); }
+function bakeResult(p) { return p < 35 ? 'raw' : p < ZONE[0] ? 'soft' : p <= ZONE[1] ? 'perfect' : p < 100 ? 'crispy' : 'burnt'; }
+function bakeText(r) { return { raw: 'لسه نيّة خالص 😬 الشيف هيكمّلها', soft: 'طرية شوية، بس ماشية 🙂', perfect: 'استوت مظبوط! إنت شيف بجد 🏆', crispy: 'مقرمشة زيادة شوية 😄', burnt: 'اتحرقت 🙈 متقلقش، الحقيقية هتطلع تحفة' }[r]; }
+function stopBake() {
+  cancelAnimationFrame(bakeRAF); bakeRAF = 0; stage.classList.remove('heating');
+  S.bake = bakeResult(S.bakeP);
+  const b = $('#bakeBtn'); if (b) b.textContent = 'اخبزها تاني';
+  const res = $('#bakeRes'); if (res) res.textContent = bakeText(S.bake);
+  drawCuts();
+  const note = { raw: 'السوا: نيّة (الشيف هيظبطها)', soft: 'السوا: طرية', perfect: 'السوا: مظبوط ✓ ممتاز', crispy: 'السوا: مقرمشة زيادة', burnt: 'السوا: اتحرقت 😅' }[S.bake];
+  setSlot('note-bake', note, null, { kind: 'note' });
+  navState();
+}
+
+/* --- pay / checkout --- */
+function miniPizzaSVG() {
+  const noId = h => h.replace(/\sid="[^"]*"/g, '');
+  return `<svg class="mini-pizza" viewBox="0 0 400 400" aria-hidden="true" style="filter:${layers.style.filter}">${noId($('#base').innerHTML)}<image href="${cv.toDataURL()}" x="0" y="0" width="400" height="400"></image>${noId($('#topSvg').innerHTML)}</svg>`;
+}
+function viewPay() {
+  if (S.placed) return viewDone();
+  const i = S.info, area = byId(AREAS, i.area);
+  formPanel.innerHTML = `
+    <h2>آخر خطوة: الدفع</h2>
+    <p class="sub">بص على الشيك وتأكد إن كل حاجة مظبوطة. ممكن كمان تضيف حاجات جنب البيتزا.</p>
+    <div class="recap">
+      ${miniPizzaSVG()}
+      <div style="flex:1">
+        <p><b>${esc(i.name)}</b> — <span dir="ltr">${esc(i.phone)}</span></p>
+        <p>${i.mode === 'delivery' ? `🛵 ${area.name}، ${esc(i.address)}${i.mark ? ' (' + esc(i.mark) + ')' : ''}` : `🏪 استلام من فرع ${esc(i.branch)}`}</p>
+        <p>🍕 ${byId(SIZES, i.size).name} × ${fmt(i.qty)} — ${i.when === 'now' ? 'دلوقتي' : esc(i.time)}</p>
+      </div>
+      <button class="btn btn-ghost btn-sm" id="editInfo">عدّل</button>
+    </div>
+    <div class="fsec">حاجات جنب البيتزا</div>
+    <div class="extras">
+      ${EXTRAS.map(x => `<div class="extra"><div><b>${x.name}</b><small>${money(x.price)}</small></div><div class="stepper-num" role="group" aria-label="${x.name}"><button type="button" data-x="${x.id}" data-q="1" aria-label="زوّد ${x.name}">+</button><output id="xo-${x.id}">${fmt(S.extras[x.id] || 0)}</output><button type="button" data-x="${x.id}" data-q="-1" aria-label="قلّل ${x.name}">−</button></div></div>`).join('')}
+    </div>
+    <div class="fsec">هتدفع إزاي؟</div>
+    <div class="seg" role="radiogroup" aria-label="طريقة الدفع">
+      ${PAYS.map(p => `<button type="button" class="opt" role="radio" aria-checked="${S.pay === p.id}" data-p="${p.id}"><b>${p.name}</b><small>${p.desc}</small></button>`).join('')}
+    </div>
+    <div class="field" style="margin-top:18px"><label for="fNote">ملاحظات للشيف <span class="opt-lbl">(اختياري)</span></label><textarea id="fNote" placeholder="مثلاً: من غير بصل في بيتزا واحدة، أو اقطعها ١٢ حتة">${esc(S.note)}</textarea></div>
+    <div class="row" style="justify-content:space-between;margin-top:22px">
+      <span style="font-family:var(--f-disp);font-size:1.4rem">الإجمالي: <span id="payTot" style="color:var(--tomato)">${money(totals().total)}</span></span>
+      <button class="btn btn-primary" id="placeBtn">أكّد الطلب ✓</button>
+    </div>`;
+  formPanel.onclick = e => {
+    if (e.target.closest('#editInfo')) return go(0);
+    if (e.target.closest('#placeBtn')) return placeOrder();
+    const p = e.target.closest('[data-p]');
+    if (p) { S.pay = p.dataset.p; $$('[data-p]', formPanel).forEach(x => x.setAttribute('aria-checked', x === p)); }
+    const q = e.target.closest('[data-x]');
+    if (q) {
+      const x = byId(EXTRAS, q.dataset.x);
+      const n = clamp((S.extras[x.id] || 0) + +q.dataset.q, 0, 20);
+      if (n === (S.extras[x.id] || 0)) return;
+      S.extras[x.id] = n; $('#xo-' + x.id).textContent = fmt(n);
+      const cur = active('x-' + x.id);
+      if (n === 0) clearSlot('x-' + x.id);
+      else if (cur) { cur.qty = n; cur.label = (n > 1 ? fmt(n) + ' × ' : '') + x.name; cur.li.innerHTML = lineHTML(cur); scheduleWrite(cur.li, 400); updatePeek(cur.label); renderTotals(); }
+      else setSlot('x-' + x.id, (n > 1 ? fmt(n) + ' × ' : '') + x.name, x.price, { kind: 'extra', qty: n });
+      $('#payTot').textContent = money(totals().total);
+    }
+  };
+  $('#fNote').oninput = e => S.note = e.target.value;
+}
+function placeOrder() {
+  if (S.placed) return;
+  S.placed = true;
+  if (S.note.trim()) setSlot('note-chef', 'ملاحظة: ' + S.note.trim(), null, { kind: 'note' });
+  setSlot('note-pay', 'الدفع: ' + byId(PAYS, S.pay).name, null, { kind: 'note' });
+  const t = totals();
+  const orders = store.get('pz-orders', []);
+  orders.push({ no: S.orderNo, at: new Date().toISOString(), info: S.info, dough: S.dough, sauce: S.sauce, cheeses: [...S.cheeses], tops: Object.keys(S.tops), extras: S.extras, pay: S.pay, note: S.note, total: t.total });
+  store.set('pz-orders', orders.slice(-20));
+  setTimeout(() => { $('#stamp').classList.add('on'); paper.scrollTo({ top: 0, behavior: 'smooth' }); }, 700);
+  if (matchMedia('(max-width:980px)').matches) setTimeout(() => toggleSheet(true), 300);
+  viewDone(); renderStepper(); navState();
+}
+function viewDone() {
+  const i = S.info;
+  formPanel.innerHTML = `
+    <div class="done-box">
+      <div class="big">🍕</div>
+      <h2>طلبك اتبعت للمطبخ يا ${esc(i.name.split(' ')[0])}!</h2>
+      <p class="sub">رقم الشيك <b>${fmt(S.orderNo).replace(/٬/g, '')}</b>. ${i.mode === 'delivery' ? 'البيتزا هتوصلك خلال ٣٥ لـ ٤٥ دقيقة.' : 'البيتزا هتبقى جاهزة في الفرع خلال ٢٠ دقيقة.'} هنكلمك على <span dir="ltr">${esc(i.phone)}</span> لو احتجنا حاجة.</p>
+      <ol class="track"><li class="on">اتستلم</li><li>بيتعجن</li><li>في الفرن</li><li>${i.mode === 'delivery' ? 'مع الطيار' : 'جاهز'}</li></ol>
+      <div class="row" style="justify-content:center">
+        <button class="btn btn-primary" id="again">اعمل بيتزا تانية</button>
+        <button class="btn btn-ghost" id="printBtn">اطبع الشيك 🖨️</button>
+      </div>
+    </div>`;
+  formPanel.onclick = e => { if (e.target.closest('#again')) resetGame(); if (e.target.closest('#printBtn')) window.print(); };
+  const steps = $$('.track li', formPanel);
+  steps.forEach((li, k) => { if (k) setTimeout(() => li.classList.add('on'), 1800 * k); });
+}
+
+/* ============ open / close / reset ============ */
+function openApp() {
+  app.hidden = false; document.body.classList.add('app-open');
+  if (!$('#ckMeta').textContent) writeMeta();
+  go(S.step);
+}
+function closeApp() { if (bakeRAF) stopBake(); app.hidden = true; document.body.classList.remove('app-open'); toggleSheet(false); }
+$$('[data-open]').forEach(b => b.addEventListener('click', openApp));
+$$('[data-close]', app).forEach(b => b.addEventListener('click', e => { e.preventDefault(); closeApp(); }));
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !app.hidden) closeApp(); });
+function toggleSheet(open) {
+  const w = $('#checkWrap'); const o = open ?? !w.classList.contains('open');
+  w.classList.toggle('open', o); $('#peek').setAttribute('aria-expanded', o);
+}
+$('#peek').addEventListener('click', () => toggleSheet());
+function resetGame() {
+  Object.assign(S, { step: 1, maxStep: 1, dough: null, roll: 0, sauce: null, sauceCov: 0, sauceDone: false, cheeses: new Set(), tops: {}, activeTop: null, bake: null, bakeP: 0, extras: {}, pay: 'cash', note: '', orderNo: newOrderNo(), placed: false });
+  lines.length = 0; rollNoted = false; lastTotal = null;
+  ckPizza.innerHTML = ''; ckExtra.innerHTML = ''; $('#ckExtraH').hidden = true;
+  $('#cheeseLayer').innerHTML = ''; $('#topLayer').innerHTML = ''; $('#cutLayer').innerHTML = '';
+  clearSauce(); applyBake(0); $('#stamp').classList.remove('on'); toggleSheet(false);
+  writeMeta(); writeCustomer(); go(1);
+}
+
+/* ============ site: menu + hero ============ */
+(function menu() {
+  const card = (title, icon, items) => `<div class="menu-card"><h3>${icon} ${title}</h3><ul>${items.map(([n, p]) => `<li><span>${n}</span><span class="p">${p}</span></li>`).join('')}</ul></div>`;
+  $('#menuGrid').innerHTML =
+    card('العجينة', '🫓', DOUGHS.map(d => [d.name, money(d.price)])) +
+    card('الصوص', '🍅', SAUCES.filter(s => s.id !== 'none').map(s => [s.name, s.price ? '+' + money(s.price) : 'ببلاش'])) +
+    card('الجبنة', '🧀', CHEESES.map(c => [c.name, '+' + money(c.price)])) +
+    card('المكونات', '🍄', TOPS.map(t => [t.name, '+' + money(t.price)])) +
+    card('حاجات جنب البيتزا', '🥤', EXTRAS.map(x => [x.name, money(x.price)]));
+})();
+(function hero() {
+  const s = $('#heroPizza');
+  let h = `<circle cx="200" cy="200" r="190" fill="#e3b679"/><circle cx="200" cy="200" r="168" fill="#c4361c"/><circle cx="200" cy="200" r="190" fill="url(#gloss)"/>`;
+  for (let i = 0; i < 60; i++) { const a = rnd(0, 6.28), r = Math.sqrt(Math.random()) * 158; h += `<ellipse cx="${200 + r * Math.cos(a)}" cy="${200 + r * Math.sin(a)}" rx="${rnd(10, 22)}" ry="${rnd(8, 16)}" fill="#fbecc0" opacity=".9" transform="rotate(${rnd(0, 180)} ${200 + r * Math.cos(a)} ${200 + r * Math.sin(a)})"/>`; }
+  const items = [['pep', 46], ['pep', 46], ['pep', 46], ['pep', 46], ['pep', 46], ['pep', 46], ['olive', 24], ['olive', 24], ['olive', 24], ['olive', 24], ['mush', 36], ['mush', 36], ['mush', 36], ['basil', 34], ['basil', 34], ['basil', 34], ['pepper', 38], ['pepper', 38]];
+  const placed = [];
+  items.forEach(([id, sz]) => {
+    for (let k = 0; k < 40; k++) {
+      const a = rnd(0, 6.28), r = Math.sqrt(rnd(.02, 1)) * 140, x = 200 + r * Math.cos(a), y = 200 + r * Math.sin(a);
+      if (placed.some(p => Math.hypot(p[0] - x, p[1] - y) < (p[2] + sz) / 2.2)) continue;
+      placed.push([x, y, sz]);
+      h += `<g transform="translate(${x.toFixed(0)} ${y.toFixed(0)}) rotate(${rnd(0, 360).toFixed(0)})"><use href="#t-${id}" x="${-sz / 2}" y="${-sz / 2}" width="${sz}" height="${sz}"/></g>`; break;
+    }
+  });
+  [0, 45, 90, 135].forEach(d => { const a = d * Math.PI / 180; h += `<line x1="${200 - 188 * Math.cos(a)}" y1="${200 - 188 * Math.sin(a)}" x2="${200 + 188 * Math.cos(a)}" y2="${200 + 188 * Math.sin(a)}" stroke="rgba(80,40,15,.35)" stroke-width="2.5"/>`; });
+  s.innerHTML = h;
+})();
+drawDough(); resetCells();
+})();
+</script>
+</body>
+</html>
