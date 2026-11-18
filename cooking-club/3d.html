@@ -1,0 +1,1138 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Cooking Club</title>
+<meta name="description" content="The Cooking Club: build your meal in 3D. Pizza, pasta, burgers, noodles, rice bowls, Egyptian koshary and mahshi, and custom fresh juices. Delivered hot.">
+<meta name="theme-color" content="#140e0a">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;600;800&family=Cairo:wght@400;600;800&family=Lalezar&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: dark kitchen-at-night stage; a live 3D counter in the middle, wooden ingredient tray on one side, paper receipt on the other */
+:root{
+  --night:#140e0a; --tile:#2a1d14; --cream:#f6ecd9; --paper:#fffdf6; --ink:#17110c;
+  --red:#e23b22; --red-d:#a8250f; --yellow:#ffc93c; --muted:#bfa992;
+  --wood1:#c98a4b; --wood2:#a86a32;
+  --f-disp:"Anton","Lalezar",Impact,sans-serif; --f-body:"Archivo","Cairo",system-ui,sans-serif; --f-mono:"Space Mono","Cairo",ui-monospace,monospace;
+  --shadow:0 18px 40px rgba(0,0,0,.45);
+  color-scheme:dark;
+}
+:root[lang="ar"]{--f-disp:"Lalezar","Anton",sans-serif; --f-body:"Cairo","Archivo",system-ui,sans-serif; --f-mono:"Cairo","Space Mono",monospace}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0}
+body{font:400 16px/1.55 var(--f-body);color:var(--cream);background:var(--night);overflow-x:hidden}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--yellow);outline-offset:3px}
+.sr{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+img{max-width:100%;display:block}
+
+.backdrop{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+   radial-gradient(ellipse 70% 55% at 50% 30%,rgba(255,170,90,.16),transparent 70%),
+   linear-gradient(rgba(0,0,0,.25),rgba(0,0,0,.25)),
+   repeating-linear-gradient(0deg,transparent 0 58px,rgba(0,0,0,.35) 58px 60px),
+   repeating-linear-gradient(90deg,transparent 0 118px,rgba(0,0,0,.35) 118px 120px),
+   linear-gradient(var(--tile),var(--night))}
+.backdrop::after{content:"";position:absolute;inset:0;opacity:.25;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+#gl{position:fixed;inset:0;width:100%;height:100%;z-index:1;display:block;touch-action:none;visibility:hidden}
+body.building #gl{visibility:visible}
+body.building .backdrop{background:radial-gradient(ellipse 80% 70% at 50% 40%,#4a3423 0,#22170f 55%,#0e0906 100%)}
+
+.bar{position:fixed;top:0;inset-inline:0;z-index:30;display:flex;align-items:center;gap:12px;padding:12px max(16px,env(safe-area-inset-right,0px)) 12px max(16px,env(safe-area-inset-left,0px));padding-top:max(12px,env(safe-area-inset-top,0px));pointer-events:none}
+.bar > *{pointer-events:auto}
+.brand{display:flex;flex-direction:column;align-items:center;background:var(--paper);color:var(--ink);padding:7px 14px 5px;transform:rotate(-2deg);box-shadow:var(--shadow);text-decoration:none;border:3px solid var(--ink);flex:none}
+.brand i{font-style:normal;font-family:"Space Mono",monospace;font-size:.58rem;letter-spacing:.3em;line-height:1}
+.brand b{font-family:"Anton",sans-serif;font-size:1.45rem;line-height:.95;letter-spacing:.02em;font-weight:400}
+.chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin-inline:auto;padding:4px;min-width:0}
+.chips::-webkit-scrollbar{display:none}
+.chip{border:2px solid rgba(255,255,255,.18);background:rgba(20,14,10,.72);backdrop-filter:blur(8px);color:var(--cream);padding:6px 13px;border-radius:999px;font-weight:800;font-size:.86rem;white-space:nowrap;transition:background .15s}
+.chip:hover{background:rgba(60,40,25,.9)}
+.chip[aria-current="true"]{background:var(--yellow);color:var(--ink);border-color:var(--yellow)}
+.tbtn{border:2px solid rgba(255,255,255,.2);background:rgba(20,14,10,.72);backdrop-filter:blur(8px);color:var(--cream);min-width:46px;height:46px;padding:0 12px;border-radius:999px;font-weight:800;display:flex;align-items:center;gap:6px;flex:none}
+.tbtn:hover{border-color:var(--yellow)}
+.tbtn .badge{background:var(--red);color:#fff;border-radius:999px;min-width:22px;height:22px;display:grid;place-items:center;font-size:.75rem;padding:0 6px}
+.tbtn .badge:empty{display:none}
+
+.home{position:relative;z-index:2;padding:96px max(16px,env(safe-area-inset-right,0px)) 40px max(16px,env(safe-area-inset-left,0px))}
+.wrap{max-width:1180px;margin:0 auto}
+.hero{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:center;min-height:min(620px,78vh)}
+.hero h1{margin:0;font-family:var(--f-disp);font-weight:400;font-size:clamp(3rem,7.4vw,6.6rem);line-height:.92;text-transform:uppercase;text-wrap:balance}
+.hero h1 small{display:block;font-family:"Space Mono",var(--f-mono);font-size:.16em;letter-spacing:.4em;color:var(--yellow);margin-bottom:.6em}
+.hero h1 span{color:var(--red)}
+.hero p{font-size:clamp(1rem,1.5vw,1.2rem);color:var(--muted);max-width:32em;margin:18px 0 26px}
+.cta{display:inline-flex;align-items:center;gap:10px;background:var(--red);color:#fff;border:0;border-radius:999px;padding:14px 28px;font-weight:800;font-size:1.1rem;text-decoration:none;box-shadow:0 10px 30px rgba(226,59,34,.35);transition:transform .15s}
+.cta:hover{transform:translateY(-2px)}
+.cta[disabled]{background:#6e655d;box-shadow:none;cursor:not-allowed;transform:none}
+.cta.ghost{background:transparent;border:2px solid rgba(255,255,255,.25);box-shadow:none}
+.hero-art{position:relative;aspect-ratio:1;max-width:100%}
+.hero-art img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;opacity:0;transition:opacity .9s,transform 1.2s;transform:scale(.96)}
+.hero-art img.on{opacity:1;transform:none}
+.hero-art::before{content:"";position:absolute;inset:12% 8% 4%;background:radial-gradient(ellipse at 50% 70%,rgba(255,180,100,.25),transparent 65%)}
+.facts{display:flex;flex-wrap:wrap;gap:26px;color:var(--muted);font-size:.9rem;margin-top:26px}
+.facts b{display:block;font-family:var(--f-disp);font-weight:400;font-size:1.6rem;color:var(--cream)}
+@media (max-width:860px){.hero{grid-template-columns:1fr;min-height:0}.hero-art{max-width:420px;width:100%;margin:0 auto;order:-1}}
+.cat{margin-top:56px}
+.cat h2{font-family:var(--f-disp);font-weight:400;font-size:clamp(1.8rem,3.4vw,2.6rem);margin:0 0 4px;text-transform:uppercase}
+.cat > p{color:var(--muted);margin:0 0 18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:16px}
+@media (max-width:480px){.grid{grid-template-columns:1fr 1fr;gap:10px}}
+.pick{position:relative;display:flex;flex-direction:column;align-items:flex-start;text-align:start;background:linear-gradient(180deg,#2b1f16,#1d150f);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:10px 16px 16px;color:var(--cream);transition:transform .2s,border-color .2s;min-width:0}
+.pick:hover{transform:translateY(-4px);border-color:rgba(255,201,60,.6)}
+.pick .im{width:100%;aspect-ratio:1;display:grid;place-items:center}
+.pick .im img{width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 16px 18px rgba(0,0,0,.45))}
+.pick .im .ph{width:60%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.08),transparent 70%)}
+.pick b{font-family:var(--f-disp);font-weight:400;font-size:1.5rem;line-height:1.05}
+.pick .pr{font-family:var(--f-mono);color:var(--yellow);font-weight:700;margin-top:6px;font-size:.9rem}
+.pick .tag{position:absolute;top:14px;inset-inline-end:14px;background:var(--red);color:#fff;font-weight:800;font-size:.72rem;padding:3px 9px;border-radius:999px;letter-spacing:.04em}
+.how{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:64px}
+.how > div{background:var(--paper);color:var(--ink);border-radius:18px;padding:20px}
+.how .n{font-family:var(--f-disp);font-size:2.4rem;line-height:1;color:var(--red)}
+.how h3{font-family:var(--f-disp);font-weight:400;font-size:1.35rem;margin:.2em 0}
+.how p{margin:0;font-size:.93rem;color:#4b3f35}
+@media (max-width:860px){.how{grid-template-columns:1fr 1fr}}
+@media (max-width:480px){.how{grid-template-columns:1fr}}
+.info{display:grid;grid-template-columns:1.2fr 1fr;gap:14px;margin-top:14px}
+.info > div{background:#241a12;border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:22px}
+.info h2{font-family:var(--f-disp);font-weight:400;font-size:1.9rem;margin:0 0 .3em}
+.info dl{display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0}
+.info dt{font-weight:800}.info dd{margin:0;color:var(--muted)}
+.info .hot{background:var(--red);border:0}
+.info .hot p{margin:0 0 16px}
+.info .hot .cta{background:var(--paper);color:var(--red);box-shadow:none}
+@media (max-width:760px){.info{grid-template-columns:1fr}}
+.foot{position:relative;z-index:2;text-align:center;color:var(--muted);font-family:var(--f-mono);font-size:.78rem;padding:30px 16px 40px}
+
+.build{position:fixed;inset:0;z-index:10;pointer-events:none}
+.build > *{pointer-events:auto}
+.build > .drophl,.build > .hint3d,.build > .toast{pointer-events:none}
+.tray{position:absolute;top:0;bottom:0;inset-inline-start:0;width:min(28vw,320px);
+  background:repeating-linear-gradient(100deg,rgba(255,255,255,.06) 0 3px,transparent 3px 22px),repeating-linear-gradient(80deg,rgba(90,40,0,.14) 0 2px,transparent 2px 40px),linear-gradient(90deg,var(--wood2),var(--wood1));
+  border-radius:0 50% 50% 0 / 0 50% 50% 0;box-shadow:inset -10px 0 0 rgba(0,0,0,.18),12px 0 40px rgba(0,0,0,.55);
+  display:flex;flex-direction:column;justify-content:center;gap:1vh;padding:90px 0 200px;overflow:hidden}
+:root[dir="rtl"] .tray{border-radius:50% 0 0 50% / 50% 0 0 50%;box-shadow:inset 10px 0 0 rgba(0,0,0,.18),-12px 0 40px rgba(0,0,0,.55)}
+.tray.many{display:grid;grid-template-columns:repeat(2,max-content);align-content:center;justify-content:start;gap:26px 14px;padding-inline-start:18px}
+.tray.many .bowlbtn{margin:0;width:min(11vh,92px)}
+.tray.many .bowlbtn .nm{top:auto;bottom:-14px;inset-inline-start:50%;transform:translateX(-50%);font-size:.68rem;padding:1px 6px}
+:root[dir="rtl"] .tray.many .bowlbtn .nm{transform:translateX(50%)}
+.tray.many .bowlbtn .nm i{display:none}
+.bowlbtn{position:relative;align-self:flex-start;margin-inline-start:calc(var(--arc,0) * 1px + 14px);width:min(var(--bs,13vh),100px);aspect-ratio:1;border-radius:50%;border:0;padding:0;background:radial-gradient(circle at 42% 36%,#fff,#ece7df 58%,#cbc4b8 61%,#f7f4ef 67%,#d6cfc3);box-shadow:0 10px 16px rgba(0,0,0,.45),inset 0 -5px 8px rgba(0,0,0,.14);touch-action:none;transition:transform .15s;flex:none}
+.bowlbtn img{position:absolute;inset:8%;width:84%;height:84%;object-fit:contain;pointer-events:none;-webkit-user-drag:none}
+.bowlbtn:hover{transform:scale(1.06) rotate(-4deg)}
+.bowlbtn .nm{position:absolute;top:50%;inset-inline-start:calc(100% + 8px);transform:translateY(-50%);background:var(--ink);color:#fff;font-size:.78rem;font-weight:800;padding:3px 8px;white-space:nowrap;pointer-events:none;line-height:1.3;border-radius:6px}
+.bowlbtn .nm i{font-style:normal;color:var(--yellow);font-family:var(--f-mono);font-weight:400;display:block;font-size:.72rem}
+.bowlbtn.on{box-shadow:0 0 0 4px var(--yellow),0 10px 16px rgba(0,0,0,.45)}
+.bowlbtn.on::after{content:"✓";position:absolute;top:-4px;inset-inline-end:-4px;width:26px;height:26px;border-radius:50%;background:var(--red);color:#fff;font-weight:800;display:grid;place-items:center;border:2px solid var(--paper);font-size:.8rem}
+.dragghost{position:fixed;z-index:200;width:110px;height:110px;pointer-events:none;transform:translate(-50%,-50%) scale(1.1);filter:drop-shadow(0 16px 12px rgba(0,0,0,.5))}
+.dragghost img{width:100%;height:100%;object-fit:contain}
+.hint3d{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);color:rgba(255,255,255,.55);font-size:.8rem;white-space:nowrap}
+.toast{position:absolute;top:96px;left:50%;transform:translateX(-50%);background:var(--paper);color:var(--ink);font-weight:800;padding:8px 18px;border-radius:999px;white-space:nowrap;opacity:0;transition:opacity .25s;box-shadow:var(--shadow)}
+.toast.on{opacity:1}
+.drophl{position:absolute;inset:0;box-shadow:inset 0 0 0 4px var(--yellow);opacity:0;transition:opacity .2s}
+.drophl.on{opacity:.8}
+.err3d{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:40px;color:var(--cream)}
+
+.stepcard{position:absolute;bottom:20px;inset-inline-start:20px;width:min(330px,calc(100vw - 40px));background:var(--yellow);color:var(--ink);border-radius:16px;box-shadow:0 8px 0 #b38716,var(--shadow);padding:14px 18px;transform:rotate(-2deg);z-index:5;text-align:center}
+.stepcard .k{font-family:var(--f-mono);font-size:.8rem;letter-spacing:.14em;font-weight:700}
+.stepcard h2{margin:2px 0 4px;font-family:var(--f-disp);font-weight:400;font-size:1.9rem;line-height:1;text-transform:uppercase}
+.stepcard p{margin:0 0 12px;font-size:.86rem}
+.stepcard .nav{display:flex;gap:8px;justify-content:center}
+.sbtn{border:2px solid var(--ink);background:var(--paper);color:var(--ink);padding:6px 14px;border-radius:999px;font-weight:800;font-size:.92rem;min-height:42px}
+.sbtn.pri{background:var(--ink);color:var(--yellow)}
+.sbtn[disabled]{opacity:.4;cursor:not-allowed}
+.dots{display:flex;gap:6px;justify-content:center;margin-bottom:8px}
+.dots i{width:9px;height:9px;border-radius:50%;border:2px solid var(--ink)}
+.dots i.on{background:var(--ink)}
+.dots i.cur{background:var(--red);border-color:var(--red);transform:scale(1.3)}
+
+.receipt{position:absolute;top:80px;inset-inline-end:max(16px,env(safe-area-inset-right,0px));width:min(300px,24vw);min-width:250px;background:var(--paper);color:var(--ink);padding:18px 20px 30px;box-shadow:var(--shadow);transform:rotate(1.5deg);font-family:var(--f-mono);font-size:.82rem;z-index:5;max-height:calc(100vh - 110px);overflow:auto;scrollbar-width:none;
+  -webkit-mask:linear-gradient(#000 0 0) top/100% calc(100% - 10px) no-repeat,conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) bottom/16px 10px repeat-x;
+  mask:linear-gradient(#000 0 0) top/100% calc(100% - 10px) no-repeat,conic-gradient(from -45deg at bottom,#0000,#000 1deg 89deg,#0000 90deg) bottom/16px 10px repeat-x}
+.rc-head{text-align:center;border-bottom:2px dashed #999;padding-bottom:10px;margin-bottom:8px}
+.rc-head i{display:block;font-style:normal;letter-spacing:.35em;font-size:.62rem;font-weight:700;font-family:"Space Mono",monospace}
+.rc-head b{display:block;font-family:"Anton",sans-serif;font-weight:400;font-size:2rem;line-height:.92}
+.rc-head .meta{display:block;font-weight:400;font-size:.7rem;color:#666;margin-top:6px}
+.rc-dish{font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.rc-lines{list-style:none;margin:0;padding:0}
+.rc-lines li{display:flex;justify-content:space-between;gap:10px;padding:4px 0;color:#9a9a9a}
+.rc-lines li.f{color:var(--ink)}
+.rc-lines li.f .n{text-decoration:underline;text-underline-offset:3px}
+.rc-lines li .n small{display:block;color:#777;font-size:.7rem;text-decoration:none}
+.rc-lines li.new{animation:print .5s steps(6) both}
+@keyframes print{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0)}}
+.rc-tot{display:flex;justify-content:space-between;border-top:2px dashed #999;margin-top:8px;padding-top:8px;font-weight:700;font-size:1rem}
+.barcode{height:40px;margin:12px 0 4px;background:var(--bc);background-size:100% 100%}
+.rc-no{text-align:center;font-size:.68rem;letter-spacing:.3em}
+.rc-btn{display:block;width:100%;margin-top:12px;border:2px solid var(--ink);background:transparent;color:var(--ink);padding:10px;font-family:var(--f-disp);font-size:1.15rem;letter-spacing:.05em;text-transform:uppercase}
+.rc-btn.go{background:var(--ink);color:#fff}
+.rc-btn[disabled]{opacity:.4;cursor:not-allowed}
+.rc-link{display:block;width:100%;margin-top:6px;border:0;background:none;color:var(--ink);font-family:var(--f-mono);font-size:.75rem;text-decoration:underline}
+.peek{display:none}
+
+@media (max-width:900px){
+  .bar{flex-wrap:wrap;gap:8px}
+  .brand b{font-size:1.1rem}
+  .chips{order:3;width:100%;margin:0}
+  .tray{top:auto;bottom:112px;height:auto;width:100%;flex-direction:row;justify-content:flex-start;overflow-x:auto;border-radius:0;padding:10px 14px 18px;gap:12px;scrollbar-width:none;box-shadow:0 -10px 30px rgba(0,0,0,.4)}
+  :root[dir="rtl"] .tray{border-radius:0;box-shadow:0 -10px 30px rgba(0,0,0,.4)}
+  .bowlbtn{margin:0!important;width:76px;align-self:center}
+  .tray.many{display:flex}
+  .bowlbtn .nm{top:auto;bottom:-10px;inset-inline-start:50%;transform:translateX(-50%);font-size:.64rem;padding:1px 6px}
+  :root[dir="rtl"] .bowlbtn .nm{transform:translateX(50%)}
+  .bowlbtn .nm i{display:none}
+  .stepcard{bottom:8px;inset-inline:8px;width:auto;transform:none;padding:8px 12px;display:grid;grid-template-columns:1fr auto;align-items:center;text-align:start;gap:2px 10px;box-shadow:0 4px 0 #b38716}
+  .stepcard .dots,.stepcard p{display:none}
+  .stepcard h2{font-size:1.3rem}
+  .stepcard .nav{grid-row:1/3;grid-column:2}
+  .receipt{top:auto;bottom:0;inset-inline:0;width:auto;min-width:0;max-height:80dvh;transform:translateY(110%);transition:transform .35s;z-index:40;border-top:4px solid var(--ink)}
+  .receipt.open{transform:none}
+  .peek{display:flex;position:absolute;top:118px;inset-inline-end:12px;z-index:6;align-items:center;gap:6px;background:var(--paper);color:var(--ink);border:0;border-radius:999px;box-shadow:var(--shadow);padding:7px 12px;font-family:var(--f-mono);font-weight:700;font-size:.82rem}
+  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:35}
+  .toast{top:160px}
+  .hint3d{display:none}
+}
+
+.sheet{position:fixed;inset:0;z-index:60;display:grid;place-items:center;background:rgba(5,3,2,.7);backdrop-filter:blur(4px);padding:16px}
+.panel{position:relative;width:min(1000px,100%);max-height:calc(100dvh - 32px);overflow:auto;background:var(--cream);color:var(--ink);border-radius:22px;box-shadow:var(--shadow)}
+.panel-h{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--yellow);padding:12px 18px}
+.panel-h h2{margin:0;font-family:var(--f-disp);font-weight:400;font-size:1.9rem;line-height:1}
+.panel-b{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;padding:20px}
+@media (max-width:800px){.panel-b{grid-template-columns:1fr}}
+.sec{font-family:var(--f-disp);font-weight:400;font-size:1.4rem;margin:0 0 10px;line-height:1.1}
+.citem{display:flex;gap:12px;align-items:center;background:var(--paper);border-radius:14px;padding:8px 12px;margin-bottom:10px;box-shadow:0 2px 0 rgba(0,0,0,.06)}
+.citem img{width:78px;height:78px;object-fit:contain;flex:none}
+.citem .d{flex:1;min-width:0}
+.citem b{font-family:var(--f-disp);font-weight:400;font-size:1.2rem}
+.citem p{margin:0;font-size:.8rem;color:#5b5047}
+.citem .pr{font-family:var(--f-mono);font-weight:700;white-space:nowrap}
+.qty{display:inline-flex;align-items:center;border:2px solid var(--ink);border-radius:999px;background:#fff;overflow:hidden}
+.qty button{width:32px;height:32px;border:0;background:none;font-weight:800;font-size:1.1rem;color:var(--ink)}
+.qty output{min-width:24px;text-align:center;font-weight:800}
+.xgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.xitem{display:flex;justify-content:space-between;align-items:center;gap:6px;background:var(--paper);border-radius:12px;padding:6px 8px;font-size:.86rem}
+.xitem b{display:block;line-height:1.2}
+.xitem small{font-family:var(--f-mono)}
+.field{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.field label{font-weight:800;font-size:.9rem}
+.field input,.field select,.field textarea{border:2px solid #cdbfae;background:#fff;color:var(--ink);padding:10px 12px;min-height:46px;font-size:16px;border-radius:12px;width:100%}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--ink)}
+.field textarea{min-height:70px;resize:vertical}
+.field .err{color:var(--red-d);font-size:.8rem;font-weight:700;min-height:1em}
+.field.bad input,.field.bad select,.field.bad textarea{border-color:var(--red)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:420px){.two{grid-template-columns:1fr}}
+.seg{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.seg button{flex:1 1 100px;border:2px solid var(--ink);background:#fff;color:var(--ink);border-radius:12px;padding:8px;font-weight:800;font-size:.88rem;min-height:46px}
+.seg button[aria-checked="true"]{background:var(--ink);color:#fff}
+.sum{background:var(--paper);border:2px dashed #b9a995;border-radius:12px;padding:12px 14px;font-family:var(--f-mono);margin:12px 0}
+.sum div{display:flex;justify-content:space-between}
+.sum .g{font-weight:700;font-size:1.15rem;border-top:2px dashed #b9a995;margin-top:6px;padding-top:6px}
+.empty{background:var(--paper);border:2px dashed #b9a995;border-radius:14px;padding:24px;text-align:center}
+.done{display:grid;justify-items:center;text-align:center;padding:26px 20px 30px;gap:12px}
+.done h2{font-family:var(--f-disp);font-weight:400;font-size:clamp(2rem,6vw,3.2rem);margin:0;line-height:1}
+.printer{width:min(360px,100%);background:#2a2a2a;border-radius:14px 14px 4px 4px;height:26px;position:relative;box-shadow:0 6px 0 #111}
+.printer::after{content:"";position:absolute;left:10%;right:10%;bottom:5px;height:5px;background:#000;border-radius:4px}
+.longrc{width:min(310px,calc(100% - 40px));margin-top:-12px;background:var(--paper);font-family:var(--f-mono);font-size:.8rem;padding:18px 18px 26px;box-shadow:var(--shadow);text-align:start;animation:printout 2.4s steps(24) both}
+@keyframes printout{from{clip-path:inset(0 0 100% 0)}to{clip-path:inset(0)}}
+.longrc .l{display:flex;justify-content:space-between;gap:8px}
+.longrc .l.sub{color:#666;padding-inline-start:10px;font-size:.74rem}
+.longrc hr{border:0;border-top:2px dashed #999;margin:8px 0}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="backdrop" aria-hidden="true"></div>
+<canvas id="gl" aria-hidden="true"></canvas>
+
+<header class="bar">
+  <a class="brand" href="#" id="brandLink"><i>THE</i><b>COOKING CLUB</b></a>
+  <nav class="chips" id="chips" aria-label="Menu"></nav>
+  <button class="tbtn" id="sndBtn" aria-pressed="true"></button>
+  <button class="tbtn" id="langBtn"></button>
+  <button class="tbtn" id="cartBtn"><svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h3l2.4 11h10l2-8H7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><circle cx="10" cy="20" r="1.8" fill="currentColor"/><circle cx="17" cy="20" r="1.8" fill="currentColor"/></svg><span class="badge" id="cartN"></span></button>
+</header>
+
+<main class="home" id="home">
+  <div class="wrap">
+    <section class="hero">
+      <div>
+        <h1 id="heroTitle"></h1>
+        <p id="heroSub"></p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap"><button class="cta" id="heroCta"></button><a class="cta ghost" href="#menu" id="heroMenu"></a></div>
+        <div class="facts" id="facts"></div>
+      </div>
+      <div class="hero-art" id="heroArt" aria-hidden="true"></div>
+    </section>
+    <div id="menu"></div>
+    <section class="how" id="how"></section>
+    <section class="info" id="info"></section>
+  </div>
+</main>
+<footer class="foot" id="foot"></footer>
+
+<section class="build" id="build" hidden aria-label="Builder">
+  <div class="drophl" id="drophl"></div>
+  <div class="tray" id="tray" role="group"></div>
+  <div class="hint3d" id="hint3d"></div>
+  <div class="toast" id="toast" role="status"></div>
+  <div class="stepcard" id="stepcard"></div>
+  <button class="peek" id="peek"></button>
+  <div class="scrim" id="scrim" hidden></div>
+  <aside class="receipt" id="receipt" aria-label="Receipt"></aside>
+</section>
+
+<div class="sheet" id="sheet" hidden role="dialog" aria-modal="true" aria-labelledby="sheetTitle"><div class="panel" id="panel"></div></div>
+<div class="sr" aria-live="polite" id="live"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/environments/RoomEnvironment.js"></script>
+<script>
+(() => {
+'use strict';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const store = { get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} } };
+function rng(seed) { let a = 0; for (const c of String(seed)) a = (a * 31 + c.charCodeAt(0)) | 0; return () => { a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const toEn = s => String(s).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+
+/* ================= i18n ================= */
+let LANG = store.get('cc-lang', (navigator.language || '').startsWith('ar') ? 'ar' : 'en');
+const T = {
+  en: {
+    heroTitle: '<small>THE COOKING CLUB</small>You build it.<br><span>We cook it.</span>', heroSub: 'Pizza, pasta, burgers, noodles, rice bowls, Egyptian koshary and mahshi, and fresh juices mixed your way. Drag the ingredients onto your plate in 3D, watch the receipt print, and we deliver it hot.',
+    heroCta: 'Start building', menuBtn: 'See the menu', facts: [['11', 'dishes to build'], ['80+', 'fresh ingredients'], ['35–45 min', 'to your door']],
+    cats: { street: ['Street food', 'Burgers, hot dogs, loaded fries and ramen.'], italian: ['Italian', 'Stone-baked pizza and fresh pasta.'], egypt: ['Egyptian classics', 'Koshary and home-style mahshi, the way mama makes them.'], bowls: ['Bowls', 'Rice bowls built around your favourite protein.'], juice: ['Fresh juice bar', 'Pick up to three fruits, choose a base, and we press it fresh.'] },
+    from: 'from', step: 'Step', back: 'Back', next: 'Next', skip: 'Skip', done: 'Done',
+    dragHint: 'Drag a pick onto the plate, or tap it.', dragOne: 'Pick one: drag it onto the plate, or tap it.', upTo: 'Pick up to', required: 'Required',
+    total: 'TOTAL', order: 'Order my', receiptBtn: 'Receipt', rotate: 'Drag the plate to look around · scroll to zoom',
+    cart: 'Your order', empty: 'Your order is empty. Go build something tasty!', sides: 'Drinks & desserts', details: 'Delivery details',
+    name: 'Name', phone: 'Mobile', area: 'Area', address: 'Full address', addrPh: 'Street, building, floor, apartment', notes: 'Notes for the kitchen', optional: '(optional)',
+    pickArea: 'Choose your area', pay: 'Payment', cash: 'Cash', card: 'Card on delivery', instapay: 'InstaPay', subtotal: 'Subtotal', delivery: 'Delivery', place: 'Place order',
+    keep: '+ Build another', close: 'Close', remove: 'Remove', errName: 'Tell us your name', errPhone: 'Enter a valid Egyptian mobile (01xxxxxxxxx)', errArea: 'Choose your area', errAddr: 'Add street, building and floor',
+    thanks: 'Order sent to the kitchen!', eta: 'Arriving in 35–45 min. We will call you if we need anything.', orderNo: 'Order', again: 'Order again', home: 'Back home',
+    howT: ['Pick a dish', 'Build it in 3D', 'Watch the receipt', 'We deliver'], howD: ['Eleven dishes, from smash burgers to koshary and fresh juice.', 'Drag ingredients from the tray onto the plate and turn it around to check every angle.', 'Every pick prints on the receipt with its price. No surprises.', 'Add drinks, enter your address, and pay how you like.'],
+    hours: 'Hours & delivery', hoursD: [['Open', 'Every day, 12 PM – 3 AM'], ['Delivery', 'Cairo & Giza, 35–45 min'], ['Pay', 'Cash, card on delivery, InstaPay'], ['Branches', 'Nasr City · Maadi · Sheikh Zayed']],
+    hungry: 'Hungry?', hungryD: 'A full order takes about two minutes, and building it is half the fun.', foot: '© The Cooking Club. You build it, we cook it.',
+    added: 'Added', removed: 'Removed', dropHere: 'Drop it on the plate', max: 'That is the maximum for this step', curr: 'EGP', added2cart: 'Added to your order', free: 'Free',
+    no3d: '3D could not start on this device. Try another browser, or refresh the page.'
+  },
+  ar: {
+    heroTitle: '<small>THE COOKING CLUB</small>إنت تعملها.<br><span>وإحنا نطبخها.</span>', heroSub: 'بيتزا، مكرونة، برجر، نودلز، بول رز، كشري ومحشي مصري، وعصاير فريش بالمكس اللي تحبه. اسحب المكونات على الطبق ثلاثي الأبعاد، شوف الفاتورة بتتطبع، وإحنا نوصّلهالك سخنة.',
+    heroCta: 'يلا نبدأ', menuBtn: 'شوف المنيو', facts: [['١١', 'أكلة تعملها'], ['+٨٠', 'مكون طازة'], ['٣٥–٤٥ دقيقة', 'لحد باب البيت']],
+    cats: { street: ['أكل شارع', 'برجر، هوت دوج، بطاطس محمّلة ورامن.'], italian: ['إيطالي', 'بيتزا في فرن حجر ومكرونة فريش.'], egypt: ['أكل مصري', 'كشري ومحشي بيتي زي أكل ماما.'], bowls: ['بول', 'بول رز حوالين البروتين اللي بتحبه.'], juice: ['بار العصاير الفريش', 'اختار لحد ٣ فواكه، واختار القاعدة، وإحنا نعصرها فريش.'] },
+    from: 'من', step: 'خطوة', back: 'رجوع', next: 'التالي', skip: 'تخطّي', done: 'خلصت',
+    dragHint: 'اسحب اختيارك على الطبق، أو دوس عليه.', dragOne: 'اختار واحد: اسحبه على الطبق أو دوس عليه.', upTo: 'اختار لحد', required: 'مطلوب',
+    total: 'الإجمالي', order: 'اطلب', receiptBtn: 'الفاتورة', rotate: 'اسحب الطبق عشان تلفّه · واعمل زووم بالعجلة',
+    cart: 'طلبك', empty: 'طلبك فاضي. يلا اعمل حاجة حلوة!', sides: 'مشروبات وحلويات', details: 'بيانات التوصيل',
+    name: 'الاسم', phone: 'الموبايل', area: 'المنطقة', address: 'العنوان بالتفصيل', addrPh: 'الشارع، العمارة، الدور، الشقة', notes: 'ملاحظات للمطبخ', optional: '(اختياري)',
+    pickArea: 'اختار منطقتك', pay: 'الدفع', cash: 'كاش', card: 'فيزا عند الاستلام', instapay: 'إنستاباي', subtotal: 'المجموع', delivery: 'التوصيل', place: 'أكّد الطلب',
+    keep: '+ اعمل أكلة تانية', close: 'اقفل', remove: 'شيل', errName: 'اكتب اسمك', errPhone: 'اكتب رقم موبايل مصري صح (01xxxxxxxxx)', errArea: 'اختار منطقتك', errAddr: 'اكتب الشارع والعمارة والدور',
+    thanks: 'طلبك اتبعت للمطبخ!', eta: 'هيوصلك خلال ٣٥–٤٥ دقيقة. هنكلمك لو احتجنا حاجة.', orderNo: 'طلب رقم', again: 'اطلب تاني', home: 'الرئيسية',
+    howT: ['اختار الأكلة', 'اعملها ثلاثي الأبعاد', 'تابع الفاتورة', 'إحنا نوصّل'], howD: ['١١ أكلة، من السماش برجر للكشري والعصير الفريش.', 'اسحب المكونات من الصينية على الطبق ولفّه تشوفه من كل ناحية.', 'كل اختيار بيتطبع في الفاتورة بسعره. من غير مفاجآت.', 'زوّد مشروبات، اكتب عنوانك، وادفع زي ما تحب.'],
+    hours: 'المواعيد والتوصيل', hoursD: [['مفتوحين', 'كل يوم من ١٢ الضهر لـ ٣ الفجر'], ['التوصيل', 'القاهرة والجيزة، ٣٥–٤٥ دقيقة'], ['الدفع', 'كاش، فيزا عند الاستلام، إنستاباي'], ['الفروع', 'مدينة نصر · المعادي · الشيخ زايد']],
+    hungry: 'جعان؟', hungryD: 'الطلب كله بياخد حوالي دقيقتين، ونص المتعة إنك تعمله بإيدك.', foot: '© ذا كوكينج كلَب. إنت تعملها، وإحنا نطبخها.',
+    added: 'اتضاف', removed: 'اتشال', dropHere: 'سيبه على الطبق', max: 'ده أقصى عدد في الخطوة دي', curr: 'ج.م', added2cart: 'اتضاف لطلبك', free: 'ببلاش',
+    no3d: 'الـ 3D مش راضي يشتغل على الجهاز ده. جرّب متصفح تاني أو اعمل ريفريش.'
+  }
+};
+const t = k => T[LANG][k];
+const N = o => o[LANG] || o.en;
+const num = n => LANG === 'ar' ? Number(n).toLocaleString('ar-EG', { useGrouping: false }) : String(n);
+const money = n => LANG === 'ar' ? `${num(n)} ${t('curr')}` : `${t('curr')} ${n}`;
+
+/* ================= menu data ================= */
+const I = (id, en, ar, price, x = {}) => ({ id, en, ar, price, ...x });
+const SAUCE_C = { ketchup: '#b8180f', mustard: '#e9b21c', mayo: '#f4ecd4', bbq: '#4a170a', special: '#e8763a', garlic: '#f3ead2', honey: '#d99a1f', buffalo: '#cf3f15', ranch: '#ecebdf' };
+const DISHES = [
+  { id: 'pizza', cat: 'italian', kind: 'pizza', en: 'Pizza', ar: 'بيتزا', noun: { en: 'pizza', ar: 'البيتزا' }, tag: { en: 'STONE OVEN', ar: 'فرن حجر' },
+    steps: [
+      { k: 'base', en: 'Choose the crust', ar: 'اختار العجينة', short: { en: 'Crust', ar: 'عجينة' }, req: 1, items: [I('classic', 'Classic crust', 'عجينة كلاسيك', 80, { c: '#e7b56d', w: .085 }), I('thin', 'Thin & crispy', 'رفيعة مقرمشة', 85, { c: '#e9be7a', w: .055 }), I('stuffed', 'Cheese-stuffed crust', 'أطراف محشية جبنة', 110, { c: '#e2a95e', w: .12, stuffed: 1 })] },
+      { k: 'sauce', en: 'Spread the sauce', ar: 'افرد الصوص', short: { en: 'Sauce', ar: 'صوص' }, req: 1, items: [I('tomato', 'Tomato', 'طماطم', 0, { c: '#b8240f' }), I('bbq', 'BBQ', 'باربكيو', 10, { c: '#4a170a' }), I('white', 'White garlic', 'وايت بالتوم', 15, { c: '#efe4c6' }), I('pesto', 'Pesto', 'بيستو', 20, { c: '#55791f' })] },
+      { k: 'cheese', en: 'Add the cheese', ar: 'رش الجبنة', short: { en: 'Cheese', ar: 'جبنة' }, multi: 4, items: [I('mozz', 'Mozzarella', 'موتزاريلا', 25, { c: '#f8eccb' }), I('ched', 'Cheddar', 'شيدر', 20, { c: '#f2a12a' }), I('romy', 'Roumy', 'جبنة رومي', 20, { c: '#efd690' }), I('parm', 'Parmesan', 'بارميزان', 25, { c: '#fbf3dc' })] },
+      { k: 'tops', en: 'Top it', ar: 'حط المكونات', short: { en: 'Toppings', ar: 'مكونات' }, multi: 6, items: [I('pep', 'Pepperoni', 'بيبروني', 35, { pc: 'pepperoni', n: 14 }), I('chicken', 'Chicken', 'فراخ', 35, { pc: 'chunk', n: 16 }), I('beef', 'Minced beef', 'لحمة مفرومة', 40, { pc: 'mince', n: 40 }), I('mush', 'Mushroom', 'مشروم', 15, { pc: 'mushroom', n: 14 }), I('pepper', 'Green pepper', 'فلفل أخضر', 10, { pc: 'pepperRing', n: 12 }), I('onion', 'Onion', 'بصل', 5, { pc: 'onionRing', n: 10 }), I('olive', 'Olives', 'زيتون', 10, { pc: 'olive', n: 18 }), I('tom', 'Tomato', 'طماطم', 5, { pc: 'tomatoSlice', n: 8 }), I('corn', 'Corn', 'ذرة', 10, { pc: 'corn', n: 50 })] },
+      { k: 'finish', en: 'Finishing touch', ar: 'اللمسة الأخيرة', short: { en: 'Finish', ar: 'إضافات' }, multi: 4, items: [I('oregano', 'Oregano', 'أوريجانو', 0, { pc: 'herbFlake', n: 120 }), I('chili', 'Chili flakes', 'شطة مجروشة', 0, { pc: 'chiliFlake', n: 90 }), I('basil', 'Fresh basil', 'ريحان فريش', 5, { pc: 'basil', n: 7 }), I('ranch', 'Ranch drizzle', 'صوص رانش', 10, { drizzle: '#ecebdf' })] }
+    ] },
+  { id: 'pasta', cat: 'italian', kind: 'pasta', en: 'Pasta', ar: 'مكرونة', noun: { en: 'pasta', ar: 'المكرونة' }, tag: { en: 'FRESH', ar: 'فريش' },
+    steps: [
+      { k: 'base', en: 'Choose the pasta', ar: 'اختار المكرونة', short: { en: 'Pasta', ar: 'مكرونة' }, req: 1, items: [I('penne', 'Penne', 'بيني', 55), I('spaghetti', 'Spaghetti', 'اسباجتي', 55), I('fettuccine', 'Fettuccine', 'فيتوتشيني', 65), I('macaroni', 'Elbow macaroni', 'مكرونة كوع', 50)] },
+      { k: 'sauce', en: 'Pick the sauce', ar: 'اختار الصوص', short: { en: 'Sauce', ar: 'صوص' }, req: 1, items: [I('red', 'Arrabbiata', 'أرابياتا', 15, { c: '#b02a12', tint: '#d0612a' }), I('white', 'Alfredo', 'ألفريدو', 25, { c: '#f1e6c8', tint: '#efdcab' }), I('pink', 'Pink sauce', 'بينك صوص', 25, { c: '#e08a6a', tint: '#e7a575' }), I('pesto', 'Pesto', 'بيستو', 30, { c: '#5a7f22', tint: '#a9b45a' })] },
+      { k: 'protein', en: 'Add protein', ar: 'زوّد بروتين', short: { en: 'Protein', ar: 'بروتين' }, multi: 3, items: [I('chicken', 'Grilled chicken', 'فراخ مشوية', 35, { pc: 'chickenSlice', n: 7 }), I('beef', 'Minced beef', 'لحمة مفرومة', 40, { pc: 'mince', n: 34 }), I('shrimp', 'Shrimp', 'جمبري', 60, { pc: 'shrimp', n: 7 }), I('mush', 'Mushroom', 'مشروم', 15, { pc: 'mushroom', n: 10 })] },
+      { k: 'cheese', en: 'Cheese on top', ar: 'جبنة على الوش', short: { en: 'Cheese', ar: 'جبنة' }, multi: 2, items: [I('parm', 'Parmesan', 'بارميزان', 15, { pc: 'parmFlake', n: 140 }), I('mozz', 'Mozzarella', 'موتزاريلا', 20, { pc: 'meltBlob', n: 10, c: '#f8eccb' })] },
+      { k: 'finish', en: 'Finish it', ar: 'اللمسة الأخيرة', short: { en: 'Finish', ar: 'إضافات' }, multi: 3, items: [I('basil', 'Fresh basil', 'ريحان فريش', 5, { pc: 'basil', n: 5 }), I('chili', 'Chili flakes', 'شطة مجروشة', 0, { pc: 'chiliFlake', n: 70 }), I('pepper', 'Black pepper', 'فلفل أسود', 0, { pc: 'pepperFlake', n: 90 })] }
+    ] },
+  { id: 'beef', cat: 'street', kind: 'burger', en: 'Beef Burger', ar: 'برجر لحمة', noun: { en: 'burger', ar: 'البرجر' }, tag: { en: '100% BEEF', ar: 'لحمة ١٠٠٪' },
+    steps: [
+      { k: 'bun', en: 'Pick a bun', ar: 'اختار العيش', short: { en: 'Bun', ar: 'عيش' }, req: 1, items: [I('brioche', 'Brioche', 'بريوش', 15, { c: '#c9772c' }), I('sesame', 'Sesame', 'سمسم', 10, { c: '#d68d3c', seeds: '#f6ebcf' }), I('wheat', 'Whole wheat', 'قمح كامل', 15, { c: '#8d5a2b', seeds: '#5b3a1b' })] },
+      { k: 'patty', en: 'Stack the beef', ar: 'حط اللحمة', short: { en: 'Patty', ar: 'لحمة' }, req: 1, items: [I('single', 'Single patty', 'قطعة واحدة', 95, { L: 'patty', n: 1 }), I('double', 'Double patty', 'دبل', 155, { L: 'patty', n: 2 }), I('smash', 'Double smash', 'دبل سماش', 140, { L: 'smash', n: 2 })] },
+      { k: 'cheese', en: 'Say cheese', ar: 'الجبنة', short: { en: 'Cheese', ar: 'جبنة' }, multi: 2, items: [I('cheddar', 'Cheddar', 'شيدر', 15, { c: '#f2a12a' }), I('swiss', 'Swiss', 'سويسري', 20, { c: '#f1df9c' }), I('jack', 'Pepper jack', 'بيبر جاك', 20, { c: '#f4e7bd' })] },
+      { k: 'veg', en: 'Add the fresh stuff', ar: 'زوّد الخضار', short: { en: 'Veggies', ar: 'خضار' }, multi: 6, items: [I('lettuce', 'Lettuce', 'خس', 0, { L: 'lettuce' }), I('tomato', 'Tomato', 'طماطم', 0, { L: 'tomato' }), I('onion', 'Onion', 'بصل', 0, { L: 'onion' }), I('pickles', 'Pickles', 'مخلل', 0, { L: 'pickles' }), I('jalapeno', 'Jalapeño', 'هالبينو', 5, { L: 'jalapeno' }), I('bacon', 'Beef bacon', 'بيكون لحمة', 30, { L: 'bacon' })] },
+      { k: 'sauce', en: 'Sauce it up', ar: 'الصوص', short: { en: 'Sauce', ar: 'صوص' }, multi: 3, items: [I('ketchup', 'Ketchup', 'كاتشب', 0), I('mustard', 'Mustard', 'مستردة', 0), I('mayo', 'Mayo', 'مايونيز', 0), I('bbq', 'BBQ', 'باربكيو', 5), I('special', 'Club sauce', 'صوص الكلَب', 10)] }
+    ] },
+  { id: 'chicken', cat: 'street', kind: 'burger', en: 'Chicken Burger', ar: 'برجر فراخ', noun: { en: 'burger', ar: 'البرجر' }, tag: { en: 'CRISPY', ar: 'كرسبي' },
+    steps: [
+      { k: 'bun', en: 'Pick a bun', ar: 'اختار العيش', short: { en: 'Bun', ar: 'عيش' }, req: 1, items: [I('brioche', 'Brioche', 'بريوش', 15, { c: '#c9772c' }), I('sesame', 'Sesame', 'سمسم', 10, { c: '#d68d3c', seeds: '#f6ebcf' }), I('wheat', 'Whole wheat', 'قمح كامل', 15, { c: '#8d5a2b', seeds: '#5b3a1b' })] },
+      { k: 'patty', en: 'Pick your chicken', ar: 'اختار الفراخ', short: { en: 'Chicken', ar: 'فراخ' }, req: 1, items: [I('crispy', 'Crispy fillet', 'فيليه كرسبي', 85, { L: 'crispy', c: '#c98330' }), I('grilled', 'Grilled fillet', 'فيليه مشوي', 80, { L: 'grilled' }), I('zinger', 'Spicy zinger', 'زنجر حار', 95, { L: 'crispy', c: '#b24e1c' })] },
+      { k: 'cheese', en: 'Say cheese', ar: 'الجبنة', short: { en: 'Cheese', ar: 'جبنة' }, multi: 2, items: [I('cheddar', 'Cheddar', 'شيدر', 15, { c: '#f2a12a' }), I('swiss', 'Swiss', 'سويسري', 20, { c: '#f1df9c' })] },
+      { k: 'veg', en: 'Add the fresh stuff', ar: 'زوّد الخضار', short: { en: 'Veggies', ar: 'خضار' }, multi: 5, items: [I('lettuce', 'Lettuce', 'خس', 0, { L: 'lettuce' }), I('tomato', 'Tomato', 'طماطم', 0, { L: 'tomato' }), I('onion', 'Onion', 'بصل', 0, { L: 'onion' }), I('pickles', 'Pickles', 'مخلل', 0, { L: 'pickles' }), I('jalapeno', 'Jalapeño', 'هالبينو', 5, { L: 'jalapeno' })] },
+      { k: 'sauce', en: 'Sauce it up', ar: 'الصوص', short: { en: 'Sauce', ar: 'صوص' }, multi: 3, items: [I('garlic', 'Garlic mayo', 'مايونيز بالتوم', 5), I('honey', 'Honey mustard', 'هاني مستردة', 5), I('buffalo', 'Buffalo', 'بافلو', 10), I('ranch', 'Ranch', 'رانش', 5), I('bbq', 'BBQ', 'باربكيو', 5)] }
+    ] },
+  { id: 'noodles', cat: 'street', kind: 'noodles', en: 'Ramen Noodles', ar: 'رامن نودلز', noun: { en: 'bowl', ar: 'البول' }, tag: { en: 'HOT', ar: 'سخن' },
+    steps: [
+      { k: 'base', en: 'Choose your noodles', ar: 'اختار النودلز', short: { en: 'Noodles', ar: 'نودلز' }, req: 1, items: [I('curly', 'Curly ramen', 'رامن كيرلي', 70, { c: '#f0c35a', r: .02, curl: 1 }), I('udon', 'Thick udon', 'أودون سميك', 80, { c: '#f5ecd6', r: .042, curl: .2 }), I('rice', 'Rice noodles', 'نودلز رز', 65, { c: '#fbf6ea', r: .012, curl: .3 }), I('soba', 'Buckwheat soba', 'سوبا', 75, { c: '#8e6a48', r: .018, curl: .25 })] },
+      { k: 'broth', en: 'Pour the broth', ar: 'صبّ الشوربة', short: { en: 'Broth', ar: 'شوربة' }, items: [I('chicken', 'Creamy chicken', 'شوربة فراخ كريمي', 25, { c: '#ecd4a0' }), I('miso', 'Miso', 'ميسو', 25, { c: '#c98a3e' }), I('spicy', 'Spicy miso', 'ميسو حار', 30, { c: '#cf4f20' }), I('soy', 'Soy broth', 'شوربة صويا', 20, { c: '#7a4318' })] },
+      { k: 'protein', en: 'Add protein', ar: 'زوّد بروتين', short: { en: 'Protein', ar: 'بروتين' }, multi: 4, items: [I('chicken', 'Grilled chicken', 'فراخ مشوية', 35, { pc: 'chickenSlice', n: 4 }), I('beef', 'Sliced beef', 'لحمة شرايح', 50, { pc: 'beefSlice', n: 5 }), I('shrimp', 'Shrimp', 'جمبري', 60, { pc: 'shrimp', n: 4 }), I('tofu', 'Tofu', 'توفو', 25, { pc: 'tofu', n: 6 }), I('egg', 'Soft egg', 'بيض نص سوا', 10, { pc: 'eggHalf', n: 2 })] },
+      { k: 'greens', en: 'Add some greens', ar: 'حط شوية خضار', short: { en: 'Greens', ar: 'خضار' }, multi: 5, items: [I('bokchoy', 'Bok choy', 'بوك تشوي', 10, { pc: 'bokchoy', n: 2 }), I('scallion', 'Spring onion', 'بصل أخضر', 5, { pc: 'scallion', n: 30 }), I('shiitake', 'Shiitake', 'شيتاكي', 20, { pc: 'shiitake', n: 6 }), I('corn', 'Sweet corn', 'ذرة', 10, { pc: 'corn', n: 40 }), I('nori', 'Nori', 'نوري', 10, { pc: 'nori', n: 2 })] },
+      { k: 'finish', en: 'Finish it', ar: 'اللمسة الأخيرة', short: { en: 'Extra', ar: 'إضافات' }, multi: 3, items: [I('chili', 'Chili oil', 'زيت شطة', 5, { pc: 'oilDrop', n: 22 }), I('sesame', 'Sesame', 'سمسم', 5, { pc: 'sesame', n: 160 }), I('more', 'Extra noodles', 'نودلز زيادة', 25, { nood: 1 })] }
+    ] },
+  { id: 'hotdog', cat: 'street', kind: 'hotdog', en: 'Hot Dog', ar: 'هوت دوج', noun: { en: 'hot dog', ar: 'الهوت دوج' }, tag: { en: 'NEW', ar: 'جديد' },
+    steps: [
+      { k: 'bun', en: 'Pick a bun', ar: 'اختار العيش', short: { en: 'Bun', ar: 'عيش' }, req: 1, items: [I('classic', 'Soft bun', 'عيش طري', 10, { c: '#d99a52' }), I('brioche', 'Brioche', 'بريوش', 15, { c: '#c9772c' })] },
+      { k: 'sausage', en: 'Drop the sausage', ar: 'حط السجق', short: { en: 'Sausage', ar: 'سجق' }, req: 1, items: [I('beef', 'Beef frank', 'سجق لحمة', 55, { c: '#9b3b22' }), I('chicken', 'Chicken frank', 'سجق فراخ', 45, { c: '#c98e5e' }), I('spicy', 'Spicy beef', 'لحمة حارة', 60, { c: '#7f2414' })] },
+      { k: 'tops', en: 'Load it up', ar: 'حمّلها', short: { en: 'Toppings', ar: 'إضافات' }, multi: 5, items: [I('onion', 'Diced onion', 'بصل', 0, { pc: 'dice', c: '#efe4ef', n: 30 }), I('relish', 'Relish', 'مخلل', 0, { pc: 'dice', c: '#6a9b2c', n: 30 }), I('jalapeno', 'Jalapeño', 'هالبينو', 5, { pc: 'jalRing', n: 9 }), I('crispy', 'Crispy onion', 'بصل مقرمش', 5, { pc: 'crispOnion', n: 30 }), I('cheese', 'Cheese sauce', 'صوص جبنة', 15, { drizzle: '#f2a915' })] },
+      { k: 'sauce', en: 'Zig-zag sauce', ar: 'الصوص', short: { en: 'Sauce', ar: 'صوص' }, multi: 3, items: [I('ketchup', 'Ketchup', 'كاتشب', 0), I('mustard', 'Mustard', 'مستردة', 0), I('mayo', 'Mayo', 'مايونيز', 0), I('bbq', 'BBQ', 'باربكيو', 5)] }
+    ] },
+  { id: 'fries', cat: 'street', kind: 'fries', en: 'Loaded Fries', ar: 'بطاطس محمّلة', noun: { en: 'fries', ar: 'البطاطس' }, tag: { en: 'SHARE', ar: 'للشلة' },
+    steps: [
+      { k: 'base', en: 'Choose your fries', ar: 'اختار البطاطس', short: { en: 'Fries', ar: 'بطاطس' }, req: 1, items: [I('classic', 'Classic fries', 'بطاطس عادي', 35), I('curly', 'Curly fries', 'بطاطس كيرلي', 45), I('wedges', 'Wedges', 'ودجز', 45)] },
+      { k: 'cheese', en: 'Melt the cheese', ar: 'سيّح الجبنة', short: { en: 'Cheese', ar: 'جبنة' }, multi: 2, items: [I('sauce', 'Cheese sauce', 'صوص جبنة', 20, { drizzle: '#f2a915', w: .045 }), I('mozz', 'Mozzarella', 'موتزاريلا', 25, { pc: 'meltBlob', n: 12, c: '#f8eccb' })] },
+      { k: 'protein', en: 'Add protein', ar: 'زوّد بروتين', short: { en: 'Protein', ar: 'بروتين' }, multi: 2, items: [I('beef', 'Beef bits', 'لحمة مفرومة', 40, { pc: 'mince', n: 40 }), I('chicken', 'Chicken bites', 'قطع فراخ', 35, { pc: 'chunk', n: 12 })] },
+      { k: 'tops', en: 'Top it', ar: 'زوّد إضافات', short: { en: 'Toppings', ar: 'إضافات' }, multi: 3, items: [I('jalapeno', 'Jalapeño', 'هالبينو', 5, { pc: 'jalRing', n: 10 }), I('scallion', 'Spring onion', 'بصل أخضر', 5, { pc: 'scallion', n: 30 }), I('crispy', 'Crispy onion', 'بصل مقرمش', 5, { pc: 'crispOnion', n: 30 })] },
+      { k: 'sauce', en: 'Drizzle', ar: 'الصوص', short: { en: 'Sauce', ar: 'صوص' }, multi: 3, items: [I('ketchup', 'Ketchup', 'كاتشب', 0), I('ranch', 'Ranch', 'رانش', 5), I('bbq', 'BBQ', 'باربكيو', 5), I('buffalo', 'Buffalo', 'بافلو', 10)] }
+    ] },
+  { id: 'rice', cat: 'bowls', kind: 'rice', en: 'Rice Bowl', ar: 'بول رز', noun: { en: 'bowl', ar: 'البول' }, tag: { en: 'FILLING', ar: 'مشبّع' },
+    steps: [
+      { k: 'base', en: 'Choose the rice', ar: 'اختار الرز', short: { en: 'Rice', ar: 'رز' }, req: 1, items: [I('white', 'White rice', 'رز أبيض', 25, { c: '#f7f2e4' }), I('vermicelli', 'Rice with vermicelli', 'رز بالشعرية', 25, { c: '#f4ecd8', verm: 1 }), I('basmati', 'Basmati', 'بسمتي', 30, { c: '#f2e8cf', long: 1 }), I('brown', 'Brown rice', 'رز بني', 35, { c: '#c49d6c' })] },
+      { k: 'protein', en: 'Add protein', ar: 'زوّد بروتين', short: { en: 'Protein', ar: 'بروتين' }, multi: 2, req: 1, items: [I('chicken', 'Grilled chicken', 'فراخ مشوية', 45, { pc: 'chickenSlice', n: 6 }), I('beef', 'Beef strips', 'شرايح لحمة', 60, { pc: 'beefSlice', n: 6 }), I('kofta', 'Kofta', 'كفتة', 55, { pc: 'kofta', n: 4 }), I('shrimp', 'Shrimp', 'جمبري', 70, { pc: 'shrimp', n: 6 })] },
+      { k: 'veg', en: 'Add veggies', ar: 'زوّد خضار', short: { en: 'Veggies', ar: 'خضار' }, multi: 4, items: [I('mix', 'Sautéed veggies', 'خضار سوتيه', 15, { pc: 'vegMix', n: 26 }), I('corn', 'Sweet corn', 'ذرة', 10, { pc: 'corn', n: 40 }), I('peas', 'Peas & carrots', 'بسلة وجزر', 10, { pc: 'peaCarrot', n: 40 }), I('avocado', 'Avocado', 'أفوكادو', 30, { pc: 'avocado', n: 5 })] },
+      { k: 'sauce', en: 'Pick a sauce', ar: 'اختار صوص', short: { en: 'Sauce', ar: 'صوص' }, multi: 2, items: [I('teriyaki', 'Teriyaki', 'ترياكي', 10, { drizzle: '#5a2a10' }), I('tahini', 'Tahini', 'طحينة', 5, { drizzle: '#d9c09a' }), I('chili', 'Sweet chili', 'سويت تشيلي', 10, { drizzle: '#d23a1a' }), I('garlic', 'Garlic sauce', 'صوص توم', 5, { drizzle: '#f3ead2' })] },
+      { k: 'tops', en: 'Sprinkle on top', ar: 'رشّة على الوش', short: { en: 'Toppings', ar: 'إضافات' }, multi: 3, items: [I('sesame', 'Sesame', 'سمسم', 5, { pc: 'sesame', n: 150 }), I('onion', 'Fried onion', 'بصل مقرمش', 5, { pc: 'crispOnion', n: 30 }), I('scallion', 'Spring onion', 'بصل أخضر', 5, { pc: 'scallion', n: 30 })] }
+    ] },
+  { id: 'koshary', cat: 'egypt', kind: 'koshary', en: 'Egyptian Koshary', ar: 'كشري مصري', noun: { en: 'koshary', ar: 'الكشري' }, tag: { en: 'CLASSIC', ar: 'أصلي' },
+    steps: [
+      { k: 'size', en: 'Choose the size', ar: 'اختار الحجم', short: { en: 'Size', ar: 'حجم' }, req: 1, items: [I('s', 'Small bowl', 'علبة صغيرة', 25, { s: .82 }), I('m', 'Medium bowl', 'علبة وسط', 35, { s: 1 }), I('l', 'Large bowl', 'علبة كبيرة', 50, { s: 1.14 })] },
+      { k: 'sauce', en: 'Pour the sauces', ar: 'صبّ الصلصة', short: { en: 'Sauce', ar: 'صلصة' }, multi: 3, items: [I('tomato', 'Tomato sauce', 'صلصة طماطم', 0, { c: '#a8240e' }), I('daqqa', 'Garlic daqqa', 'دقة بالتوم', 0, { c: '#e7dcb0' }), I('shatta', 'Hot shatta', 'شطة حامية', 0, { c: '#6d150a' })] },
+      { k: 'tops', en: 'Top it up', ar: 'زوّد على الوش', short: { en: 'Toppings', ar: 'إضافات' }, multi: 4, items: [I('onion', 'Crispy onions', 'بصل مقرمش', 5, { pc: 'crispOnion', n: 110 }), I('hummus', 'Chickpeas', 'حمص', 5, { pc: 'chickpea', n: 30 }), I('pasta', 'Extra pasta', 'مكرونة زيادة', 10, { pc: 'elbow', n: 40 }), I('garlic', 'Fried garlic', 'توم محمّر', 5, { pc: 'garlicChip', n: 30 })] }
+    ] },
+  { id: 'mahshi', cat: 'egypt', kind: 'mahshi', en: 'Egyptian Mahshi', ar: 'محشي مصري', noun: { en: 'mahshi', ar: 'المحشي' }, tag: { en: 'HOMEMADE', ar: 'بيتي' },
+    steps: [
+      { k: 'types', en: 'Pick your mahshi', ar: 'اختار المحشي', short: { en: 'Mahshi', ar: 'محشي' }, multi: 4, req: 1, items: [I('grape', 'Vine leaves', 'ورق عنب', 60, { m: 'grapeRoll' }), I('cabbage', 'Cabbage', 'كرنب', 50, { m: 'cabbageRoll' }), I('zucchini', 'Zucchini', 'كوسة', 50, { m: 'zucchini' }), I('eggplant', 'Eggplant', 'باذنجان', 50, { m: 'eggplant' }), I('pepper', 'Bell pepper', 'فلفل', 50, { m: 'bellPepper' }), I('tomato', 'Tomato', 'طماطم', 45, { m: 'stuffedTomato' })] },
+      { k: 'fill', en: 'Choose the filling', ar: 'اختار الحشوة', short: { en: 'Filling', ar: 'حشوة' }, req: 1, items: [I('herbs', 'Rice & herbs', 'رز وخضرة', 0, { fc: '#e9dfb8' }), I('meat', 'Rice & minced meat', 'رز ولحمة مفرومة', 30, { fc: '#b58a62' })] },
+      { k: 'sides', en: 'Something on the side', ar: 'حاجة جنبه', short: { en: 'Sides', ar: 'جنب' }, multi: 4, items: [I('yogurt', 'Yogurt', 'زبادي', 10, { side: 'yogurt' }), I('salad', 'Green salad', 'سلطة خضرا', 10, { side: 'salad' }), I('soup', 'Orzo soup', 'شوربة لسان عصفور', 20, { side: 'soup' }), I('lemon', 'Lemon wedges', 'ليمون', 0, { side: 'lemon' })] }
+    ] },
+  { id: 'juice', cat: 'juice', kind: 'juice', en: 'Fresh Juice', ar: 'عصير فريش', noun: { en: 'juice', ar: 'العصير' }, tag: { en: 'MIX IT', ar: 'اعمل المكس' },
+    steps: [
+      { k: 'size', en: 'Choose a cup', ar: 'اختار الكوباية', short: { en: 'Size', ar: 'حجم' }, req: 1, items: [I('s', 'Small · 250 ml', 'صغير · ٢٥٠ مل', 20, { s: .82 }), I('m', 'Medium · 350 ml', 'وسط · ٣٥٠ مل', 30, { s: 1 }), I('l', 'Large · 500 ml', 'كبير · ٥٠٠ مل', 40, { s: 1.16 })] },
+      { k: 'fruits', en: 'Pick your fruits', ar: 'اختار الفواكه', short: { en: 'Fruits', ar: 'فواكه' }, multi: 3, req: 1, items: [I('mango', 'Mango', 'مانجا', 15, { c: '#f3a11d', f: 'mango' }), I('strawberry', 'Strawberry', 'فراولة', 15, { c: '#d62c3a', f: 'strawberry' }), I('guava', 'Guava', 'جوافة', 10, { c: '#f2b8a0', f: 'guava' }), I('orange', 'Orange', 'برتقال', 10, { c: '#f7931e', f: 'orange' }), I('banana', 'Banana', 'موز', 10, { c: '#f4e3a1', f: 'banana' }), I('kiwi', 'Kiwi', 'كيوي', 20, { c: '#7fb23a', f: 'kiwi' }), I('watermelon', 'Watermelon', 'بطيخ', 10, { c: '#ef4a5a', f: 'watermelon' }), I('avocado', 'Avocado', 'أفوكادو', 25, { c: '#a9c46a', f: 'avocadoFruit' }), I('lemint', 'Lemon mint', 'ليمون نعناع', 5, { c: '#b9d65a', f: 'lemon' })] },
+      { k: 'base', en: 'Choose the base', ar: 'اختار القاعدة', short: { en: 'Base', ar: 'قاعدة' }, items: [I('water', 'Pressed with water', 'بالمية', 0, { mix: 0, b: 'water' }), I('milk', 'Milk', 'بلبن', 10, { mix: .35, b: 'milk' }), I('yogurt', 'Yogurt', 'بزبادي', 15, { mix: .45, b: 'yogurt' })] },
+      { k: 'addins', en: 'Add-ins', ar: 'إضافات', short: { en: 'Add-ins', ar: 'إضافات' }, multi: 4, items: [I('ice', 'Ice', 'تلج', 0, { a: 'ice' }), I('honey', 'Honey', 'عسل', 5, { a: 'honey' }), I('cream', 'Ice cream scoop', 'بولة آيس كريم', 15, { a: 'scoop' }), I('nuts', 'Nuts', 'مكسرات', 15, { a: 'nuts' })] },
+      { k: 'garnish', en: 'Garnish', ar: 'التزيين', short: { en: 'Garnish', ar: 'تزيين' }, multi: 2, items: [I('mint', 'Mint sprig', 'ورق نعناع', 0, { a: 'mint' }), I('slice', 'Orange wheel', 'شريحة برتقال', 5, { a: 'wheel' })] }
+    ] }
+];
+const CATS = ['street', 'italian', 'egypt', 'bowls', 'juice'];
+const EXTRAS = [I('cola', 'Cola', 'كولا', 20), I('lemon', 'Lemon mint', 'ليمون نعناع', 30), I('water', 'Water', 'مياه', 10), I('rings', 'Onion rings', 'حلقات بصل', 40), I('mozz', 'Mozzarella sticks', 'أصابع موتزاريلا', 55), I('basbousa', 'Basbousa', 'بسبوسة', 30), I('rozbel', 'Rice pudding', 'رز بلبن', 30)];
+const AREAS = [I('nasr', 'Nasr City', 'مدينة نصر', 20), I('heliopolis', 'Heliopolis', 'مصر الجديدة', 25), I('maadi', 'Maadi', 'المعادي', 20), I('zamalek', 'Zamalek', 'الزمالك', 30), I('dokki', 'Dokki & Mohandessin', 'الدقي والمهندسين', 30), I('tagamoa', 'New Cairo', 'التجمع', 40), I('zayed', 'Sheikh Zayed', 'الشيخ زايد', 20), I('october', '6th of October', '٦ أكتوبر', 35)];
+const dishBy = id => DISHES.find(d => d.id === id);
+const stepBy = (d, k) => d.steps.find(s => s.k === k);
+const itemBy = (d, k, id) => stepBy(d, k).items.find(i => i.id === id);
+const blankSel = d => Object.fromEntries(d.steps.map(s => [s.k, []]));
+const selPrice = (d, sel) => d.steps.reduce((a, s) => a + (sel[s.k] || []).reduce((b, id) => b + itemBy(d, s.k, id).price, 0), 0);
+const PRESETS = {
+  pizza: { base: ['classic'], sauce: ['tomato'], cheese: ['mozz'], tops: ['pep', 'mush', 'olive', 'pepper'], finish: ['basil'] },
+  pasta: { base: ['penne'], sauce: ['red'], protein: ['chicken'], cheese: ['parm'], finish: ['basil'] },
+  beef: { bun: ['sesame'], patty: ['double'], cheese: ['cheddar'], veg: ['lettuce', 'tomato', 'onion'], sauce: ['special'] },
+  chicken: { bun: ['brioche'], patty: ['crispy'], cheese: ['cheddar'], veg: ['lettuce', 'pickles'], sauce: ['garlic'] },
+  noodles: { base: ['curly'], broth: ['miso'], protein: ['egg', 'chicken'], greens: ['scallion', 'nori', 'shiitake'], finish: ['sesame'] },
+  hotdog: { bun: ['classic'], sausage: ['beef'], tops: ['onion', 'crispy'], sauce: ['ketchup', 'mustard'] },
+  fries: { base: ['classic'], cheese: ['sauce'], protein: ['beef'], tops: ['jalapeno', 'scallion'], sauce: ['ranch'] },
+  rice: { base: ['vermicelli'], protein: ['chicken', 'kofta'], veg: ['mix', 'avocado'], sauce: ['tahini'], tops: ['sesame'] },
+  koshary: { size: ['m'], sauce: ['tomato', 'daqqa'], tops: ['onion', 'hummus'] },
+  mahshi: { types: ['grape', 'zucchini', 'pepper', 'eggplant'], fill: ['herbs'], sides: ['yogurt', 'lemon'] },
+  juice: { size: ['m'], fruits: ['mango', 'strawberry', 'kiwi'], base: [], addins: ['ice'], garnish: ['mint', 'slice'] }
+};
+const fullPreset = d => Object.assign(blankSel(d), JSON.parse(JSON.stringify(PRESETS[d.id])));
+
+const S = { view: 'home', dish: null, step: 0, sel: {}, pos: {}, cart: store.get('cc2-cart', []), extras: {}, pay: 'cash', orderNo: 0 };
+const saveCart = () => store.set('cc2-cart', S.cart.map(c => ({ dish: c.dish, sel: c.sel, qty: c.qty })));
+
+/* =====================================================================
+   3D ENGINE (three.js r128)
+   ===================================================================== */
+const E = {};
+const THUMBS = {};
+if (typeof THREE !== 'undefined') (function engine() {
+const T3 = THREE, V3 = T3.Vector3;
+const col = h => new T3.Color(h).convertSRGBToLinear();
+function h3(x, y, z) { let h = Math.imul(x | 0, 0x27d4eb2d) ^ Math.imul(y | 0, 0x165667b1) ^ Math.imul(z | 0, 0x2545f491); h = Math.imul(h ^ (h >>> 15), 0x85ebca6b); h ^= h >>> 13; h = Math.imul(h, 0xc2b2ae35); return ((h ^ (h >>> 16)) >>> 0) / 4294967295; }
+function vn(x, y, z) { const xi = Math.floor(x), yi = Math.floor(y), zi = Math.floor(z); const xf = x - xi, yf = y - yi, zf = z - zi; const u = xf * xf * (3 - 2 * xf), v = yf * yf * (3 - 2 * yf), w = zf * zf * (3 - 2 * zf); const L = (a, b, k) => a + (b - a) * k;
+  return L(L(L(h3(xi, yi, zi), h3(xi + 1, yi, zi), u), L(h3(xi, yi + 1, zi), h3(xi + 1, yi + 1, zi), u), v), L(L(h3(xi, yi, zi + 1), h3(xi + 1, yi, zi + 1), u), L(h3(xi, yi + 1, zi + 1), h3(xi + 1, yi + 1, zi + 1), u), v), w); }
+const fbm = (x, y, z) => vn(x, y, z) * .6 + vn(x * 2.1, y * 2.1, z * 2.1) * .28 + vn(x * 4.3, y * 4.3, z * 4.3) * .12;
+function displace(geo, amp, freq, seed = 0) { const p = geo.attributes.position; geo.computeVertexNormals(); const n = geo.attributes.normal; for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i), z = p.getZ(i); const k = (fbm(x * freq + seed, y * freq + seed * .7, z * freq) - .5) * 2 * amp; p.setXYZ(i, x + n.getX(i) * k, y + n.getY(i) * k, z + n.getZ(i) * k); } p.needsUpdate = true; geo.computeVertexNormals(); return geo; }
+
+/* --- textures (each one created once, by name) --- */
+const TX = {};
+function ctex(size, draw, { rep = 0, lin = false } = {}) { const c = document.createElement('canvas'); c.width = c.height = size; const g = c.getContext('2d'); draw(g, size); const tx = new T3.CanvasTexture(c); if (!lin) tx.encoding = T3.sRGBEncoding; tx.anisotropy = 4; if (rep) { tx.wrapS = tx.wrapT = T3.RepeatWrapping; tx.repeat.set(rep, rep); } return tx; }
+const once = (k, f) => () => TX[k] || (TX[k] = f());
+const speck = (base, spots, n, rmin, rmax, seed, rep) => ctex(256, (g, s) => { const r = rng(seed); g.fillStyle = base; g.fillRect(0, 0, s, s); for (let i = 0; i < n; i++) { g.fillStyle = spots[Math.floor(r() * spots.length)]; g.globalAlpha = .25 + r() * .6; g.beginPath(); g.ellipse(r() * s, r() * s, rmin + r() * (rmax - rmin), rmin + r() * (rmax - rmin), r() * 3, 0, 7); g.fill(); } g.globalAlpha = 1; }, { rep });
+const sliceTex = (outer, inner, seedC, kind) => ctex(256, (g, s) => { const c = s / 2; g.fillStyle = outer; g.beginPath(); g.arc(c, c, c, 0, 7); g.fill(); g.fillStyle = inner; g.beginPath(); g.arc(c, c, c * .86, 0, 7); g.fill();
+  if (kind === 'tomato') { for (let k = 0; k < 4; k++) { g.save(); g.translate(c, c); g.rotate(k * Math.PI / 2 + .4); g.fillStyle = '#f26b4c'; g.beginPath(); g.ellipse(c * .45, 0, c * .3, c * .18, 0, 0, 7); g.fill(); g.fillStyle = seedC; for (let j = 0; j < 5; j++) { g.beginPath(); g.ellipse(c * .3 + j * c * .07, (j % 2 - .5) * c * .12, 4, 2.5, .3, 0, 7); g.fill(); } g.restore(); } }
+  if (kind === 'citrus') { g.strokeStyle = 'rgba(255,255,255,.75)'; g.lineWidth = 3; for (let k = 0; k < 10; k++) { g.beginPath(); g.moveTo(c, c); g.lineTo(c + Math.cos(k * .628) * c * .84, c + Math.sin(k * .628) * c * .84); g.stroke(); } }
+  if (kind === 'kiwi') { g.fillStyle = '#e9efc9'; g.beginPath(); g.ellipse(c, c, c * .28, c * .22, 0, 0, 7); g.fill(); g.fillStyle = '#1b1408'; for (let k = 0; k < 40; k++) { const a = k * .157; g.beginPath(); g.ellipse(c + Math.cos(a) * c * .38, c + Math.sin(a) * c * .34, 3, 1.6, a, 0, 7); g.fill(); } }
+  if (kind === 'pickle') { g.fillStyle = 'rgba(240,248,200,.8)'; for (let k = 0; k < 9; k++) { const a = k * .7; g.beginPath(); g.arc(c + Math.cos(a) * c * .45, c + Math.sin(a) * c * .45, 6, 0, 7); g.fill(); } }
+  if (kind === 'jal') { g.fillStyle = '#f2f0cf'; g.beginPath(); g.arc(c, c, c * .5, 0, 7); g.fill(); g.fillStyle = '#c7dc8a'; g.beginPath(); g.arc(c, c, c * .3, 0, 7); g.fill(); } });
+const TEX = {
+  bump: once('bump', () => ctex(256, (g, s) => { const im = g.createImageData(s, s); for (let y = 0; y < s; y++) for (let x = 0; x < s; x++) { const v = fbm(x / 18, y / 18, 3) * 200 + fbm(x / 4, y / 4, 9) * 55; const i = (y * s + x) * 4; im.data[i] = im.data[i + 1] = im.data[i + 2] = v; im.data[i + 3] = 255; } g.putImageData(im, 0, 0); }, { lin: true, rep: 2 })),
+  wood: once('wood', () => ctex(1024, (g, s) => { g.fillStyle = '#7a4a28'; g.fillRect(0, 0, s, s); const r = rng('wood'); for (let p = 0; p < 4; p++) { g.fillStyle = `hsl(${24 + r() * 6},${42 + r() * 10}%,${26 + r() * 8}%)`; g.fillRect(0, p * s / 4, s, s / 4); }
+    for (let i = 0; i < 520; i++) { const y0 = r() * s; g.strokeStyle = r() > .5 ? 'rgba(40,18,6,.35)' : 'rgba(255,200,150,.10)'; g.lineWidth = .5 + r() * 2.2; g.beginPath(); for (let x = 0; x <= s; x += 16) { const y = y0 + Math.sin(x / 90 + i) * 4 + (fbm(x / 120, i, 1) - .5) * 14; x ? g.lineTo(x, y) : g.moveTo(x, y); } g.stroke(); }
+    g.fillStyle = 'rgba(0,0,0,.55)'; for (let p = 1; p < 4; p++) g.fillRect(0, p * s / 4 - 1, s, 3); }, { rep: 2 })),
+  fade: once('fade', () => ctex(512, (g, s) => { const gr = g.createRadialGradient(s / 2, s / 2, s * .12, s / 2, s / 2, s / 2); gr.addColorStop(0, '#fff'); gr.addColorStop(.7, '#666'); gr.addColorStop(1, '#000'); g.fillStyle = gr; g.fillRect(0, 0, s, s); }, { lin: true })),
+  pep: once('pep', () => speck('#a3271a', ['#6e140b', '#d9543f', '#f2b39c'], 70, 3, 12, 'pep')),
+  tom: once('tom', () => sliceTex('#c8341e', '#e65a3a', '#f3d27a', 'tomato')),
+  grill: once('grill', () => ctex(128, (g, s) => { g.fillStyle = '#e1ad74'; g.fillRect(0, 0, s, s); g.strokeStyle = '#6b3b14'; g.lineWidth = 8; for (let i = -1; i < 6; i++) { g.beginPath(); g.moveTo(i * 28, 0); g.lineTo(i * 28 + 40, s); g.stroke(); } })),
+  shrimp: once('shr', () => ctex(128, (g, s) => { g.fillStyle = '#f08550'; g.fillRect(0, 0, s, s); g.fillStyle = '#fbd1b6'; for (let i = 0; i < 8; i++) g.fillRect(i * 16, 0, 5, s); })),
+  jal: once('jal', () => sliceTex('#2f7b26', '#5c9a33', '', 'jal')),
+  pickle: once('pk', () => sliceTex('#4a6e1e', '#9bbb5a', '', 'pickle')),
+  crust: once('crust', () => speck('#d4954a', ['#8a4a18', '#f0c47e', '#6a3410'], 300, 2, 9, 'crust')),
+  cheese: once('che', () => speck('#ffffff', ['#e3c27a', '#d19a4a', '#fff6dc'], 160, 3, 14, 'cheT')),
+  patty: once('patty', () => speck('#4e2412', ['#2c1007', '#7a3c1c', '#8c4a26'], 600, 1, 4, 'patty', 2)),
+  smash: once('smash', () => speck('#3e1b0b', ['#1e0903', '#6e3317', '#8a4520'], 700, 1, 5, 'smash', 2)),
+  bacon: once('bacon', () => ctex(64, (g, s) => { g.fillStyle = '#9c2f22'; g.fillRect(0, 0, s, s); g.fillStyle = '#f1b29c'; g.fillRect(0, s * .38, s, s * .18); g.fillStyle = '#c4553e'; g.fillRect(0, s * .75, s, s * .1); })),
+  leaf: once('leaf', () => ctex(128, (g, s) => { g.fillStyle = '#4c5e25'; g.fillRect(0, 0, s, s); g.strokeStyle = 'rgba(190,200,120,.45)'; g.lineWidth = 2; for (let i = 0; i < 10; i++) { g.beginPath(); g.moveTo(0, i * 14); g.quadraticCurveTo(s / 2, i * 14 + 18, s, i * 14 - 6); g.stroke(); } })),
+  cab: once('cab', () => ctex(128, (g, s) => { g.fillStyle = '#b8c27c'; g.fillRect(0, 0, s, s); g.strokeStyle = 'rgba(250,250,220,.6)'; g.lineWidth = 3; for (let i = 0; i < 8; i++) { g.beginPath(); g.moveTo(i * 18, 0); g.lineTo(i * 18 + 10, s); g.stroke(); } })),
+  zuc: once('zuc', () => ctex(128, (g, s) => { g.fillStyle = '#9fb85a'; g.fillRect(0, 0, s, s); g.fillStyle = '#5f7f2c'; for (let i = 0; i < 8; i++) g.fillRect(0, i * 16, s, 7); })),
+  rice: c => TX['rice' + c] || (TX['rice' + c] = speck(c, ['#fff8e2', '#b9a77a', '#3f7a2a'], 260, 1, 3, 'rice' + c)),
+  mango: once('mango', () => ctex(128, (g, s) => { const gr = g.createLinearGradient(0, 0, s, 0); gr.addColorStop(0, '#d33a1b'); gr.addColorStop(.45, '#f59a1d'); gr.addColorStop(1, '#e9c23a'); g.fillStyle = gr; g.fillRect(0, 0, s, s); })),
+  straw: once('strawb', () => speck('#c8152a', ['#f2d36b', '#f6e39a'], 140, 1.5, 2.5, 'straw')),
+  dimple: once('dimple', () => ctex(256, (g, s) => { g.fillStyle = '#888'; g.fillRect(0, 0, s, s); const r = rng('dimp'); for (let i = 0; i < 1600; i++) { g.fillStyle = r() > .5 ? '#555' : '#aaa'; g.beginPath(); g.arc(r() * s, r() * s, 1.6, 0, 7); g.fill(); } }, { lin: true })),
+  kiwi: once('kiwi', () => sliceTex('#6b4a24', '#77ad2c', '', 'kiwi')),
+  wm: once('wm', () => speck('#e8384a', ['#1c120c'], 40, 3, 4, 'wm')),
+  citrus: once('citrus', () => sliceTex('#f39a1e', '#f7b443', '', 'citrus')),
+  checker: once('chk', () => ctex(256, (g, s) => { g.fillStyle = '#fbf6ea'; g.fillRect(0, 0, s, s); g.fillStyle = 'rgba(200,40,30,.55)'; for (let i = 0; i < 8; i++) { g.fillRect(i * 32, 0, 16, s); g.fillRect(0, i * 32, s, 16); } }, { rep: 2 })),
+  stripe: once('stripe', () => ctex(64, (g, s) => { g.fillStyle = '#fff'; g.fillRect(0, 0, s, s); g.fillStyle = '#e23b22'; for (let i = 0; i < 4; i++) g.fillRect(0, i * 16, s, 8); }, { rep: 4 }))
+};
+
+/* --- materials: each key is defined in exactly one place (MT) --- */
+const MC = {};
+function mk(k, o) { if (MC[k]) return MC[k]; const p = Object.assign({ roughness: .6, metalness: 0 }, o); const phys = p.phys; delete p.phys; if (typeof p.color === 'string') p.color = col(p.color); const m = phys ? new T3.MeshPhysicalMaterial(p) : new T3.MeshStandardMaterial(p); m.envMapIntensity = (o.envMapIntensity === undefined ? .9 : o.envMapIntensity) * .55; return MC[k] = m; }
+const MT = {
+  ceramic: () => mk('ceramic', { color: '#f7f4ee', roughness: .18, envMapIntensity: 1.1 }),
+  ceramicRed: () => mk('ceramicRed', { color: '#a5261a', roughness: .22, envMapIntensity: 1 }),
+  bowlIn: () => mk('bowlIn', { color: '#1d1512', roughness: .25, side: T3.DoubleSide }),
+  boardTop: () => mk('boardTop', { map: TEX.wood(), color: '#c48a55', roughness: .55 }),
+  boardSide: () => mk('boardSide', { color: '#7b4a24', roughness: .6 }),
+  dough: c => mk('dough' + c, { color: c, roughness: .75, bumpMap: TEX.bump(), bumpScale: .012 }),
+  glass: () => mk('glass', { color: '#ffffff', roughness: .04, transparent: true, opacity: .2, envMapIntensity: 1.8, side: T3.DoubleSide, depthWrite: false }),
+  glassThumb: () => mk('glassThumb', { color: '#dfe9ee', roughness: .05, transparent: true, opacity: .5, side: T3.DoubleSide, depthWrite: false }),
+  sauce: c => mk('sauce' + c, { color: c, roughness: .22, envMapIntensity: 1.2 }),
+  tomSide: () => mk('tomSide', { color: '#c8341e', roughness: .35 }),
+  tomTop: () => mk('tomTop', { map: TEX.tom(), roughness: .3 }),
+  crumb: () => mk('crumb', { color: '#ecd09a', roughness: .9, bumpMap: TEX.bump(), bumpScale: .02 }),
+  oring: () => mk('oring', { color: '#d8b6d6', roughness: .35, transparent: true, opacity: .9 }),
+  pasta: c => mk('pasta' + c, { color: c, roughness: .38, side: T3.DoubleSide, envMapIntensity: 1 }),
+  elbow: () => mk('elbow', { color: '#f0cf87', roughness: .45 }),
+  kbase: () => mk('kbase', { color: '#7a5a38', roughness: .7, bumpMap: TEX.bump(), bumpScale: .02 }),
+  crust: () => mk('crust', { color: '#c9873c', roughness: .7, bumpMap: TEX.bump(), bumpScale: .02, map: TEX.crust() }),
+  honey: () => mk('honey', { color: '#d38a12', roughness: .1, transparent: true, opacity: .85, envMapIntensity: 1.4 }),
+  scoop: () => mk('scoop', { color: '#f6ecd0', roughness: .7, bumpMap: TEX.bump(), bumpScale: .02 }),
+  whS: () => mk('whS', { color: '#f39a1e', roughness: .45 }),
+  whT: () => mk('whT', { map: TEX.citrus(), roughness: .3 }),
+  stem: () => mk('stem', { color: '#3e5a1e', roughness: .6 }),
+  verm: () => mk('verm', { color: '#9b5f22', roughness: .5 }),
+  mint: () => mk('mint', { color: '#2f8a32', roughness: .45, side: T3.DoubleSide }),
+  riceEnd: c => mk('riceEnd' + c, { map: TEX.rice(c), roughness: .7 }),
+  jalS: () => mk('jalS', { color: '#2f7b26', roughness: .3 }),
+  jalT: () => mk('jalT', { map: TEX.jal(), roughness: .3 }),
+  nut: () => mk('nut', { color: '#a8743e', roughness: .55 }),
+  mince: () => mk('mince', { color: '#5e3019', roughness: .7, bumpMap: TEX.bump(), bumpScale: .02 }),
+};
+const GC = {};
+const G = (k, f) => GC[k] || (GC[k] = f());
+const GS = new Set();
+function mesh(geo, mat) { const m = new T3.Mesh(geo, mat); m.castShadow = m.receiveShadow = true; return m; }
+function group(...ch) { const g = new T3.Group(); ch.forEach(c => c && g.add(c)); return g; }
+function inst(geo, mat, n, place) { const m = new T3.InstancedMesh(geo, mat, n); const d = new T3.Object3D(); for (let i = 0; i < n; i++) { place(d, i); d.updateMatrix(); m.setMatrixAt(i, d.matrix); } m.instanceMatrix.needsUpdate = true; m.castShadow = m.receiveShadow = true; m.frustumCulled = false; return m; }
+function lathe(pts, seg = 64) { return new T3.LatheGeometry(pts.map(p => new T3.Vector2(p[0], p[1])), seg); }
+function wobblyDisc(R, wob, seed, seg = 72) { const r = rng(seed); const s = new T3.Shape(); const ph = [r() * 6, r() * 6, r() * 6]; for (let i = 0; i <= seg; i++) { const a = i / seg * Math.PI * 2; const rr = R * (1 + wob * (Math.sin(3 * a + ph[0]) * .5 + Math.sin(5 * a + ph[1]) * .3 + Math.sin(9 * a + ph[2]) * .2)); i ? s.lineTo(Math.cos(a) * rr, Math.sin(a) * rr) : s.moveTo(Math.cos(a) * rr, Math.sin(a) * rr); } const g = new T3.ExtrudeGeometry(s, { depth: .01, bevelEnabled: true, bevelThickness: .008, bevelSize: .012, bevelSegments: 3, curveSegments: 4 }); g.rotateX(-Math.PI / 2); return g; }
+function capsuleGeo(r, len, seg = 20) { const pts = []; for (let i = 0; i <= 8; i++) { const a = -Math.PI / 2 + i / 8 * Math.PI / 2; pts.push([Math.cos(a) * r + .0001, Math.sin(a) * r - len / 2]); } for (let i = 0; i <= 8; i++) { const a = i / 8 * Math.PI / 2; pts.push([Math.cos(a) * r + .0001, Math.sin(a) * r + len / 2]); } return lathe(pts, seg); }
+function leafGeo(L, W, curl = .35) { const s = new T3.Shape(); s.moveTo(0, 0); s.bezierCurveTo(W * .9, L * .25, W * .6, L * .8, 0, L); s.bezierCurveTo(-W * .6, L * .8, -W * .9, L * .25, 0, 0); const g = new T3.ShapeGeometry(s, 10); const p = g.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), y = p.getY(i); p.setZ(i, curl * x * x / W + Math.sin(y / L * 3) * .01); } g.translate(0, -L / 2, 0); g.rotateX(-Math.PI / 2); g.computeVertexNormals(); return g; }
+function tube(pts, r, mat, seg) { const c = new T3.CatmullRomCurve3(pts.map(p => new V3(...p))); return mesh(new T3.TubeGeometry(c, seg || pts.length * 6, r, 8, false), mat); }
+function ribbon(pts, w, mat) { const c = new T3.CatmullRomCurve3(pts.map(p => new V3(...p))); const n = pts.length * 8; const pos = [], idx = [], uv = []; const up = new V3(0, 1, 0); for (let i = 0; i <= n; i++) { const u = i / n, p = c.getPointAt(u), tg = c.getTangentAt(u); const side = new V3().crossVectors(tg, up).normalize().multiplyScalar(w / 2); pos.push(p.x + side.x, p.y + side.y, p.z + side.z, p.x - side.x, p.y - side.y, p.z - side.z); uv.push(u, 0, u, 1); if (i < n) { const a = i * 2; idx.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); } } const g = new T3.BufferGeometry(); g.setAttribute('position', new T3.Float32BufferAttribute(pos, 3)); g.setAttribute('uv', new T3.Float32BufferAttribute(uv, 2)); g.setIndex(idx); g.computeVertexNormals(); return mesh(g, mat); }
+function drizzle(seed, R, y, color, w = .022, rows = 6) { const r = rng(seed); const pts = []; const rot = r() * Math.PI; for (let i = 0; i < rows; i++) { const z = -R * .75 + R * 1.5 * i / (rows - 1); const x0 = (i % 2 ? 1 : -1) * R * Math.sqrt(Math.max(.1, 1 - (z / R) ** 2)) * .9; pts.push([x0, z], [x0 * .35, z + (r() - .5) * .06], [-x0 * .35, z + (r() - .5) * .06]); }
+  const P = pts.map(([x, z]) => { const X = x * Math.cos(rot) - z * Math.sin(rot), Z = x * Math.sin(rot) + z * Math.cos(rot); return [X, y(X, Z) + .015, Z]; }); return tube(P, w, MT.sauce(color), P.length * 10); }
+const puddle = c => mesh(G('puddle', () => { const g = wobblyDisc(.4, .14, 'pud'); g.scale(1, 3, 1); return g; }), MT.sauce(c));
+
+/* --- PIECES (small ingredients, bottom near y=0) --- */
+const PC = {
+  pepperoni: () => mesh(G('pep', () => { const g = new T3.CylinderGeometry(.1, .1, .018, 28); g.translate(0, .009, 0); return g; }), mk('pep', { map: TEX.pep(), roughness: .38 })),
+  chunk: r => mesh(G('chunk' + Math.floor(r() * 4), () => { const g = displace(new T3.IcosahedronGeometry(.055, 2), .018, 9, Math.random() * 9); g.scale(1, .7, 1.2); return g; }), mk('chunk', { color: '#d9a46a', roughness: .6, bumpMap: TEX.bump(), bumpScale: .01 })),
+  mince: r => mesh(G('mince' + Math.floor(r() * 4), () => { const g = displace(new T3.IcosahedronGeometry(.028, 1), .01, 20, Math.random() * 9); g.scale(1, .75, 1); return g; }), MT.mince()),
+  mushroom: () => mesh(G('mush', () => { const s = new T3.Shape(); s.moveTo(-.075, 0); s.bezierCurveTo(-.085, .09, .085, .09, .075, 0); s.lineTo(.025, 0); s.lineTo(.022, -.06); s.lineTo(-.022, -.06); s.lineTo(-.025, 0); s.closePath(); const g = new T3.ExtrudeGeometry(s, { depth: .012, bevelEnabled: true, bevelThickness: .004, bevelSize: .004, bevelSegments: 2 }); g.rotateX(-Math.PI / 2); return g; }), mk('mush', { color: '#c9ad8a', roughness: .55 })),
+  pepperRing: () => mesh(G('pring', () => { const g = new T3.TorusGeometry(.065, .012, 8, 26); g.rotateX(Math.PI / 2); g.scale(1.2, 1, .9); g.translate(0, .012, 0); return g; }), mk('pring', { color: '#2f7b26', roughness: .3 })),
+  onionRing: () => mesh(G('oringP', () => { const g = new T3.TorusGeometry(.075, .008, 6, 28); g.rotateX(Math.PI / 2); g.translate(0, .008, 0); return g; }), MT.oring()),
+  olive: () => mesh(G('olive', () => { const g = new T3.TorusGeometry(.028, .015, 10, 20); g.rotateX(Math.PI / 2); g.translate(0, .014, 0); return g; }), mk('olive', { color: '#1a1a18', roughness: .25 })),
+  tomatoSlice: () => mesh(G('tslice', () => { const g = new T3.CylinderGeometry(.09, .09, .018, 32); g.translate(0, .009, 0); return g; }), [MT.tomSide(), MT.tomTop(), MT.tomSide()]),
+  corn: () => mesh(G('corn', () => { const g = new T3.SphereGeometry(.018, 8, 6); g.scale(1, .8, .9); g.translate(0, .012, 0); return g; }), mk('corn', { color: '#f2c021', roughness: .35 })),
+  herbFlake: () => mesh(G('herb', () => new T3.BoxGeometry(.012, .003, .008)), mk('herb', { color: '#4d6a22' })),
+  chiliFlake: () => mesh(G('chiliF', () => new T3.BoxGeometry(.014, .004, .01)), mk('chiliF', { color: '#b7240e', roughness: .5 })),
+  pepperFlake: () => mesh(G('pepF', () => new T3.BoxGeometry(.008, .004, .008)), mk('pepF', { color: '#1d1a17' })),
+  parmFlake: () => mesh(G('parm', () => new T3.BoxGeometry(.03, .004, .008)), mk('parm', { color: '#fbf3dc', roughness: .8 })),
+  sesame: () => mesh(G('ses', () => { const g = new T3.SphereGeometry(.007, 6, 4); g.scale(1, .45, .6); return g; }), mk('ses', { color: '#f4e7c4', roughness: .5 })),
+  basil: () => mesh(G('basil', () => leafGeo(.13, .07)), mk('basil', { color: '#2f7a2c', roughness: .45, side: T3.DoubleSide })),
+  pizzaMelt: (r, it) => mesh(G('pmelt' + Math.floor(r() * 4), () => { const g = displace(new T3.SphereGeometry(.15, 20, 10), .05, 5, Math.random() * 9); g.scale(1, .12, 1); return g; }), mk('pmelt' + it.c, { color: it.c, roughness: .34, map: TEX.cheese(), bumpMap: TEX.bump(), bumpScale: .008 })),
+  meltBlob: (r, it) => mesh(G('melt' + Math.floor(r() * 3), () => { const g = displace(new T3.SphereGeometry(.09, 16, 8), .03, 6, Math.random() * 9); g.scale(1, .22, 1); return g; }), mk('melt' + it.c, { color: it.c, roughness: .35 })),
+  chickenSlice: () => mesh(G('cslice', () => { const g = displace(new T3.BoxGeometry(.24, .035, .1, 8, 1, 4), .008, 8, 2); g.translate(0, .018, 0); return g; }), mk('cslice', { map: TEX.grill(), roughness: .6 })),
+  beefSlice: r => { const pts = []; for (let i = 0; i < 6; i++) pts.push([-.12 + i * .048, .012 + Math.sin(i * 1.5 + r() * 2) * .012, 0]); return ribbon(pts, .09, mk('beefS', { color: '#6a2e19', roughness: .55, side: T3.DoubleSide })); },
+  shrimp: () => group(mesh(G('shrimp', () => { const g = new T3.TorusGeometry(.055, .026, 10, 22, Math.PI * 1.4); g.rotateX(Math.PI / 2); g.translate(0, .025, 0); return g; }), mk('shrimp', { map: TEX.shrimp(), roughness: .35 })), mesh(G('tail', () => { const g = new T3.ConeGeometry(.03, .05, 6); g.rotateZ(Math.PI / 2); g.translate(.06, .025, -.02); return g; }), mk('tail', { color: '#d9502a', roughness: .4 }))),
+  tofu: () => mesh(G('tofu', () => { const g = displace(new T3.BoxGeometry(.08, .08, .08, 3, 3, 3), .004, 20); g.translate(0, .04, 0); return g; }), mk('tofu', { color: '#f0dfb2', roughness: .75, bumpMap: TEX.bump(), bumpScale: .004 })),
+  eggHalf: () => { const W = mk('eggW', { color: '#faf3e3', roughness: .3 }); return group(mesh(G('eggW', () => { const g = new T3.SphereGeometry(.09, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2); g.rotateX(Math.PI); g.scale(1, .8, 1.3); g.translate(0, .072, 0); return g; }), W), mesh(G('eggT', () => { const g = new T3.CircleGeometry(.09, 32); g.rotateX(-Math.PI / 2); g.scale(1, 1, 1.3); g.translate(0, .072, 0); return g; }), W), mesh(G('yolk', () => { const g = new T3.SphereGeometry(.045, 20, 10, 0, Math.PI * 2, 0, Math.PI / 2); g.scale(1, .45, 1.1); g.translate(0, .072, 0); return g; }), mk('yolk', { color: '#ee8a19', roughness: .15, envMapIntensity: 1.3 }))); },
+  bokchoy: () => { const g = new T3.Group(); for (let i = 0; i < 4; i++) { const l = mesh(G('bokL', () => leafGeo(.26, .12, .25)), mk('bokL', { color: '#2f7d2c', roughness: .4, side: T3.DoubleSide })); l.rotation.y = (i - 1.5) * .35; l.position.set(0, .02 + i * .004, 0); g.add(l); } g.add(mesh(G('bokS', () => { const g2 = new T3.CylinderGeometry(.03, .04, .18, 8); g2.rotateX(Math.PI / 2); g2.translate(0, .03, .11); return g2; }), mk('bokS', { color: '#e3f0c4', roughness: .45 }))); return g; },
+  scallion: () => mesh(G('scal', () => { const g = new T3.TorusGeometry(.016, .006, 6, 14); g.rotateX(Math.PI / 2); g.translate(0, .006, 0); return g; }), mk('scal', { color: '#59ad3a', roughness: .4 })),
+  shiitake: () => group(mesh(G('shiC', () => { const g = displace(new T3.SphereGeometry(.06, 18, 8, 0, Math.PI * 2, 0, Math.PI / 2), .006, 14); g.scale(1, .5, 1); g.translate(0, .02, 0); return g; }), mk('shiC', { color: '#5a321b', roughness: .55, bumpMap: TEX.bump(), bumpScale: .01 })), mesh(G('shiS', () => { const g = new T3.CylinderGeometry(.016, .02, .03, 8); g.translate(0, .01, 0); return g; }), mk('shiS', { color: '#e5cfa8' }))),
+  nori: () => mesh(G('nori', () => { const g = new T3.BoxGeometry(.26, .36, .006); g.translate(0, .16, 0); g.rotateX(-.35); return g; }), mk('nori', { color: '#18241a', roughness: .7, bumpMap: TEX.bump(), bumpScale: .01 })),
+  oilDrop: r => mesh(G('oil' + Math.floor(r() * 3), () => { const g = new T3.CircleGeometry(.025 + Math.random() * .03, 16); g.rotateX(-Math.PI / 2); g.translate(0, .004, 0); return g; }), mk('oil', { color: '#e0501a', roughness: .1, transparent: true, opacity: .75, envMapIntensity: 1.4 })),
+  kofta: r => mesh(G('kofta' + Math.floor(r() * 3), () => { const g = displace(capsuleGeo(.04, .16), .008, 14, Math.random() * 9); g.rotateZ(Math.PI / 2); g.translate(0, .038, 0); return g; }), mk('kofta', { color: '#5a2c14', roughness: .55, bumpMap: TEX.bump(), bumpScale: .02 })),
+  vegMix: r => { const cs = ['#e2762a', '#3f8a2f', '#d2342a', '#f1c232']; const c = cs[Math.floor(r() * 4)]; return mesh(G('cube', () => { const g = new T3.BoxGeometry(.04, .04, .04); g.translate(0, .02, 0); return g; }), mk('veg' + c, { color: c, roughness: .35 })); },
+  peaCarrot: r => r() > .45 ? mesh(G('pea', () => { const g = new T3.SphereGeometry(.018, 10, 8); g.translate(0, .016, 0); return g; }), mk('pea', { color: '#57a131', roughness: .35 })) : mesh(G('carr', () => { const g = new T3.BoxGeometry(.03, .03, .03); g.translate(0, .015, 0); return g; }), mk('carr', { color: '#e8761f', roughness: .4 })),
+  avocado: () => mesh(G('avo', () => { const s = new T3.Shape(); s.moveTo(0, 0); s.bezierCurveTo(.05, .02, .06, .2, 0, .24); s.bezierCurveTo(-.03, .2, -.02, .02, 0, 0); const g = new T3.ExtrudeGeometry(s, { depth: .025, bevelEnabled: true, bevelSize: .006, bevelThickness: .006, bevelSegments: 2 }); g.rotateX(-Math.PI / 2); g.translate(0, 0, .12); return g; }), mk('avo', { color: '#b5c96a', roughness: .4 })),
+  dice: (r, it) => mesh(G('dice', () => { const g = new T3.BoxGeometry(.025, .02, .025); g.translate(0, .01, 0); return g; }), mk('dice' + it.c, { color: it.c, roughness: .35 })),
+  jalRing: () => mesh(G('jal', () => { const g = new T3.CylinderGeometry(.04, .04, .012, 20); g.translate(0, .006, 0); return g; }), [MT.jalS(), MT.jalT(), MT.jalS()]),
+  crispOnion: r => mesh(G('cOn' + Math.floor(r() * 3), () => { const g = new T3.TorusGeometry(.03 + Math.random() * .02, .006, 5, 10, Math.PI * (.6 + Math.random() * .6)); g.rotateX(Math.PI / 2 + (Math.random() - .5)); g.translate(0, .01, 0); return g; }), mk('cOn', { color: '#9a5317', roughness: .55 })),
+  chickpea: r => mesh(G('cp' + Math.floor(r() * 2), () => { const g = displace(new T3.SphereGeometry(.024, 12, 10), .004, 30, Math.random() * 5); g.translate(0, .02, 0); return g; }), mk('cp', { color: '#d8b77a', roughness: .5 })),
+  elbow: () => mesh(G('elbow', () => { const g = new T3.TorusGeometry(.032, .012, 8, 10, Math.PI * .7); g.translate(0, .012, 0); return g; }), MT.elbow()),
+  garlicChip: () => mesh(G('gchip', () => { const g = new T3.CylinderGeometry(.018, .018, .004, 10); g.scale(1, 1, .7); return g; }), mk('gchip', { color: '#c98d3a', roughness: .5 })),
+  nut: r => mesh(G('mince' + Math.floor(r() * 4), () => { const g = displace(new T3.IcosahedronGeometry(.028, 1), .01, 20, Math.random() * 9); g.scale(1, .75, 1); return g; }), MT.nut()),
+  ice: () => mesh(G('ice', () => displace(new T3.BoxGeometry(.17, .17, .17, 3, 3, 3), .01, 8)), mk('ice', { color: '#eef7ff', roughness: .05, transparent: true, opacity: .45, envMapIntensity: 1.8 })),
+};
+function scatter(pc, n, R, surf, seed, it = {}, { cluster = null, tilt = .25, minD = 0, cr = .3 } = {}) { const g = new T3.Group(), r = rng(seed); const pts = []; let i = 0, tries = 0;
+  while (i < n && tries < n * 30) { tries++; let x, z; if (cluster) { const a = r() * 6.283, d = Math.sqrt(r()) * cr; x = cluster[0] + Math.cos(a) * d; z = cluster[1] + Math.sin(a) * d; } else { const a = r() * 6.283, d = Math.sqrt(r()) * R; x = Math.cos(a) * d; z = Math.sin(a) * d; }
+    if (Math.hypot(x, z) > R) continue; if (minD && pts.some(p => Math.hypot(p[0] - x, p[1] - z) < minD)) continue; pts.push([x, z]);
+    const o = PC[pc](r, it); o.position.set(x, surf(x, z), z); o.rotation.y = r() * 6.283; o.rotation.x = (r() - .5) * tilt; o.rotation.z = (r() - .5) * tilt; g.add(o); i++; }
+  return g; }
+
+/* --- vessels --- */
+function plate(R = 1.5, deep = 0) { return mesh(G('plate' + R + deep, () => lathe([[0, .02], [R * .66, .02], [R * .7, 0], [R * .75, 0], [R * .77, .03 + deep * .5], [R * .96, .12 + deep], [R, .14 + deep], [R * .985, .155 + deep], [R * .95, .148 + deep], [R * .76, .06 + deep * .4], [R * .7, .05], [0, .05]], 96)), MT.ceramic()); }
+function bowl(R = 1.25, H = .85, red = 0) { const g = group(mesh(G('bowl' + R + H, () => lathe([[0, 0], [R * .42, 0], [R * .45, .05], [R * .72, H * .3], [R * .93, H * .7], [R, H], [R * .975, H + .03], [R * .94, H], [R * .87, H * .7], [R * .67, H * .33], [R * .4, H * .14], [0, H * .13]], 96)), red ? MT.ceramicRed() : MT.ceramic())); if (red) g.add(mesh(G('bowlIn' + R + H, () => lathe([[R * .935, H + .002], [R * .865, H * .7], [R * .665, H * .33], [R * .4, H * .145], [0, H * .14]], 96)), MT.bowlIn())); return g; }
+const bowlR = (R, H, y) => { const P = [[R * .94, H], [R * .87, H * .7], [R * .67, H * .33], [R * .4, H * .14]]; for (let i = 0; i < P.length - 1; i++) { const [r1, y1] = P[i], [r2, y2] = P[i + 1]; if (y <= y1 && y >= y2) return r2 + (r1 - r2) * (y - y2) / (y1 - y2); } return R * .4; };
+function board(R = 1.6) { return mesh(G('board' + R, () => { const g = new T3.CylinderGeometry(R, R, .09, 72); g.translate(0, .045, 0); return g; }), [MT.boardSide(), MT.boardTop(), MT.boardSide()]); }
+function rectBoard(w, d) { return mesh(G('rb' + w + d, () => { const g = new T3.BoxGeometry(w, .08, d); g.translate(0, .04, 0); return g; }), [MT.boardSide(), MT.boardSide(), MT.boardTop(), MT.boardSide(), MT.boardSide(), MT.boardSide()]); }
+function moundGeo(Rm, h0, hR, pow = 1, seg = 64) { const pts = []; for (let i = 0; i <= 24; i++) { const r = i / 24 * Rm; pts.push([r + .0001, hR + (h0 - hR) * Math.pow(Math.max(0, 1 - (r / Rm) ** 2), pow)]); } pts.reverse(); return lathe(pts, seg); }
+function grains(n, surf, R, geo, mat, seed, depth = .03) { const r = rng(seed); return inst(geo, mat, n, (d) => { const a = r() * 6.283, rr = Math.sqrt(r()) * R; const x = Math.cos(a) * rr, z = Math.sin(a) * rr; d.position.set(x, surf(x, z) - r() * depth, z); d.rotation.set(r() * 3, r() * 6, r() * 3); d.scale.setScalar(.85 + r() * .3); }); }
+const riceGeo = long => G('rice' + long, () => { const g = new T3.SphereGeometry(.012, 6, 4); g.scale(long ? 1.9 : 1.4, .55, .6); return g; });
+const vermGeo = () => G('verm', () => new T3.CylinderGeometry(.006, .006, .06, 5));
+const scoopGeo = () => G('scoop', () => { const g = displace(new T3.SphereGeometry(.24, 32, 24), .025, 7); g.scale(1, .85, 1); return g; });
+const wheelGeo = () => G('wheel', () => { const g = new T3.CylinderGeometry(.24, .24, .035, 40); g.rotateX(Math.PI / 2); return g; });
+const mintLeaf = () => mesh(G('mint', () => leafGeo(.12, .07, .2)), MT.mint());
+const sideTopGeo = () => G('sideTop', () => { const g = new T3.CircleGeometry(.36, 32); g.rotateX(-Math.PI / 2); g.translate(0, .25, 0); return g; });
+
+/* --- burger layers --- */
+const LAYERS = {
+  bottomBun: it => ({ o: group(mesh(G('bunB', () => lathe([[0, 0], [.66, 0], [.74, .04], [.77, .12], [.76, .17], [0, .17]])), MT.dough(it.c)), mesh(G('crumb', () => { const g = new T3.CircleGeometry(.755, 64); g.rotateX(-Math.PI / 2); g.translate(0, .171, 0); return g; }), MT.crumb())), h: .17 }),
+  topBun: it => { const o = group(mesh(G('bunT', () => lathe([[0, 0], [.77, 0], [.8, .05], [.79, .18], [.7, .34], [.52, .45], [.27, .51], [0, .52]])), mk('bunT' + it.c, { color: it.c, roughness: .42, bumpMap: TEX.bump(), bumpScale: .008, phys: 1, clearcoat: .35, clearcoatRoughness: .5 })), mesh(G('crumbT', () => { const g = new T3.CircleGeometry(.77, 64); g.rotateX(Math.PI / 2); return g; }), MT.crumb()));
+    if (it.seeds) { const r = rng('seeds' + it.id); o.add(inst(G('seed', () => { const g = new T3.SphereGeometry(.014, 6, 4); g.scale(1, .45, .6); return g; }), mk('seed' + it.seeds, { color: it.seeds, roughness: .5 }), 70, d => { const a = r() * 6.28, rr = Math.sqrt(r()) * .66; const PR = [[0, .52], [.27, .51], [.52, .45], [.7, .34], [.79, .18]]; let yy = .2; for (let q = 0; q < PR.length - 1; q++) if (rr >= PR[q][0] && rr <= PR[q + 1][0]) yy = PR[q][1] + (PR[q + 1][1] - PR[q][1]) * (rr - PR[q][0]) / (PR[q + 1][0] - PR[q][0]); d.position.set(Math.cos(a) * rr, yy + .002, Math.sin(a) * rr); d.rotation.set(0, -a, rr * .9); })); }
+    return { o, h: .5 }; },
+  patty: () => ({ o: mesh(G('patty', () => { const g = displace(new T3.CylinderGeometry(.8, .78, .17, 64, 10), .03, 9, 1); g.translate(0, .085, 0); return g; }), mk('patty', { color: '#4a2513', roughness: .78 })), h: .15 }),
+  smash: () => ({ o: mesh(G('smash', () => { const g = displace(new T3.CylinderGeometry(.88, .86, .09, 64, 6), .045, 9, 4); g.translate(0, .045, 0); return g; }), mk('smash', { color: '#3a1b0b', roughness: .7 })), h: .08 }),
+  crispy: it => ({ o: mesh(G('crispy', () => { const g = displace(new T3.CylinderGeometry(.84, .82, .2, 72, 12), .05, 13, 3); g.scale(1.08, 1, .96); g.translate(0, .1, 0); return g; }), mk('crispy' + it.c, { color: it.c, roughness: .7 })), h: .19 }),
+  grilled: () => ({ o: mesh(G('grilled', () => { const g = displace(new T3.CylinderGeometry(.78, .76, .14, 56, 3), .018, 5, 2); g.scale(1.1, 1, .9); g.translate(0, .07, 0); return g; }), mk('grilledM', { map: TEX.grill(), roughness: .55 })), h: .13 }),
+  cheese: it => ({ o: mesh(G('cheese', () => { const g = new T3.PlaneGeometry(1.3, 1.3, 28, 28); g.rotateX(-Math.PI / 2); const p = g.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i); const rr = Math.hypot(x, z); let y = .012; if (rr > .6) y -= (rr - .6) ** 2 * 1.6; p.setY(i, y); } g.rotateY(.6); g.computeVertexNormals(); return g; }), mk('cheese' + it.c, { color: it.c, roughness: .3, side: T3.DoubleSide })), h: .02 }),
+  lettuce: () => ({ o: mesh(G('lettuce', () => { const g = new T3.RingGeometry(.05, .92, 96, 8); g.rotateX(-Math.PI / 2); const p = g.attributes.position; for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i); const rr = Math.hypot(x, z), a = Math.atan2(z, x); p.setY(i, .02 + Math.sin(a * 17) * .035 * (rr / .92) ** 2 + (fbm(x * 4, z * 4, 2) - .5) * .05 - Math.max(0, rr - .75) * .3); } g.computeVertexNormals(); return g; }), mk('lettuce', { color: '#69b541', roughness: .45, side: T3.DoubleSide, bumpMap: TEX.bump(), bumpScale: .01 })), h: .05 }),
+  tomato: () => { const o = new T3.Group(); [[-.46, -.26], [.48, -.2], [0, .52]].forEach(([x, z]) => { const m = mesh(G('tomL', () => { const g = new T3.CylinderGeometry(.32, .32, .045, 40); g.translate(0, .022, 0); return g; }), [MT.tomSide(), MT.tomTop(), MT.tomSide()]); m.position.set(x, 0, z); o.add(m); }); return { o, h: .045 }; },
+  onion: () => { const o = new T3.Group(); for (let i = 0; i < 4; i++) { const m = mesh(G('onL', () => { const g = new T3.TorusGeometry(.2, .018, 8, 40); g.rotateX(Math.PI / 2); g.translate(0, .018, 0); return g; }), MT.oring()); const a = i * 1.57 + .4; m.position.set(Math.cos(a) * .55, 0, Math.sin(a) * .55); o.add(m); } return { o, h: .035 }; },
+  pickles: () => { const o = new T3.Group(); for (let i = 0; i < 5; i++) { const m = mesh(G('pk', () => { const g = new T3.CylinderGeometry(.13, .13, .025, 28); g.translate(0, .012, 0); return g; }), [mk('pkS', { color: '#4a6e1e', roughness: .3 }), mk('pkT', { map: TEX.pickle(), roughness: .3 }), mk('pkS', {})]); const a = i * 1.25; m.position.set(Math.cos(a) * .66, 0, Math.sin(a) * .66); o.add(m); } return { o, h: .025 }; },
+  jalapeno: () => { const o = new T3.Group(); for (let i = 0; i < 7; i++) { const m = PC.jalRing(); const a = i * .9; m.scale.setScalar(1.6); m.position.set(Math.cos(a) * .7, 0, Math.sin(a) * .7); o.add(m); } return { o, h: .02 }; },
+  bacon: () => { const o = new T3.Group(); [-.18, .18].forEach((z, k) => { const pts = []; for (let i = 0; i < 9; i++) pts.push([-.9 + i * .225, .02 + Math.sin(i * 1.4 + k) * .035, z]); o.add(ribbon(pts, .2, mk('bacon', { map: TEX.bacon(), roughness: .45, side: T3.DoubleSide }))); }); return { o, h: .06 }; },
+  sauce: c => ({ o: mesh(G('sauceL', () => wobblyDisc(.66, .12, 'sl')), MT.sauce(c)), h: .025 }),
+};
+
+/* --- mahshi --- */
+function riceEnd(r, c) { return mesh(G('re' + r, () => new T3.CircleGeometry(r * .92, 20)), MT.riceEnd(c)); }
+const LYING = ['grapeRoll', 'cabbageRoll', 'zucchini', 'eggplant'];
+const MAHSHI = {
+  grapeRoll: () => mesh(G('grape', () => { const g = displace(capsuleGeo(.045, .17), .006, 18); g.rotateZ(Math.PI / 2); g.translate(0, .044, 0); return g; }), mk('grape', { map: TEX.leaf(), roughness: .42 })),
+  cabbageRoll: () => mesh(G('cab', () => { const g = displace(capsuleGeo(.07, .2), .012, 10); g.rotateZ(Math.PI / 2); g.translate(0, .066, 0); return g; }), mk('cab', { map: TEX.cab(), roughness: .45 })),
+  zucchini: fc => { const body = mesh(G('zuc', () => { const g = new T3.CylinderGeometry(.07, .075, .3, 24, 1, true); g.rotateZ(Math.PI / 2); g.translate(0, .072, 0); return g; }), mk('zuc', { map: TEX.zuc(), roughness: .35, side: T3.DoubleSide })); const e1 = riceEnd(.07, fc); e1.rotation.y = Math.PI / 2; e1.position.set(.15, .072, 0); const e2 = riceEnd(.07, fc); e2.rotation.y = -Math.PI / 2; e2.position.set(-.15, .072, 0); return group(body, e1, e2); },
+  eggplant: fc => { const body = mesh(G('egp', () => { const g = lathe([[0, -.16], [.05, -.15], [.075, -.08], [.08, .05], [.07, .12], [.06, .15], [0, .15]], 24); g.rotateZ(Math.PI / 2); g.translate(0, .075, 0); return g; }), mk('egp', { color: '#3a1a3c', roughness: .2, envMapIntensity: 1.3 })); const e = riceEnd(.06, fc); e.rotation.y = -Math.PI / 2; e.position.set(-.151, .075, 0); const cap = mesh(G('egcap', () => { const g = new T3.ConeGeometry(.05, .06, 6); g.rotateZ(-Math.PI / 2); g.translate(.18, .075, 0); return g; }), MT.stem()); return group(body, e, cap); },
+  bellPepper: fc => { const body = mesh(G('bell', () => displace(lathe([[0, 0], [.08, .005], [.11, .05], [.115, .14], [.1, .2], [0, .2]], 24), .01, 8)), mk('bell', { color: '#2f7a24', roughness: .2, envMapIntensity: 1.3 })); const top = riceEnd(.1, fc); top.rotation.x = -Math.PI / 2; top.position.y = .201; const st = mesh(G('bstem', () => { const g = new T3.CylinderGeometry(.012, .016, .06, 6); g.translate(.02, .23, 0); return g; }), MT.stem()); return group(body, top, st); },
+  stuffedTomato: fc => { const body = mesh(G('stom', () => { const g = new T3.SphereGeometry(.11, 24, 16, 0, Math.PI * 2, .35, Math.PI - .35); g.scale(1, .82, 1); g.translate(0, .09, 0); return g; }), mk('stom', { color: '#c22a17', roughness: .22, envMapIntensity: 1.3 })); const top = riceEnd(.04, fc); top.rotation.x = -Math.PI / 2; top.position.y = .169; return group(body, top); }
+};
+
+/* --- fruits (juice thumbs) --- */
+const FRUIT = {
+  mango: () => mesh(G('mango', () => { const g = displace(new T3.SphereGeometry(.2, 24, 16), .01, 3); g.scale(1, .78, .72); g.translate(0, .15, 0); return g; }), mk('mango', { map: TEX.mango(), roughness: .35 })),
+  strawberry: () => group(mesh(G('straw', () => displace(lathe([[0, 0], [.05, .02], [.11, .1], [.13, .17], [.1, .22], [0, .23]], 24), .008, 10)), mk('strawb', { map: TEX.straw(), roughness: .3 })), mesh(G('strawL', () => { const g = new T3.ConeGeometry(.09, .04, 7); g.translate(0, .245, 0); return g; }), mk('leafG', { color: '#3c7f2a', roughness: .5 }))),
+  guava: () => mesh(G('guava', () => { const g = displace(new T3.SphereGeometry(.18, 24, 16), .012, 5); g.translate(0, .17, 0); return g; }), mk('guava', { color: '#b9c95a', roughness: .5, bumpMap: TEX.bump(), bumpScale: .01 })),
+  orange: () => mesh(G('orange', () => { const g = new T3.SphereGeometry(.19, 28, 20); g.translate(0, .19, 0); return g; }), mk('orange', { color: '#f28a17', roughness: .55, bumpMap: TEX.dimple(), bumpScale: .006 })),
+  banana: () => tube([[-.25, .25, 0], [-.15, .1, 0], [0, .06, 0], [.15, .1, 0], [.25, .24, 0]], .055, mk('banana', { color: '#f2d24a', roughness: .45 }), 40),
+  kiwi: () => mesh(G('kiwi', () => { const g = new T3.CylinderGeometry(.17, .17, .05, 32); g.rotateZ(Math.PI / 2 - .3); g.translate(0, .17, 0); return g; }), [mk('kiwiS', { color: '#6b4a24', roughness: .9 }), mk('kiwiT', { map: TEX.kiwi(), roughness: .3 }), mk('kiwiT', {})]),
+  watermelon: () => mesh(G('wm', () => { const g = new T3.CylinderGeometry(.32, .32, .07, 24, 1, false, 0, Math.PI / 3); g.rotateX(Math.PI / 2); return g; }), [mk('wmR', { color: '#2f6a20', roughness: .4 }), mk('wmF', { map: TEX.wm(), roughness: .35 }), mk('wmF', {})]),
+  avocadoFruit: () => group(mesh(G('avoH', () => { const g = new T3.SphereGeometry(.17, 24, 16, 0, Math.PI * 2, 0, Math.PI / 2); g.scale(1, 1, 1.4); g.translate(0, 0, 0); return g; }), mk('avoS', { color: '#2e3d14', roughness: .6, side: T3.DoubleSide })), mesh(G('avoF', () => { const g = new T3.CircleGeometry(.165, 32); g.rotateX(-Math.PI / 2); g.scale(1, 1, 1.4); g.translate(0, .002, 0); return g; }), mk('avoF', { color: '#cddc84', roughness: .4 })), mesh(G('avoP', () => { const g = new T3.SphereGeometry(.07, 16, 12); g.translate(0, -.01, .03); return g; }), mk('avoP', { color: '#6b3d1d', roughness: .3 }))),
+  lemon: () => { const g = group(mesh(G('lemon', () => { const g2 = new T3.SphereGeometry(.15, 24, 16); g2.scale(1.25, 1, 1); g2.translate(0, .15, 0); return g2; }), mk('lemon', { color: '#e6d22a', roughness: .5, bumpMap: TEX.dimple(), bumpScale: .005 }))); [0, 1, 2].forEach(i => { const l = mintLeaf(); l.position.set(.12, .3, 0); l.rotation.set(0, i * 2, .4); g.add(l); }); return g; }
+};
+
+/* =============== COMPOSE: dish + selection => keyed objects =============== */
+const flat = y => () => y;
+const sauceColor = id => SAUCE_C[id] || '#c0392b';
+function scatterItem(it, k, surf, R, pos, extra = {}) { return { k: k + (pos ? '@' + pos.map(v => v.toFixed(2)).join(',') : ''), a: 'drop', make: () => it.drizzle ? drizzle(k, R * .85, surf, it.drizzle, it.w || .022) : scatter(it.pc, it.n, R, surf, k, it, { cluster: pos, cr: .32, minD: extra.minD || 0, tilt: extra.tilt ?? .25 }) }; }
+const COMPOSE = {
+  pizza(d, sel, pos) { const L = [{ k: 'vessel', a: 'none', make: () => board(1.62) }]; const base = sel.base[0] && itemBy(d, 'base', sel.base[0]);
+    if (!base) return { list: L, surf: flat(.09), dropR: 1.1 };
+    const top = .14; const surf = () => top + .012 + (sel.cheese.length ? .012 : 0);
+    L.push({ k: 'crust:' + base.id, a: 'pop', make: () => { const R = 1.38; const g = group(mesh(G('pzb', () => { const g2 = new T3.CylinderGeometry(R, R, .05, 72); g2.translate(0, .115, 0); return g2; }), MT.dough(base.c)), mesh(G('crust' + base.w, () => { const g2 = displace(new T3.TorusGeometry(R - base.w * .6, base.w, 16, 96), base.w * .25, 6, 3); g2.rotateX(Math.PI / 2); g2.translate(0, .1 + base.w * .5, 0); return g2; }), MT.crust())); if (base.stuffed) { const tt = mesh(G('stuffC', () => { const g2 = new T3.TorusGeometry(R - base.w * .6, base.w * .45, 10, 96); g2.rotateX(Math.PI / 2); g2.translate(0, .1 + base.w * 1.05, 0); return g2; }), mk('stuffC', { color: '#f6e3a0', roughness: .35 })); tt.scale.set(1, .5, 1); g.add(tt); } return g; } });
+    const sauce = sel.sauce[0] && itemBy(d, 'sauce', sel.sauce[0]);
+    if (sauce) L.push({ k: 'sauce:' + sauce.id + base.id, a: 'pop', make: () => { const m = mesh(G('pzSauce' + base.w, () => wobblyDisc(1.38 - base.w * 1.7, .015, 'ps')), MT.sauce(sauce.c)); m.position.y = top - .004; return m; } });
+    sel.cheese.forEach((id, i) => { const c = itemBy(d, 'cheese', id); L.push({ k: 'cheese:' + id + i + base.id, a: 'pop', make: () => { if (i === 0) { const R0 = 1.25 - base.w * 1.7; return scatter('pizzaMelt', 70, R0, () => top + .006, 'pzm' + id, c, { minD: .16, tilt: .05 }); } if (false) { const m = mesh(G('pzChe' + base.w, () => { const g2 = new T3.RingGeometry(.001, 1.34 - base.w * 1.7, 96, 20); g2.rotateX(-Math.PI / 2); const p = g2.attributes.position; for (let j = 0; j < p.count; j++) { const x = p.getX(j), z = p.getZ(j); p.setY(j, (fbm(x * 3, z * 3, 7) - .3) * .025); } g2.computeVertexNormals(); return g2; }), mk('pzChe' + id, { color: c.c, roughness: .32, map: TEX.cheese(), bumpMap: TEX.bump(), bumpScale: .01 })); m.position.y = top + .004; return m; } return scatter('meltBlob', 22, 1.1, () => top + .012, 'chs' + id, c); } }); });
+    sel.tops.forEach(id => { const it = itemBy(d, 'tops', id); L.push(scatterItem(it, 'tops:' + id, surf, 1.12, pos['tops:' + id], { minD: it.pc === 'pepperoni' ? .17 : 0, tilt: .15 })); });
+    sel.finish.forEach(id => { const it = itemBy(d, 'finish', id); L.push(scatterItem(it, 'finish:' + id, (x, z) => surf(x, z) + .02, 1.15, pos['finish:' + id])); });
+    return { list: L, surf, dropR: 1.12 }; },
+
+  pasta(d, sel, pos) { const L = [{ k: 'vessel', a: 'none', make: () => plate(1.55, .12) }]; const base = sel.base[0]; const sauce = sel.sauce[0] && itemBy(d, 'sauce', sel.sauce[0]);
+    const mound = (x, z) => { const r = Math.hypot(x, z); return .1 + .4 * Math.pow(Math.max(0, 1 - (r / 1) ** 2), .8); };
+    if (!base) return { list: L, surf: flat(.1), dropR: .8 };
+    const tint = sauce ? sauce.tint : '#f0d08a';
+    L.push({ k: 'pasta:' + base + (sauce ? sauce.id : ''), a: 'pop', make: () => pastaPile(base, tint, mound) });
+    if (sauce) L.push({ k: 'psauce:' + sauce.id, a: 'pop', make: () => { const g = group(); const pool = mesh(G('ppool', () => wobblyDisc(1.05, .08, 'pp')), MT.sauce(sauce.c)); pool.position.y = .09; g.add(pool); g.add(scatter('meltBlob', 14, .7, (x, z) => mound(x, z) + .005, 'psb', { c: sauce.c })); return g; } });
+    const surf = (x, z) => mound(x, z) + .02;
+    ['protein', 'cheese', 'finish'].forEach(sk => sel[sk].forEach(id => { const it = itemBy(d, sk, id); L.push(scatterItem(it, sk + ':' + id, surf, .78, pos[sk + ':' + id])); }));
+    return { list: L, surf, dropR: .8 }; },
+
+  burger(d, sel) { const L = [{ k: 'vessel', a: 'none', make: () => board(1.35) }]; const bun = sel.bun[0] && itemBy(d, 'bun', sel.bun[0]); let y = .09;
+    if (!bun) return { list: L, surf: flat(.2), dropR: .7 };
+    const add = (k, lay) => { L.push({ k, a: 'drop', y, make: () => lay().o }); y += lay.h; };
+    const lay = f => { const r = f(); const fn = () => r; fn.h = r.h; return fn; };
+    add('bunB:' + bun.id, lay(() => LAYERS.bottomBun(bun)));
+    if (sel.sauce[0]) add('sauceA:' + sel.sauce[0], lay(() => LAYERS.sauce(sauceColor(sel.sauce[0]))));
+    if (sel.veg.includes('lettuce')) add('veg:lettuce', lay(() => LAYERS.lettuce()));
+    const p = sel.patty[0] && itemBy(d, 'patty', sel.patty[0]);
+    if (p) for (let i = 0; i < p.n; i++) { add('patty:' + p.id + i, lay(() => LAYERS[p.L](p))); const ch = sel.cheese[i]; if (ch) add('cheese:' + ch + i, lay(() => LAYERS.cheese(itemBy(d, 'cheese', ch)))); }
+    sel.cheese.forEach((ch, i) => { if (!p || i >= p.n) add('cheese:' + ch + i, lay(() => LAYERS.cheese(itemBy(d, 'cheese', ch)))); });
+    ['bacon', 'tomato', 'onion', 'pickles', 'jalapeno'].forEach(v => { if (sel.veg.includes(v)) add('veg:' + v, lay(() => LAYERS[v]())); });
+    sel.sauce.slice(1).forEach(id => add('sauce:' + id, lay(() => LAYERS.sauce(sauceColor(id)))));
+    const top = LAYERS.topBun(bun); L.push({ k: 'bunT:' + bun.id, a: 'drop', y: y + .01, make: () => top.o });
+    return { list: L, surf: flat(y), dropR: .7 }; },
+
+  noodles(d, sel, pos) { const L = [{ k: 'vessel', a: 'none', make: () => bowl(1.3, .9, 1) }]; const broth = sel.broth[0] && itemBy(d, 'broth', sel.broth[0]); const base = sel.base[0] && itemBy(d, 'base', sel.base[0]);
+    const BY = .62; const mound = (x, z) => { const r = Math.hypot(x, z); return BY + .14 * Math.pow(Math.max(0, 1 - (r / 1) ** 2), .7); };
+    if (broth) L.push({ k: 'broth:' + broth.id, a: 'fill', make: () => mesh(G('broth', () => { const g = new T3.CylinderGeometry(bowlR(1.3, .9, BY), bowlR(1.3, .9, .14), BY - .12, 72); g.translate(0, (BY + .12) / 2, 0); return g; }), mk('broth' + broth.id, { color: broth.c, roughness: .08, envMapIntensity: 1.4, phys: 1, clearcoat: 1 })) });
+    const more = sel.finish.includes('more');
+    if (base) L.push({ k: 'nood:' + base.id + (more ? '+' : ''), a: 'pop', make: () => noodleNest(base, mound, more ? 1.4 : 1, .95) });
+    const surf = (x, z) => (base ? mound(x, z) : BY) + .005;
+    const slots = [[0, -.45], [.48, -.1], [.32, .42], [-.3, .45], [-.5, -.1], [0, 0], [.1, -.75], [-.68, .3]]; let si = 0;
+    ['protein', 'greens'].forEach(sk => sel[sk].forEach(id => { const it = itemBy(d, sk, id); const k = sk + ':' + id; const p = pos[k] || slots[si % slots.length]; si++; L.push(scatterItem(it, k, surf, .95, p, { tilt: .3 })); }));
+    sel.finish.forEach(id => { const it = itemBy(d, 'finish', id); if (it.pc) L.push(scatterItem(it, 'finish:' + id, (x, z) => surf(x, z) + .012, .95, pos['finish:' + id])); });
+    return { list: L, surf, dropR: .95 }; },
+
+  hotdog(d, sel) { const L = [{ k: 'vessel', a: 'none', make: () => rectBoard(2.6, 1.2) }]; const bun = sel.bun[0] && itemBy(d, 'bun', sel.bun[0]); const sg = sel.sausage[0] && itemBy(d, 'sausage', sel.sausage[0]);
+    if (bun) L.push({ k: 'bun:' + bun.id, a: 'drop', y: .08, make: () => hotdogBun(bun) });
+    if (sg) L.push({ k: 'saus:' + sg.id, a: 'drop', y: .08, make: () => mesh(G('saus', () => { const g2 = displace(capsuleGeo(.11, 1.6), .004, 5); g2.rotateZ(Math.PI / 2); g2.translate(0, .26, 0); return g2; }), mk('saus' + sg.id, { color: sg.c, roughness: .3, envMapIntensity: 1.2, bumpMap: TEX.bump(), bumpScale: .004 })) });
+    const surf = (x, z) => .46 - Math.abs(z) * .5;
+    const line = (k, n, pc, it) => ({ k, a: 'drop', make: () => { const r = rng(k); const g = new T3.Group(); for (let i = 0; i < n; i++) { const o = PC[pc](r, it); const x = -.75 + r() * 1.5, z = (r() - .5) * .14; o.position.set(x, surf(x, z), z); o.rotation.y = r() * 6; g.add(o); } return g; } });
+    const zz = (k, c, i) => ({ k, a: 'drop', make: () => { const pts = []; for (let j = 0; j <= 16; j++) pts.push([-.8 + j * .1, .48 + i * .015, (j % 2 ? .07 : -.07)]); return tube(pts, .02, MT.sauce(c), 160); } });
+    sel.tops.forEach((id, i) => { const it = itemBy(d, 'tops', id); L.push(it.drizzle ? zz('tops:' + id, it.drizzle, i) : line('tops:' + id, it.n, it.pc, it)); });
+    sel.sauce.forEach((id, i) => L.push(zz('sauce:' + id, sauceColor(id), i + 1)));
+    return { list: L, surf, dropR: .8 }; },
+
+  fries(d, sel, pos) { const L = [{ k: 'vessel', a: 'none', make: friesBox }];
+    const base = sel.base[0]; const mound = (x, z) => .09 + .32 * Math.max(0, 1 - (x / .85) ** 2 - (z / .62) ** 2) ** .5;
+    if (base) L.push({ k: 'fries:' + base, a: 'drop', make: () => friesPile(base, mound) });
+    const surf = (x, z) => (base ? mound(x, z) : .09) + .02;
+    ['cheese', 'protein', 'tops'].forEach(sk => sel[sk].forEach(id => { const it = itemBy(d, sk, id); L.push(scatterItem(it, sk + ':' + id, surf, .6, pos[sk + ':' + id])); }));
+    sel.sauce.forEach(id => L.push({ k: 'sauce:' + id, a: 'drop', make: () => drizzle(id, .6, surf, sauceColor(id), .02) }));
+    return { list: L, surf, dropR: .6 }; },
+
+  rice(d, sel, pos) { const L = [{ k: 'vessel', a: 'none', make: () => bowl(1.3, .8) }]; const base = sel.base[0] && itemBy(d, 'base', sel.base[0]);
+    const mound = (x, z) => { const r = Math.hypot(x, z); return .55 + .2 * Math.pow(Math.max(0, 1 - (r / 1.08) ** 2), .6); };
+    if (base) L.push({ k: 'rice:' + base.id, a: 'pop', make: () => ricePile(base, mound, 1.1, .75, .55, base.long ? 1600 : 2200) });
+    const surf = (x, z) => mound(x, z) + .01; const slots = [[-.42, -.32], [.42, -.32], [.45, .35], [-.42, .38], [0, 0], [0, -.65]]; let si = 0;
+    ['protein', 'veg'].forEach(sk => sel[sk].forEach(id => { const it = itemBy(d, sk, id); const k = sk + ':' + id; L.push(scatterItem(it, k, surf, 1, pos[k] || slots[si++ % slots.length], { tilt: .3 })); }));
+    sel.sauce.forEach(id => { const it = itemBy(d, 'sauce', id); L.push({ k: 'sauce:' + id, a: 'drop', make: () => drizzle('r' + id, .85, (x, z) => surf(x, z) + .03, it.drizzle, .018) }); });
+    sel.tops.forEach(id => { const it = itemBy(d, 'tops', id); L.push(scatterItem(it, 'tops:' + id, (x, z) => surf(x, z) + .05, .95, pos['tops:' + id])); });
+    return { list: L, surf, dropR: 1 }; },
+
+  koshary(d, sel, pos) { const sz = sel.size[0] ? itemBy(d, 'size', sel.size[0]).s : 1; const L = [{ k: 'vessel' + sz, a: 'none', make: () => { const g = bowl(1.25, .8); g.scale.setScalar(sz); return g; } }];
+    const m1 = (x, z) => { const r = Math.hypot(x, z); return .55 + .28 * Math.pow(Math.max(0, 1 - (r / 1.05) ** 2), .6); };
+    const mound = (x, z) => m1(x / sz, z / sz) * sz;
+    if (sel.size[0]) L.push({ k: 'kosh' + sz, a: 'pop', make: () => { const g = kosharyPile(m1); g.scale.setScalar(sz); return g; } });
+    const surf = (x, z) => mound(x, z) + .01;
+    sel.sauce.forEach(id => { const it = itemBy(d, 'sauce', id); L.push({ k: 'ks:' + id + sz, a: 'drop', make: () => { if (id === 'tomato') { const m = mesh(G('ksPool', () => { const g2 = wobblyDisc(.48, .2, 'ksp'); const p = g2.attributes.position; for (let j = 0; j < p.count; j++) { const x = p.getX(j), z = p.getZ(j); p.setY(j, p.getY(j) - (x * x + z * z) * .35); } g2.computeVertexNormals(); return g2; }), mk('ksTom', { color: it.c, roughness: .18, envMapIntensity: 1.3 })); m.position.y = mound(0, 0) + .005; m.scale.setScalar(sz); return m; } return drizzle('k' + id, .7 * sz, (x, z) => surf(x, z) + .02, it.c, .02); } }); });
+    sel.tops.forEach(id => { const it = itemBy(d, 'tops', id); L.push(scatterItem(it, 'tops:' + id + sz, (x, z) => surf(x, z) + .02, (id === 'onion' ? .55 : .85) * sz, pos['tops:' + id])); });
+    return { list: L, surf, dropR: .9 * sz }; },
+
+  mahshi(d, sel) { const L = [{ k: 'vessel', a: 'none', make: () => { const p = plate(1.45); p.scale.set(1.35, 1, 1); return p; } }]; const fc = sel.fill[0] ? itemBy(d, 'fill', sel.fill[0]).fc : '#e9dfb8'; const types = sel.types; const n = types.length;
+    types.forEach((id, ti) => { const it = itemBy(d, 'types', id); const a0 = n > 1 ? (ti / n) * Math.PI * 2 + .4 : 0; const cx = n > 1 ? Math.cos(a0) * .85 : 0, cz = n > 1 ? Math.sin(a0) * .45 : 0;
+      L.push({ k: 'types:' + id + fc + n + ti, a: 'drop', make: () => { const g = mahshiCluster(it.m, fc); g.position.set(cx, 0, cz); return g; } }); });
+    const sides = { yogurt: [-1.3, 1.35], salad: [1.35, 1.3], soup: [-2.05, -.15], lemon: [0, -.62] };
+    sel.sides.forEach(id => { const it = itemBy(d, 'sides', id); L.push({ k: 'side:' + id, a: 'drop', make: () => { const g = sideDish(it.side); const [x, z] = sides[it.side]; g.position.set(x, 0, z); return g; } }); });
+    return { list: L, surf: flat(.2), dropR: 1.2 }; },
+
+  juice(d, sel) { const sz = sel.size[0] ? itemBy(d, 'size', sel.size[0]).s : 1; const H = 1.5 * sz, Rb = .36, Rt = .5; const rAt = y => Rb + (Rt - Rb) * (y / H);
+    const L = [{ k: 'coaster', a: 'none', make: () => mesh(G('coaster', () => { const g = new T3.CylinderGeometry(.75, .75, .03, 48); g.translate(0, .015, 0); return g; }), mk('coaster', { color: '#d9c4a0', roughness: .9, bumpMap: TEX.bump(), bumpScale: .01 })) }];
+    if (!sel.size[0]) return { list: L, surf: flat(.2), dropR: .4 };
+    L.push({ k: 'glass' + sz, a: 'pop', make: () => { const m = mesh(G('glass' + sz, () => lathe([[0, 0], [Rb, 0], [Rb + .01, .01], [Rt, H], [Rt - .025, H], [Rb - .02, .1], [0, .1]], 72)), MT.glass()); m.castShadow = false; m.position.y = .03; return m; } });
+    const base = sel.base[0] && itemBy(d, 'base', sel.base[0]); const mix = base ? base.mix : 0; const fr = sel.fruits; const fill = H * .82; const y0 = .13;
+    fr.forEach((id, i) => { const it = itemBy(d, 'fruits', id); const c = new T3.Color(it.c).lerp(new T3.Color('#fbf3e3'), mix); const hex = '#' + c.getHexString(); const a = y0 + (fill - .1) * i / fr.length, b = y0 + (fill - .1) * (i + 1) / fr.length;
+      L.push({ k: 'layer:' + id + i + fr.length + sz + mix, a: 'fill', y: .03, make: () => { const m = mesh(new T3.CylinderGeometry(rAt(b) - .022, rAt(a) - .022, b - a, 64).translate(0, (a + b) / 2, 0), mk('liq' + hex + mix, { color: hex, roughness: .15, transparent: !mix, opacity: mix ? 1 : .9, envMapIntensity: 1.2 })); m.castShadow = false; return m; } }); });
+    const topY = .03 + (fr.length ? y0 + fill - .1 : .1);
+    const A = sel.addins, Gn = sel.garnish, cream = A.includes('cream');
+    if (A.includes('ice')) L.push({ k: 'ice' + sz + fr.length, a: 'drop', make: () => { const r = rng('ice'); const g = new T3.Group(); for (let i = 0; i < 5; i++) { const m = PC.ice(); const a = i * 1.3; m.position.set(Math.cos(a) * .2, topY - .05 + r() * .05, Math.sin(a) * .2); m.rotation.set(r(), r(), r()); g.add(m); } return g; } });
+    if (A.includes('honey')) L.push({ k: 'honey' + sz, a: 'drop', make: () => { const pts = []; for (let j = 0; j < 14; j++) { const y = topY - j * (topY - .2) / 13; const a = j * .7; const r = rAt(y - .03) - .04; pts.push([Math.cos(a) * r, y, Math.sin(a) * r]); } return tube(pts, .018, MT.honey(), 120); } });
+    if (cream) L.push({ k: 'scoop' + sz + fr.length, a: 'drop', make: () => { const m = mesh(scoopGeo(), MT.scoop()); m.position.y = topY + .12; return m; } });
+    if (A.includes('nuts')) L.push({ k: 'nuts' + sz + fr.length + cream, a: 'drop', make: () => scatter('nut', 26, .3, () => topY + (cream ? .28 : .02), 'nuts', {}) });
+    if (Gn.includes('mint')) L.push({ k: 'mint' + sz + fr.length + cream, a: 'drop', make: () => { const g = new T3.Group(); for (let i = 0; i < 4; i++) { const l = mintLeaf(); l.position.set(-.08, topY + (cream ? .3 : .05) + i * .015, .05); l.rotation.set(-.4, i * 1.6, .3); g.add(l); } return g; } });
+    if (Gn.includes('slice')) L.push({ k: 'wheel' + sz, a: 'drop', make: () => { const m = mesh(wheelGeo(), [MT.whS(), MT.whT(), MT.whT()]); m.position.set(Rt * .85, .03 + H - .06, Rt * .5); m.rotation.y = -.55; return m; } });
+    L.push({ k: 'straw' + sz, a: 'drop', make: () => { const m = mesh(G('straw' + sz, () => { const g = new T3.CylinderGeometry(.028, .028, H + .45, 12); g.translate(0, (H + .45) / 2, 0); return g; }), mk('strawM', { map: TEX.stripe(), roughness: .3 })); m.position.set(-.12, .15, .05); m.rotation.z = .22; return m; } });
+    return { list: L, surf: flat(topY), dropR: .4 }; }
+};
+/* shared builders used by compose + thumbnails */
+function pastaPile(base, tint, mound, R = .95, h0 = .42) { const r = rng('pasta' + base); const mat = MT.pasta(tint); const g = new T3.Group(); g.add(mesh(G('pmound' + R, () => moundGeo(R, h0, .08, .8)), mat));
+  if (base === 'penne' || base === 'macaroni') { const geo = base === 'penne' ? G('penne', () => new T3.CylinderGeometry(.03, .03, .16, 12, 1, true)) : G('elbowP', () => new T3.TorusGeometry(.04, .015, 8, 12, Math.PI * .75)); g.add(inst(geo, mat, Math.round((base === 'penne' ? 230 : 300) * (R / .95) ** 2), dd => { const a = r() * 6.28, rr = Math.sqrt(r()) * R; const x = Math.cos(a) * rr, z = Math.sin(a) * rr; dd.position.set(x, mound(x, z) - r() * .05 + .02, z); dd.rotation.set(r() * 6, r() * 6, r() * 6); })); }
+  else { for (let i = 0; i < (base === 'spaghetti' ? 46 : 30) * (R / .95); i++) { const pts = []; const a0 = r() * 6.28, rr0 = (.15 + r() * .7) * R / .95, turns = 1 + r(); for (let j = 0; j < 14; j++) { const a = a0 + j / 13 * turns * Math.PI; const rr = clamp(rr0 + Math.sin(j * .9 + i) * .12 * R, .05, R); const x = Math.cos(a) * rr, z = Math.sin(a) * rr; pts.push([x, mound(x, z) - .02 + r() * .025, z]); } g.add(base === 'spaghetti' ? tube(pts, .012, mat, 70) : ribbon(pts.map(p => [p[0], p[1] + .01, p[2]]), .055, mat)); } }
+  return g; }
+function noodleNest(base, mound, mult = 1, R = .95) { const r = rng('nood' + base.id); const mat = mk('nood' + base.id, { color: base.c, roughness: .35, envMapIntensity: 1 }); const g = new T3.Group(); const n = (base.id === 'udon' ? 22 : base.id === 'rice' ? 60 : 42) * mult * (R / .95);
+  for (let i = 0; i < n; i++) { const pts = []; const a0 = r() * 6.28, rr0 = (.1 + r() * .78) * R / .95; for (let j = 0; j < 16; j++) { const a = a0 + j * .32 + Math.sin(j * 1.7) * .2 * base.curl; const rr = clamp(rr0 + Math.sin(j * (1.3 + base.curl * 2)) * .1 * (1 + base.curl) * R, .05, R); const x = Math.cos(a) * rr + Math.sin(j * 3.1 + i) * .03 * base.curl, z = Math.sin(a) * rr; pts.push([x, mound(x, z) - .05 + r() * .05, z]); } g.add(tube(pts, base.r, mat, 80)); } return g; }
+function ricePile(base, mound, R, h0, hR, n) { const mat = mk('riceM' + base.id, { color: base.c, roughness: .6 }); const g = group(mesh(G('rmound' + R + h0 + hR, () => moundGeo(R, h0, hR, .6)), mat), grains(n, mound, R * .95, riceGeo(base.long), mat, 'rice' + base.id + R, .01)); if (base.verm) g.add(grains(Math.round(n * .12), mound, R * .93, vermGeo(), MT.verm(), 'verm' + R, .01)); return g; }
+function kosharyPile(m1) { const g = group(mesh(G('kmound', () => moundGeo(1.06, .83, .55, .6)), MT.kbase()));
+  g.add(grains(1700, m1, 1.02, riceGeo(0), mk('kRice', { color: '#efe2c3', roughness: .6 }), 'krice', .02)); g.add(grains(900, m1, 1.02, G('lentil', () => new T3.CylinderGeometry(.013, .013, .006, 8)), mk('lentil', { color: '#3b2716', roughness: .55 }), 'klen', .02)); g.add(grains(320, m1, 1, G('elbowK', () => new T3.TorusGeometry(.032, .012, 8, 10, Math.PI * .7)), MT.elbow(), 'kel', .02)); g.add(grains(260, m1, 1, G('ditali', () => new T3.CylinderGeometry(.014, .014, .05, 8, 1, true)), MT.elbow(), 'kdit', .02)); return g; }
+function hotdogBun(bun) { const mat = MT.dough(bun.c); const g = new T3.Group(); [-1, 1].forEach(s => { const m = mesh(G('hdbun', () => { const g2 = displace(capsuleGeo(.17, 1.45), .01, 6); g2.rotateZ(Math.PI / 2); g2.scale(1, .9, .75); return g2; }), mat); m.position.set(0, .16, s * .13); m.rotation.x = s * .35; g.add(m); }); return g; }
+function friesBox() { const g = rectBoard(2.4, 1.9); const paper = mk('paper', { map: TEX.checker(), roughness: .85, side: T3.DoubleSide }); const W = 1.7, D = 1.25, H = .3; g.add(mesh(G('bxb', () => { const g2 = new T3.PlaneGeometry(W, D); g2.rotateX(-Math.PI / 2); g2.translate(0, .085, 0); return g2; }), paper)); [[0, D / 2, W, 0], [0, -D / 2, W, Math.PI], [W / 2, 0, D, -Math.PI / 2], [-W / 2, 0, D, Math.PI / 2]].forEach(([x, z, w, ry]) => { const m = mesh(G('bxw' + w, () => { const g2 = new T3.PlaneGeometry(w, H); g2.translate(0, H / 2, 0); return g2; }), paper); m.position.set(x, .085, z); m.rotation.y = ry; g.add(m); }); return g; }
+function friesPile(base, mound, sc = 1) { const r = rng('fr' + base); const mat = mk('fry', { color: '#efb848', roughness: .5, bumpMap: TEX.bump(), bumpScale: .006 }); const g = new T3.Group();
+  if (base === 'classic') g.add(inst(G('fryG', () => new T3.BoxGeometry(.05, .05, .5)), mat, Math.round(150 * sc), dd => { const x = (r() - .5) * 1.5 * sc, z = (r() - .5) * 1.1 * sc; dd.position.set(x, mound(x, z) - r() * .12 + .02, z); dd.rotation.set((r() - .5) * .5, r() * 6, (r() - .5) * .5); }));
+  else if (base === 'curly') for (let i = 0; i < 30 * sc; i++) { const cx = (r() - .5) * 1.3 * sc, cz = (r() - .5) * .9 * sc; const pts = []; for (let j = 0; j < 14; j++) { const a = j * .9; pts.push([cx + Math.cos(a) * .07, mound(cx, cz) - .1 + j * .012, cz + Math.sin(a) * .07]); } const tb = tube(pts, .022, mat, 60); g.add(tb); }
+  else g.add(inst(G('wedgeG', () => { const g2 = new T3.CylinderGeometry(.13, .13, .42, 6, 1, false, 0, Math.PI / 2); g2.rotateX(Math.PI / 2); return g2; }), mk('wedge', { color: '#e3a541', roughness: .55, bumpMap: TEX.bump(), bumpScale: .01 }), Math.round(46 * sc), dd => { const x = (r() - .5) * 1.4 * sc, z = (r() - .5) * sc; dd.position.set(x, mound(x, z) - r() * .1, z); dd.rotation.set((r() - .5) * .6, r() * 6, r() * 6); }));
+  return g; }
+function mahshiCluster(m, fc) { const g = new T3.Group(); const f = MAHSHI[m]; const lying = LYING.includes(m); const cnt = { grapeRoll: 15, cabbageRoll: 7, zucchini: 5, eggplant: 4, bellPepper: 3, stuffedTomato: 3 }[m]; const sp = { grapeRoll: [.088, .19], cabbageRoll: [.14, .27], zucchini: [.15, .33], eggplant: [.16, .36], bellPepper: [.24, .24], stuffedTomato: [.24, .24] }[m];
+  const cols = lying ? Math.ceil(cnt / 2) : cnt; const rows = Math.ceil(cnt / cols); for (let i = 0; i < cnt; i++) { const o = f(fc); const row = Math.floor(i / cols), c = i % cols; if (lying) { o.rotation.y = Math.PI / 2; o.position.set((c - (cols - 1) / 2) * sp[0], .05, (row - (rows - 1) / 2) * sp[1]); } else o.position.set((i - (cnt - 1) / 2) * sp[0], .05, 0); g.add(o); } g.scale.setScalar(1.35); return g; }
+function sideDish(kind) { if (kind === 'lemon') { const g = new T3.Group(); for (let i = 0; i < 3; i++) { const w = mesh(G('lwedge', () => { const g2 = new T3.SphereGeometry(.12, 16, 10, 0, Math.PI / 2.2); g2.scale(1.3, 1, 1); return g2; }), mk('lemonW', { color: '#efd83a', roughness: .4, side: T3.DoubleSide })); w.position.set(i * .22 - .22, .07, 0); w.rotation.set(-Math.PI / 2, 0, i); g.add(w); } return g; }
+  const g = bowl(.42, .3); const fillC = { yogurt: '#f8f6ef', salad: '#6eaa3d', soup: '#e6b55a' }[kind]; g.add(mesh(sideTopGeo(), mk('side' + kind, { color: fillC, roughness: kind === 'yogurt' ? .25 : .5 }))); if (kind === 'salad') g.add(scatter('vegMix', 30, .3, () => .25, 'sal', {})); if (kind === 'soup') g.add(scatter('sesame', 60, .3, () => .255, 'orzo', {})); return g; }
+
+/* =============== THUMBNAILS for tray items =============== */
+function THUMB(d, step, it) {
+  if (it.pc) return scatter(it.pc, Math.min(it.n, it.pc === 'sesame' || /Flake$/.test(it.pc) ? 60 : it.pc === 'mince' || it.pc === 'corn' || it.pc === 'scallion' || it.pc === 'crispOnion' ? 22 : 7), it.pc === 'basil' ? .2 : .26, () => 0, 'th' + it.id, it, { tilt: .4 });
+  if (it.drizzle) return puddle(it.drizzle);
+  if (it.L) { if (it.n === 2) { const a = LAYERS[it.L](it), b = LAYERS[it.L](it); b.o.position.y = a.h + .02; return group(a.o, b.o); } return LAYERS[it.L](it).o; }
+  if (it.m) { const g = new T3.Group(); [0, 1].forEach(i => { const o = MAHSHI[it.m]('#e9dfb8'); if (LYING.includes(it.m)) { o.rotation.y = Math.PI / 2; o.position.set((i - .5) * .2, 0, 0); } else o.position.x = (i - .5) * .3; g.add(o); }); return g; }
+  if (it.f) return FRUIT[it.f]();
+  if (it.a) return { ice: () => scatter('ice', 4, .2, () => 0, 'ti', {}), honey: () => mesh(G('hjar', () => lathe([[0, 0], [.22, 0], [.25, .1], [.24, .35], [.18, .42], [0, .42]], 32)), MT.honey()), scoop: () => mesh(scoopGeo(), MT.scoop()), nuts: () => scatter('nut', 18, .25, () => 0, 'tn', {}), mint: () => group(...[0, 1, 2, 3].map(i => { const l = mintLeaf(); l.rotation.set(0, i * 1.6, .3); l.position.y = i * .01; return l; })), wheel: () => { const m = mesh(wheelGeo(), [MT.whS(), MT.whT(), MT.whT()]); m.rotation.x = -1.1; return m; } }[it.a]();
+  if (it.side) return sideDish(it.side);
+  if (step.k === 'sauce') return puddle(it.c || sauceColor(it.id));
+  if (step.k === 'bun') return d.kind === 'hotdog' ? hotdogBun(it) : LAYERS.topBun(it).o;
+  if (step.k === 'sausage') return mesh(G('sausT', () => { const g = capsuleGeo(.11, 1.2); g.rotateZ(Math.PI / 2); return g; }), mk('saus' + it.id, { color: it.c, roughness: .3, envMapIntensity: 1.2, bumpMap: TEX.bump(), bumpScale: .004 }));
+  if (d.kind === 'pizza' && step.k === 'base') return group(mesh(G('pzThumb', () => new T3.CylinderGeometry(.5, .5, .06, 40)), MT.dough(it.c)), mesh(G('crT' + it.w, () => { const g2 = new T3.TorusGeometry(.5, it.w * .7, 12, 48); g2.rotateX(Math.PI / 2); g2.translate(0, .03, 0); return g2; }), MT.crust()));
+  if (step.k === 'cheese' && it.c) return d.kind === 'burger' ? LAYERS.cheese(it).o : scatter('meltBlob', 6, .25, () => 0, 'tch' + it.id, it);
+  if (step.k === 'size' && d.kind === 'juice') { const H = 1.5 * it.s; return group(mesh(G('glassT' + it.s, () => lathe([[0, 0], [.36, 0], [.5, H], [.48, H], [.34, .1], [0, .1]], 48)), MT.glassThumb()), mesh(G('liqT' + it.s, () => new T3.CylinderGeometry(.36 + .14 * .8 - .03, .34, H * .7, 32).translate(0, .1 + H * .35, 0)), mk('liqThumb', { color: '#f3a11d', roughness: .2 }))); }
+  if (step.k === 'size') { const g = group(bowl(1.25, .8), mesh(G('kmound', () => moundGeo(1.06, .83, .55, .6)), MT.kbase())); g.scale.setScalar(it.s); return group(g); }
+  if (d.kind === 'juice' && step.k === 'base') { const c = { water: '#d8ecf7', milk: '#fbf8f0', yogurt: '#f6f2e6' }[it.b]; return group(mesh(G('cupT', () => lathe([[0, 0], [.3, 0], [.36, .6], [.33, .6], [.28, .05], [0, .05]], 40)), MT.glassThumb()), mesh(G('cupL', () => new T3.CylinderGeometry(.33, .29, .45, 32).translate(0, .28, 0)), mk('cupL' + c, { color: c, roughness: .2, transparent: it.b === 'water', opacity: .75 }))); }
+  if (d.kind === 'mahshi' && step.k === 'fill') return mesh(G('fillT', () => moundGeo(.4, .22, 0, .7)), MT.riceEnd(it.fc));
+  if (d.kind === 'noodles' && step.k === 'base') return noodleNest(it, (x, z) => .05 + .12 * Math.max(0, 1 - (Math.hypot(x, z) / .45) ** 2), .5, .45);
+  if (d.kind === 'noodles' && step.k === 'broth') return group(mesh(G('brT', () => lathe([[0, 0], [.35, 0], [.45, .3], [.42, .3], [.32, .04], [0, .04]], 40)), MT.ceramic()), mesh(G('brL', () => new T3.CylinderGeometry(.41, .33, .22, 32).translate(0, .14, 0)), mk('broth' + it.id, { color: it.c, roughness: .08, envMapIntensity: 1.4, phys: 1, clearcoat: 1 })));
+  if (d.kind === 'noodles' && it.nood) return noodleNest(itemBy(d, 'base', 'curly'), (x, z) => .05 + .12 * Math.max(0, 1 - (Math.hypot(x, z) / .45) ** 2), .5, .45);
+  if (d.kind === 'pasta' && step.k === 'base') return pastaPile(it.id, '#f0d08a', (x, z) => .02 + .2 * Math.pow(Math.max(0, 1 - (Math.hypot(x, z) / .45) ** 2), .8), .45, .22);
+  if (d.kind === 'rice' && step.k === 'base') return ricePile(it, (x, z) => .3 * Math.pow(Math.max(0, 1 - (Math.hypot(x, z) / .45) ** 2), .6), .45, .3, 0, 500);
+  if (d.kind === 'fries' && step.k === 'base') return friesPile(it.id, (x, z) => .2 * Math.max(0, 1 - (x / .5) ** 2 - (z / .4) ** 2) ** .5, .45);
+  return mesh(new T3.SphereGeometry(.3, 16, 12), mk('fallback', { color: '#cccccc' }));
+}
+
+/* =============== RENDERER =============== */
+const canvas = $('#gl');
+let renderer;
+try { renderer = new T3.WebGLRenderer({ canvas, antialias: true, alpha: true }); } catch (e) { return; }
+renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+renderer.outputEncoding = T3.sRGBEncoding; renderer.toneMapping = T3.ACESFilmicToneMapping; renderer.toneMappingExposure = .82;
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = T3.PCFSoftShadowMap; renderer.setClearColor(0x000000, 0);
+const scene = new T3.Scene(); const thumbScene = new T3.Scene();
+try { if (T3.RoomEnvironment) { const pm = new T3.PMREMGenerator(renderer); const env = pm.fromScene(new T3.RoomEnvironment(), .06).texture; scene.environment = env; thumbScene.environment = env; } } catch (e) {}
+function addLights(sc, shadows) { sc.add(new T3.HemisphereLight(0xfff1dc, 0x2a1a10, .25)); const key = new T3.DirectionalLight(0xffe2c2, 1.5); key.position.set(3, 6, 2.6); if (shadows) { key.castShadow = true; key.shadow.mapSize.set(2048, 2048); const c = key.shadow.camera; c.left = c.bottom = -3.2; c.right = c.top = 3.2; c.near = 1; c.far = 16; key.shadow.bias = -.0004; key.shadow.normalBias = .02; } sc.add(key); const fill = new T3.DirectionalLight(0xbcd2ff, .3); fill.position.set(-4, 3, -2); sc.add(fill); const rim = new T3.PointLight(0xffb070, .7, 12); rim.position.set(-1.5, 2.5, -3); sc.add(rim); }
+addLights(scene, true); addLights(thumbScene, false);
+const counter = mesh(new T3.PlaneGeometry(16, 16).rotateX(-Math.PI / 2), mk('counter', { map: TEX.wood(), color: '#b98454', roughness: .5, transparent: true, alphaMap: TEX.fade(), envMapIntensity: .6 })); counter.castShadow = false; scene.add(counter);
+const cam = new T3.PerspectiveCamera(34, 1, .05, 60); cam.position.set(0, 3, 4);
+const controls = new T3.OrbitControls(cam, canvas); controls.enableDamping = true; controls.dampingFactor = .08; controls.enablePan = false; controls.minDistance = 2.4; controls.maxDistance = 10; controls.maxPolarAngle = 1.38; controls.minPolarAngle = .25; controls.autoRotate = true; controls.autoRotateSpeed = .5;
+let arT; controls.addEventListener('start', () => { controls.autoRotate = false; clearTimeout(arT); });
+controls.addEventListener('end', () => { clearTimeout(arT); arT = setTimeout(() => controls.autoRotate = true, 6000); });
+const dishRoot = new T3.Group(); scene.add(dishRoot);
+const objs = new Map(); let curDish = null, curComp = null;
+const CAMS = { burger: [0, 2.1, 4.6, 0, .6], juice: [0, 2.5, 5.3, 0, 1], hotdog: [0, 2.9, 4.2, 0, .25], mahshi: [0, 4.6, 5, 0, .05], pizza: [0, 4.1, 4.6, 0, .1], koshary: [0, 3.5, 4.3, 0, .45], default: [0, 3.4, 4.3, 0, .35] };
+function frame() { if (!curDish) return; const c = CAMS[curDish.kind] || CAMS.default; const wide = window.innerWidth > 900; const k = cam.aspect < .8 ? 1.5 : cam.aspect < 1.2 ? 1.2 : 1; cam.position.set(c[0] * k, c[1] * k, c[2] * k); controls.target.set(0, c[4], 0); cam.setViewOffset && wide ? cam.setViewOffset(window.innerWidth, window.innerHeight, (document.documentElement.dir === 'rtl' ? 1 : -1) * window.innerWidth * .04, 0, window.innerWidth, window.innerHeight) : cam.clearViewOffset(); controls.update(); }
+function size() { const w = window.innerWidth, h = window.innerHeight; renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix(); frame(); }
+window.addEventListener('resize', size);
+function disposeObj(o) { o.traverse(c => { if (c.isMesh && c.geometry && !Object.values(GC).includes(c.geometry)) c.geometry.dispose(); }); }
+function setDish(d) { if (curDish && curDish.id === d.id) return; objs.forEach(o => { dishRoot.remove(o); disposeObj(o); }); objs.clear(); curDish = d; size(); }
+function sync(sel, pos, animate = true) { const comp = COMPOSE[curDish.kind](curDish, sel, pos); curComp = comp; hot = curDish.kind !== 'juice' && comp.list.length > 1; steamBase = comp.surf(0, 0); steamR = Math.min(.9, (comp.dropR || .7) * .8); const want = new Set(comp.list.map(x => x.k)); const now = performance.now();
+  objs.forEach((o, k) => { if (!want.has(k)) { o.userData.dead = now; objs.delete(k); } });
+  comp.list.forEach(x => { let o = objs.get(x.k); const ty = x.y || 0; if (!o) { o = new T3.Group(); o.add(x.make()); o.userData = { ty, a: animate ? x.a : 'none', t0: now }; o.position.y = ty; dishRoot.add(o); objs.set(x.k, o); } else o.userData.ty = ty; }); }
+const easeBounce = t => { const n = 7.5625, d = 2.75; if (t < 1 / d) return n * t * t; if (t < 2 / d) return n * (t -= 1.5 / d) * t + .75; if (t < 2.5 / d) return n * (t -= 2.25 / d) * t + .9375; return n * (t -= 2.625 / d) * t + .984375; };
+function animStep(now) { dishRoot.children.slice().forEach(o => { const u = o.userData; if (u.dead) { const k = clamp((now - u.dead) / 260, 0, 1); o.scale.setScalar(Math.max(.001, 1 - k)); if (k >= 1) { dishRoot.remove(o); disposeObj(o); } return; } const tt = clamp((now - u.t0) / 650, 0, 1);
+    if (u.a === 'drop') o.position.y = u.ty + (1 - easeBounce(tt)) * 1.6;
+    else if (u.a === 'pop') { o.scale.setScalar(.6 + .4 * easeBounce(tt)); o.position.y = u.ty; }
+    else if (u.a === 'fill') { o.scale.set(1, Math.max(.001, tt), 1); o.position.y = u.ty; }
+    else o.position.y += (u.ty - o.position.y) * .25;
+    if (tt >= 1) u.a = 'settle'; }); }
+/* ---- 5D layer: steam, crumbs, camera punch, intro swoop ---- */
+const softTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.4, 'rgba(255,255,255,.35)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); return new T3.CanvasTexture(c); })();
+const STEAM_N = 46; const steamGeo = new T3.BufferGeometry(); const sPos = new Float32Array(STEAM_N * 3); const sLife = []; steamGeo.setAttribute('position', new T3.BufferAttribute(sPos, 3));
+const steam = new T3.Points(steamGeo, new T3.PointsMaterial({ map: softTex, size: .9, transparent: true, opacity: .16, depthWrite: false, color: 0xffffff, sizeAttenuation: true })); steam.frustumCulled = false; scene.add(steam);
+for (let i = 0; i < STEAM_N; i++) sLife.push({ t: Math.random(), x: 0, z: 0, sp: .25 + Math.random() * .25, dx: (Math.random() - .5) * .2 });
+let hot = false, steamBase = .5, steamR = .7;
+const CR_N = 90; const crGeo = new T3.BufferGeometry(); const cPos = new Float32Array(CR_N * 3).fill(-99); const cVel = new Float32Array(CR_N * 3); const cCol = new Float32Array(CR_N * 3); crGeo.setAttribute('position', new T3.BufferAttribute(cPos, 3)); crGeo.setAttribute('color', new T3.BufferAttribute(cCol, 3));
+const crumbs = new T3.Points(crGeo, new T3.PointsMaterial({ size: .035, vertexColors: true, transparent: true, opacity: .95 })); crumbs.frustumCulled = false; scene.add(crumbs); let crI = 0, crAlive = 0;
+function burst(y, R, color) { const c = new T3.Color(color || '#d9a46a'); for (let i = 0; i < 18; i++) { const k = (crI++ % CR_N) * 3; const a = Math.random() * 6.28, d = Math.random() * R; cPos[k] = Math.cos(a) * d; cPos[k + 1] = y + .02; cPos[k + 2] = Math.sin(a) * d; cVel[k] = Math.cos(a) * (.6 + Math.random()); cVel[k + 1] = 1.2 + Math.random() * 1.6; cVel[k + 2] = Math.sin(a) * (.6 + Math.random()); cCol[k] = c.r; cCol[k + 1] = c.g; cCol[k + 2] = c.b; } crAlive = 1.4; crGeo.attributes.color.needsUpdate = true; }
+let punchT = -9, introT = -9; const introFrom = new V3(), baseFov = 34;
+function fx(now, dt) {
+  steam.visible = hot; if (hot) { for (let i = 0; i < STEAM_N; i++) { const L = sLife[i]; L.t += dt * L.sp * .5; if (L.t > 1) { L.t = 0; const a = Math.random() * 6.28, d = Math.sqrt(Math.random()) * steamR; L.x = Math.cos(a) * d; L.z = Math.sin(a) * d; } sPos[i * 3] = L.x + Math.sin(now / 700 + i) * .08 + L.dx * L.t; sPos[i * 3 + 1] = steamBase + L.t * 1.6; sPos[i * 3 + 2] = L.z; } steamGeo.attributes.position.needsUpdate = true; steam.material.opacity = .14; }
+  if (crAlive > 0) { crAlive -= dt; for (let i = 0; i < CR_N; i++) { const k = i * 3; if (cPos[k + 1] < -50) continue; cVel[k + 1] -= 9.8 * dt; cPos[k] += cVel[k] * dt * .35; cPos[k + 1] += cVel[k + 1] * dt * .35; cPos[k + 2] += cVel[k + 2] * dt * .35; if (cPos[k + 1] < .05) { cPos[k + 1] = .05; cVel[k] *= .5; cVel[k + 2] *= .5; cVel[k + 1] *= -.25; } } if (crAlive <= 0) cPos.fill(-99); crGeo.attributes.position.needsUpdate = true; }
+  const pk = clamp((now - punchT) / 520, 0, 1); const pv = pk < 1 ? Math.sin(pk * Math.PI) * (1 - pk) : 0; cam.fov = baseFov - pv * 3.2; cam.updateProjectionMatrix();
+  if (pk < 1) { cam.position.y += Math.sin(now / 18) * .006 * (1 - pk); }
+  const ik = clamp((now - introT) / 1500, 0, 1); if (ik < 1) { const e = 1 - Math.pow(1 - ik, 3); const tgt = introTarget; cam.position.set(introFrom.x + (tgt.x - introFrom.x) * e, introFrom.y + (tgt.y - introFrom.y) * e, introFrom.z + (tgt.z - introFrom.z) * e); }
+}
+const introTarget = new V3();
+let running = false, lastT = 0;
+function loop(now) { if (!running) return; requestAnimationFrame(loop); const dt = Math.min(.05, (now - (lastT || now)) / 1000); lastT = now; animStep(now); controls.update(); fx(now, dt); renderer.render(scene, cam); }
+E.punch = (color) => { punchT = performance.now(); if (curComp) burst(curComp.surf(0, 0), (curComp.dropR || .6) * .7, color); };
+E.intro = () => { frame(); introTarget.copy(cam.position); introFrom.set(introTarget.x + 2.6, introTarget.y + 2.4, introTarget.z * 1.7); cam.position.copy(introFrom); introT = performance.now(); };
+E.start = () => { if (!running) { running = true; size(); requestAnimationFrame(loop); } };
+E.stop = () => { running = false; };
+E.setDish = setDish; E.sync = sync; E.frame = frame;
+E.dropPoint = (cx, cy) => { if (!curComp) return null; const r = canvas.getBoundingClientRect(); const v = new T3.Vector2(((cx - r.left) / r.width) * 2 - 1, -((cy - r.top) / r.height) * 2 + 1); const rc = new T3.Raycaster(); rc.setFromCamera(v, cam); const y = curComp.surf(0, 0); const plane = new T3.Plane(new V3(0, 1, 0), -y); const p = new V3(); if (!rc.ray.intersectPlane(plane, p)) return null; const m = Math.hypot(p.x, p.z), R = curComp.dropR; if (m > R * 1.7) return null; const s = m > R * .75 ? R * .75 / m : 1; return [p.x * s, p.z * s]; };
+const tcam = new T3.PerspectiveCamera(30, 1, .01, 50); const out = document.createElement('canvas');
+function shot(obj, px, view) { const box = new T3.Box3().setFromObject(obj); const sz = box.getSize(new V3()), c = box.getCenter(new V3()); const s = 1 / Math.max(sz.x, sz.y * 1.1, sz.z, .001); const holder = new T3.Group(); holder.add(obj); obj.position.sub(c); holder.scale.setScalar(s); thumbScene.add(holder);
+  tcam.position.set(...view); tcam.lookAt(0, -.02, 0); const dpr = renderer.getPixelRatio(); const W = renderer.domElement.width, H = renderer.domElement.height; const p = Math.max(16, Math.min(px, Math.floor(W / dpr), Math.floor(H / dpr)));
+  renderer.setScissorTest(true); renderer.setScissor(0, 0, p, p); renderer.setViewport(0, 0, p, p); renderer.clear(); renderer.render(thumbScene, tcam);
+  const P = Math.round(p * dpr); out.width = out.height = P; const g = out.getContext('2d'); g.clearRect(0, 0, P, P); g.drawImage(renderer.domElement, 0, H - P, P, P, 0, 0, P, P); const url = out.toDataURL('image/png');
+  renderer.setScissorTest(false); renderer.setViewport(0, 0, W / dpr, H / dpr); thumbScene.remove(holder); return url; }
+E.thumbItem = (d, stepK, it) => { const key = d.id + ':' + stepK + ':' + it.id; if (THUMBS[key]) return THUMBS[key]; return THUMBS[key] = shot(THUMB(d, stepBy(d, stepK), it), 150, [0, 1.05, 1.45]); };
+E.thumbDish = (d, sel, px = 320) => { const comp = COMPOSE[d.kind](d, sel, {}); const g = new T3.Group(); comp.list.forEach(x => { const o = x.make(); o.position.y = x.y || 0; g.add(o); }); const v = d.kind === 'burger' || d.kind === 'juice' ? [0, .55, 1.75] : d.kind === 'hotdog' ? [0, 1, 1.5] : [0, 1.15, 1.45]; return shot(g, px, v); };
+size();
+E.ok = true;
+})();
+
+/* ================= SOUND & HAPTICS (5D) ================= */
+const SFX = (() => { let ac = null, on = store.get('cc-sound', true);
+  const C = () => ac || (ac = new (window.AudioContext || window.webkitAudioContext)());
+  const noise = (c, dur) => { const b = c.createBuffer(1, Math.max(1, c.sampleRate * dur | 0), c.sampleRate); const d = b.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; const s = c.createBufferSource(); s.buffer = b; return s; };
+  const gainEnv = (c, t, a, peak, dec) => { const g = c.createGain(); g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(peak, t + a); g.gain.exponentialRampToValueAtTime(.0001, t + a + dec); g.connect(c.destination); return g; };
+  const filt = (c, type, f, q = 1) => { const x = c.createBiquadFilter(); x.type = type; x.frequency.value = f; x.Q.value = q; return x; };
+  const tone = (c, t, f0, f1, dur, vol, type = 'sine') => { const o = c.createOscillator(); o.type = type; o.frequency.setValueAtTime(f0, t); o.frequency.exponentialRampToValueAtTime(f1, t + dur); o.connect(gainEnv(c, t, .005, vol, dur)); o.start(t); o.stop(t + dur + .05); };
+  const hiss = (c, t, dur, type, f, vol, a = .01, q = 1) => { const n = noise(c, dur + a); const fl = filt(c, type, f, q); n.connect(fl); fl.connect(gainEnv(c, t, a, vol, dur)); n.start(t); };
+  const P = {
+    plop: c => { const t = c.currentTime; tone(c, t, 320, 90, .16, .35); hiss(c, t, .06, 'lowpass', 900, .15); },
+    thud: c => { const t = c.currentTime; tone(c, t, 120, 45, .28, .55); hiss(c, t, .1, 'lowpass', 400, .25); },
+    sizzle: c => { const t = c.currentTime; tone(c, t, 110, 50, .2, .4); hiss(c, t + .05, 1.3, 'highpass', 3200, .09, .08); for (let i = 0; i < 18; i++) hiss(c, t + .1 + Math.random() * 1.1, .015, 'bandpass', 4000 + Math.random() * 3000, .12, .002, 3); },
+    pour: c => { const t = c.currentTime; const n = noise(c, 1.2); const fl = filt(c, 'bandpass', 500, 4); fl.frequency.setValueAtTime(400, t); fl.frequency.linearRampToValueAtTime(1300, t + 1.1); n.connect(fl); fl.connect(gainEnv(c, t, .08, .22, 1.05)); n.start(t); for (let i = 0; i < 8; i++) tone(c, t + .1 + i * .12, 600 + Math.random() * 500, 900 + Math.random() * 400, .05, .05); },
+    crunch: c => { const t = c.currentTime; for (let i = 0; i < 7; i++) hiss(c, t + i * .035 + Math.random() * .02, .03, 'bandpass', 1800 + Math.random() * 1500, .3, .002, 2); },
+    sprinkle: c => { const t = c.currentTime; for (let i = 0; i < 16; i++) hiss(c, t + Math.random() * .45, .012, 'highpass', 5000, .14, .002); },
+    clink: c => { const t = c.currentTime; [2400, 3100, 2750].forEach((f, i) => tone(c, t + i * .09, f, f * .98, .35, .12, 'triangle')); },
+    squish: c => { const t = c.currentTime; const n = noise(c, .35); const fl = filt(c, 'lowpass', 300, 6); fl.frequency.setValueAtTime(250, t); fl.frequency.exponentialRampToValueAtTime(1400, t + .25); n.connect(fl); fl.connect(gainEnv(c, t, .03, .35, .3)); n.start(t); },
+    print: c => { const t = c.currentTime; for (let i = 0; i < 10; i++) hiss(c, t + i * .05, .02, 'bandpass', 2500, .08, .002, 5); },
+    ding: c => { const t = c.currentTime; tone(c, t, 1318, 1310, 1.2, .25); tone(c, t + .12, 1760, 1750, 1.3, .2); },
+    whoosh: c => { const t = c.currentTime; const n = noise(c, .8); const fl = filt(c, 'bandpass', 300, 1.5); fl.frequency.setValueAtTime(200, t); fl.frequency.exponentialRampToValueAtTime(2200, t + .5); fl.frequency.exponentialRampToValueAtTime(400, t + .8); n.connect(fl); fl.connect(gainEnv(c, t, .25, .18, .5)); n.start(t); }
+  };
+  return { play(n) { if (!on) return; try { const c = C(); if (c.state === 'suspended') c.resume(); P[n] && P[n](c); } catch (e) {} }, get on() { return on; }, toggle() { on = !on; store.set('cc-sound', on); if (on) this.play('plop'); return on; } };
+})();
+const buzz = p => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+function sfxFor(d, st, it) {
+  if (it.f || st.k === 'broth' || (d.kind === 'juice' && st.k === 'base')) return ['pour', [10, 30, 10]];
+  if (it.a === 'ice') return ['clink', [8, 40, 8]];
+  if (it.L === 'patty' || it.L === 'smash' || it.L === 'grilled' || ['chicken', 'beef', 'kofta', 'chickenSlice', 'beefSlice', 'shrimp'].includes(it.pc) || st.k === 'sausage') return ['sizzle', [35, 20, 35]];
+  if (it.L === 'crispy' || ['crispOnion', 'garlicChip'].includes(it.pc) || d.kind === 'fries' && st.k === 'base') return ['crunch', [12, 20, 12, 20, 12]];
+  if (it.drizzle || st.k === 'sauce' || it.a === 'honey') return ['squish', 25];
+  if (/Flake$|sesame|corn|scallion|mince|herb/.test(it.pc || '')) return ['sprinkle', 10];
+  if (st.k === 'bun' || st.k === 'size' || st.k === 'base') return ['thud', 45];
+  return ['plop', 20];
+}
+const CRUMB = { pizza: '#e9c27a', burger: '#c98a4b', hotdog: '#d99a52', fries: '#efb848', noodles: '#f0c35a', pasta: '#e6b56a', rice: '#f5efe0', koshary: '#b58a5a', mahshi: '#7a8f3a', juice: '#f6c45a' };
+function renderSnd() { const b = $('#sndBtn'); b.textContent = SFX.on ? '🔊' : '🔇'; b.setAttribute('aria-pressed', SFX.on); b.setAttribute('aria-label', LANG === 'ar' ? (SFX.on ? 'اقفل الصوت' : 'شغّل الصوت') : (SFX.on ? 'Mute sound' : 'Turn sound on')); }
+$('#sndBtn').addEventListener('click', () => { SFX.toggle(); renderSnd(); });
+renderSnd();
+
+/* ================= UI ================= */
+function applyLang() {
+  document.documentElement.lang = LANG; document.documentElement.dir = LANG === 'ar' ? 'rtl' : 'ltr';
+  $('#langBtn').textContent = LANG === 'ar' ? 'EN' : 'عربي';
+  $('#langBtn').setAttribute('aria-label', LANG === 'ar' ? 'Switch to English' : 'التحويل للعربي');
+  renderChips(); renderHome(); renderCartN(); if (typeof renderSnd === 'function') renderSnd();
+  if (S.view === 'build') { renderBuild(false); if (E.ok) E.frame(); }
+  if (!$('#sheet').hidden) renderSheet();
+}
+function renderChips() { $('#chips').innerHTML = DISHES.map(d => `<button class="chip" data-dish="${d.id}" aria-current="${S.view === 'build' && S.dish === d.id}">${N(d)}</button>`).join(''); const c = $('#chips [aria-current="true"]'); if (c) c.scrollIntoView({ block: 'nearest', inline: 'center' }); }
+$('#chips').addEventListener('click', e => { const b = e.target.closest('[data-dish]'); if (b) openDish(b.dataset.dish); });
+const DISHIMG = {};
+function renderHome() {
+  $('#heroTitle').innerHTML = t('heroTitle'); $('#heroSub').textContent = t('heroSub'); $('#heroCta').textContent = t('heroCta') + (LANG === 'ar' ? ' ←' : ' →'); $('#heroMenu').textContent = t('menuBtn');
+  $('#facts').innerHTML = t('facts').map(([a, b]) => `<div><b>${a}</b>${b}</div>`).join('');
+  $('#menu').innerHTML = CATS.map(c => `<section class="cat" aria-labelledby="cat-${c}"><h2 id="cat-${c}">${t('cats')[c][0]}</h2><p>${t('cats')[c][1]}</p><div class="grid">${DISHES.filter(d => d.cat === c).map(d => { const from = d.steps.filter(s => s.req).reduce((a, s) => a + Math.min(...s.items.map(i => i.price)), 0); return `<button class="pick" data-dish="${d.id}"><span class="tag">${N(d.tag)}</span><span class="im">${DISHIMG[d.id] ? `<img src="${DISHIMG[d.id]}" alt="">` : '<span class="ph"></span>'}</span><b>${N(d)}</b><span class="pr">${t('from')} ${money(from)}</span></button>`; }).join('')}</div></section>`).join('');
+  $('#how').innerHTML = t('howT').map((h, i) => `<div><div class="n">${num(i + 1)}</div><h3>${h}</h3><p>${t('howD')[i]}</p></div>`).join('');
+  $('#info').innerHTML = `<div><h2>${t('hours')}</h2><dl>${t('hoursD').map(([a, b]) => `<dt>${a}</dt><dd>${b}</dd>`).join('')}</dl></div><div class="hot"><h2>${t('hungry')}</h2><p>${t('hungryD')}</p><button class="cta" data-dish="pizza">${t('heroCta')}</button></div>`;
+  $('#foot').textContent = t('foot');
+}
+$('#home').addEventListener('click', e => { const b = e.target.closest('[data-dish]'); if (b) openDish(b.dataset.dish); });
+$('#heroCta').addEventListener('click', () => openDish('pizza'));
+$('#brandLink').addEventListener('click', e => { e.preventDefault(); goHome(); });
+$('#langBtn').addEventListener('click', () => { LANG = LANG === 'ar' ? 'en' : 'ar'; store.set('cc-lang', LANG); applyLang(); });
+$('#cartBtn').addEventListener('click', () => openSheet());
+function renderCartN() { const n = S.cart.reduce((a, c) => a + c.qty, 0); $('#cartN').textContent = n ? num(n) : ''; $('#cartBtn').setAttribute('aria-label', (LANG === 'ar' ? 'الطلب' : 'Order') + (n ? ` (${n})` : '')); }
+function bakeHomeImages() { const ids = DISHES.map(d => d.id); let i = 0;
+  const tick = () => { if (i >= ids.length) { setTimeout(startHero, 30); return; } const id = ids[i++]; try { DISHIMG[id] = E.thumbDish(dishBy(id), fullPreset(dishBy(id)), 300); } catch (e) { console.error(e); } const im = $(`.pick[data-dish="${id}"] .im`); if (im && DISHIMG[id]) im.innerHTML = `<img src="${DISHIMG[id]}" alt="">`; setTimeout(tick, 16); };
+  tick();
+  function startHero() { const hero = $('#heroArt'); const list = []; ['pizza', 'beef', 'koshary', 'juice', 'noodles', 'mahshi'].forEach(id => { try { list.push(E.thumbDish(dishBy(id), fullPreset(dishBy(id)), 560)); } catch (e) { if (DISHIMG[id]) list.push(DISHIMG[id]); } }); hero.innerHTML = list.map((u, k) => `<img src="${u}" alt="" class="${k ? '' : 'on'}">`).join(''); let k = 0; setInterval(() => { const ims = $$('img', hero); if (ims.length < 2 || document.hidden) return; ims[k].classList.remove('on'); k = (k + 1) % ims.length; ims[k].classList.add('on'); }, 3200); }
+}
+
+/* ================= BUILDER ================= */
+let rcPrev = new Set();
+const D = () => dishBy(S.dish);
+function openDish(id) {
+  if (S.dish !== id) { S.dish = id; S.sel = blankSel(dishBy(id)); S.pos = {}; S.step = 0; rcPrev = new Set(); }
+  S.view = 'build'; document.body.classList.add('building'); $('#home').hidden = true; $('#foot').hidden = true; $('#build').hidden = false; window.scrollTo(0, 0);
+  if (E.ok) { E.setDish(D()); E.sync(S.sel, S.pos, false); E.start(); E.intro(); SFX.play('whoosh'); } else if (!$('.err3d')) $('#build').insertAdjacentHTML('afterbegin', `<div class="err3d"><p>${t('no3d')}</p></div>`);
+  renderChips(); renderBuild(true);
+  if (location.hash !== '#build') { try { history.pushState({ b: 1 }, '', '#build'); } catch (e) {} }
+}
+function goHome() { S.view = 'home'; document.body.classList.remove('building'); if (E.ok) E.stop(); $('#build').hidden = true; $('#home').hidden = false; $('#foot').hidden = false; toggleRc(false); renderChips(); if (location.hash) { try { history.pushState({}, '', location.pathname + location.search); } catch (e) {} } }
+window.addEventListener('popstate', () => { if (location.hash !== '#build' && S.view === 'build') goHome(); });
+function renderBuild(focus) { renderTray(); renderStepCard(focus); renderReceipt(); $('#hint3d').textContent = t('rotate'); }
+function renderTray() {
+  const d = D(), st = d.steps[S.step]; const n = st.items.length;
+  $('#tray').setAttribute('aria-label', N(st));
+  $('#tray').classList.toggle('many', n > 5 && window.innerWidth > 900);
+  $('#tray').style.setProperty('--bs', n > 4 ? '11.5vh' : '13vh');
+  $('#tray').innerHTML = st.items.map((it, i) => { const tt = n > 1 ? (i / (n - 1)) * 2 - 1 : 0; const arc = Math.round(60 * (1 - tt * tt)); const on = S.sel[st.k].includes(it.id); const key = d.id + ':' + st.k + ':' + it.id;
+    return `<button class="bowlbtn ${on ? 'on' : ''}" style="--arc:${arc}" data-item="${it.id}" aria-pressed="${on}" aria-label="${esc(N(it))}, ${it.price ? money(it.price) : t('free')}"><img alt="" data-th="${it.id}" ${THUMBS[key] ? `src="${THUMBS[key]}"` : ''}><span class="nm">${N(it)}<i>${it.price ? '+' + money(it.price) : t('free')}</i></span></button>`; }).join('');
+  if (E.ok) { const imgs = $$('#tray img:not([src])'); let i = 0; const go = () => { if (i >= imgs.length || D() !== d || d.steps[S.step] !== st) return; const im = imgs[i++]; try { im.src = E.thumbItem(d, st.k, itemBy(d, st.k, im.dataset.th)); } catch (e) { console.error(e); } requestAnimationFrame(go); }; requestAnimationFrame(go); }
+}
+function renderStepCard(focus) {
+  const d = D(), st = d.steps[S.step], n = d.steps.length; const has = S.sel[st.k].length > 0; const last = S.step === n - 1;
+  const arrowB = LANG === 'ar' ? '→' : '←', arrowN = LANG === 'ar' ? '←' : '→';
+  $('#stepcard').innerHTML = `<div class="dots">${d.steps.map((s, i) => `<i class="${i === S.step ? 'cur' : (S.sel[s.k].length ? 'on' : '')}"></i>`).join('')}</div>
+    <div class="k">${t('step').toUpperCase()} ${num(S.step + 1)} / ${num(n)}${st.req ? ' · ' + t('required') : ''}</div>
+    <h2 id="stepTitle" tabindex="-1">${N(st)}</h2>
+    <p>${st.multi ? (st.multi < st.items.length ? `${t('upTo')} ${num(st.multi)}. ` : '') + t('dragHint') : t('dragOne')}</p>
+    <div class="nav"><button class="sbtn" id="sPrev" ${S.step === 0 ? 'disabled' : ''}>${arrowB} ${t('back')}</button>
+    ${last ? `<button class="sbtn pri" id="sDone" ${canOrder() ? '' : 'disabled'}>${t('done')} ✓</button>` : `<button class="sbtn ${has || !st.req ? 'pri' : ''}" id="sNext" ${st.req && !has ? 'disabled' : ''}>${!has && !st.req ? t('skip') : t('next')} ${arrowN}</button>`}</div>`;
+  $('#sPrev').onclick = () => { S.step--; renderBuild(true); };
+  const nx = $('#sNext'); if (nx) nx.onclick = () => { S.step++; renderBuild(true); };
+  const dn = $('#sDone'); if (dn) dn.onclick = () => addToCart();
+  if (focus) $('#stepTitle').focus({ preventScroll: true });
+}
+function canOrder() { const d = D(); return d.steps.every(s => !s.req || S.sel[s.k].length); }
+function describe(d, sel) { return d.steps.flatMap(s => (sel[s.k] || []).map(id => N(itemBy(d, s.k, id)))).join(LANG === 'ar' ? '، ' : ', '); }
+function barcode(seed) { const r = rng(seed); let x = 0; const g = []; while (x < 100) { const w = 1 + Math.floor(r() * 3); g.push(`#141414 ${x}% ${x + w * .5}%`, `transparent ${x + w * .5}% ${x + w * .5 + .6 + r() * 1.2}%`); x += w * .5 + .6 + r() * 1.2; } return `linear-gradient(90deg,${g.join(',')})`; }
+function renderReceipt() {
+  const d = D(); const total = selPrice(d, S.sel);
+  const lines = []; d.steps.forEach(s => { if (!S.sel[s.k].length) lines.push({ key: s.k + ':-', n: N(s.short), p: '—', f: false }); else S.sel[s.k].forEach(id => { const it = itemBy(d, s.k, id); lines.push({ key: s.k + ':' + id, n: N(it), sub: N(s.short), p: it.price ? num(it.price) : t('free'), f: true }); }); });
+  const date = new Date().toLocaleString(LANG === 'ar' ? 'ar-EG' : 'en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  $('#receipt').innerHTML = `<div class="rc-head"><i>THE</i><b>COOKING CLUB</b><span class="meta">${date}</span></div><div class="rc-dish">${N(d)}</div>
+    <ul class="rc-lines">${lines.map(l => `<li class="${l.f ? 'f' : ''} ${l.f && !rcPrev.has(l.key) ? 'new' : ''}"><span class="n">${esc(l.n)}${l.f ? `<small>${esc(l.sub)}</small>` : ''}</span><span>${l.p}</span></li>`).join('')}</ul>
+    <div class="rc-tot"><span>${t('total')}</span><span>${money(total)}</span></div>
+    <div class="barcode" style="--bc:${barcode(S.dish + total)}"></div><div class="rc-no">${String(total * 7919 + 100003).slice(0, 10).split('').join(' ')}</div>
+    <button class="rc-btn ${canOrder() ? 'go' : ''}" id="rcOrder" ${canOrder() ? '' : 'disabled'}>${t('order')} ${N(d.noun)}</button>
+    ${S.cart.length ? `<button class="rc-link" id="rcCart">${t('cart')} (${num(S.cart.reduce((a, c) => a + c.qty, 0))})</button>` : ''}`;
+  rcPrev = new Set(lines.filter(l => l.f).map(l => l.key));
+  $('#rcOrder').onclick = addToCart;
+  const rcC = $('#rcCart'); if (rcC) rcC.onclick = () => openSheet();
+  $('#peek').innerHTML = `🧾 ${t('receiptBtn')}: <b>${money(total)}</b>`;
+}
+$('#peek').addEventListener('click', () => toggleRc(true));
+$('#scrim').addEventListener('click', () => toggleRc(false));
+function toggleRc(o) { $('#receipt').classList.toggle('open', o); $('#scrim').hidden = !o; }
+
+function toggleItem(itemId, dropPt) {
+  const d = D(), st = d.steps[S.step], arr = S.sel[st.k], it = itemBy(d, st.k, itemId); const key = st.k + ':' + itemId;
+  if (arr.includes(itemId)) { if (dropPt && st.multi) S.pos[key] = dropPt; else { S.sel[st.k] = arr.filter(x => x !== itemId); delete S.pos[key]; say(t('removed') + ': ' + N(it)); toast('− ' + N(it)); } }
+  else { if (st.multi) { if (arr.length >= st.multi) { toast(t('max')); return; } arr.push(itemId); } else S.sel[st.k] = [itemId]; if (dropPt) S.pos[key] = dropPt; say(t('added') + ': ' + N(it)); toast('+ ' + N(it)); }
+  if (E.ok) E.sync(S.sel, S.pos, true);
+  if (S.sel[st.k].includes(itemId)) { const [snd, vib] = sfxFor(d, st, it); setTimeout(() => SFX.play(snd), snd === 'pour' || snd === 'squish' ? 0 : 230); setTimeout(() => { buzz(vib); if (E.ok && E.punch) E.punch(CRUMB[d.kind]); }, 260); setTimeout(() => SFX.play('print'), 120); }
+  renderTray(); renderStepCard(false); renderReceipt();
+}
+let tT; function toast(m) { const e = $('#toast'); e.textContent = m; e.classList.add('on'); clearTimeout(tT); tT = setTimeout(() => e.classList.remove('on'), 1200); }
+function say(m) { const l = $('#live'); l.textContent = ''; setTimeout(() => l.textContent = m, 30); }
+
+let drag = null;
+$('#tray').addEventListener('pointerdown', e => { const b = e.target.closest('.bowlbtn'); if (!b || e.button > 0) return; drag = { b, id: b.dataset.item, x: e.clientX, y: e.clientY, moved: false, ghost: null, pid: e.pointerId }; });
+window.addEventListener('pointermove', e => { if (!drag || e.pointerId !== drag.pid) return;
+  if (!drag.moved && Math.hypot(e.clientX - drag.x, e.clientY - drag.y) > 8) { drag.moved = true; const g = document.createElement('div'); g.className = 'dragghost'; const im = drag.b.querySelector('img'); g.innerHTML = im && im.src ? `<img src="${im.src}" alt="">` : ''; document.body.appendChild(g); drag.ghost = g; $('#drophl').classList.add('on'); }
+  if (drag.moved) { drag.ghost.style.left = e.clientX + 'px'; drag.ghost.style.top = e.clientY + 'px'; } });
+window.addEventListener('pointerup', e => { if (!drag || e.pointerId !== drag.pid) return; const d = drag; drag = null; $('#drophl').classList.remove('on'); if (d.ghost) d.ghost.remove();
+  if (!d.moved) { toggleItem(d.id); return; }
+  const overUI = document.elementsFromPoint(e.clientX, e.clientY).some(el => el.closest && el.closest('.tray,.receipt,.stepcard,.bar'));
+  const pt = !overUI && E.ok ? E.dropPoint(e.clientX, e.clientY) : null; if (pt) toggleItem(d.id, pt); else toast(t('dropHere')); });
+window.addEventListener('pointercancel', () => { if (drag && drag.ghost) drag.ghost.remove(); drag = null; $('#drophl').classList.remove('on'); });
+$('#tray').addEventListener('click', e => { if (e.detail === 0) { const b = e.target.closest('.bowlbtn'); if (b) toggleItem(b.dataset.item); } });
+
+function addToCart() {
+  if (!canOrder()) return; const d = D();
+  S.cart.push({ dish: d.id, sel: JSON.parse(JSON.stringify(S.sel)), qty: 1 }); saveCart(); renderCartN(); toast(t('added2cart'));
+  S.sel = blankSel(d); S.pos = {}; S.step = 0; rcPrev = new Set(); toggleRc(false); if (E.ok) E.sync(S.sel, S.pos, false);
+  renderBuild(false); openSheet();
+}
+
+/* ================= CHECKOUT ================= */
+let form = store.get('cc-cust', { name: '', phone: '', area: '', address: '', notes: '' });
+function totals() { const sub = S.cart.reduce((a, c) => a + selPrice(dishBy(c.dish), c.sel) * c.qty, 0) + EXTRAS.reduce((a, x) => a + (S.extras[x.id] || 0) * x.price, 0); const ar = AREAS.find(a => a.id === form.area); const fee = ar ? ar.price : 0; return { sub, fee, total: sub + fee }; }
+function openSheet() { $('#sheet').hidden = false; document.body.style.overflow = 'hidden'; renderSheet(); setTimeout(() => $('#sheetTitle') && $('#sheetTitle').focus(), 30); }
+function closeSheet() { $('#sheet').hidden = true; document.body.style.overflow = ''; }
+$('#sheet').addEventListener('click', e => { if (e.target.id === 'sheet') closeSheet(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { if (!$('#sheet').hidden) closeSheet(); else toggleRc(false); } });
+const cartImgs = new WeakMap();
+function cartImg(c) { if (cartImgs.has(c)) return cartImgs.get(c); let u = ''; try { u = E.ok ? E.thumbDish(dishBy(c.dish), c.sel, 160) : ''; } catch (e) {} cartImgs.set(c, u); return u; }
+function renderSheet() {
+  const P = $('#panel'); const tt = totals();
+  P.innerHTML = `<div class="panel-h"><h2 id="sheetTitle" tabindex="-1">${t('cart')}</h2><div style="display:flex;gap:8px"><button class="sbtn" data-a="keep">${t('keep')}</button><button class="sbtn" data-a="close" aria-label="${t('close')}">✕</button></div></div>
+  <div class="panel-b"><div>
+    ${S.cart.length ? S.cart.map((c, i) => { const d = dishBy(c.dish); const p = selPrice(d, c.sel); const im = cartImg(c); return `<div class="citem">${im ? `<img src="${im}" alt="">` : ''}<div class="d"><b>${N(d)}</b><p>${esc(describe(d, c.sel))}</p><button class="rc-link" style="width:auto;margin:0;padding:0;text-align:start" data-a="rm" data-i="${i}">${t('remove')}</button></div><div style="display:grid;gap:6px;justify-items:end"><span class="pr">${money(p * c.qty)}</span><div class="qty"><button data-a="q" data-i="${i}" data-d="-1" aria-label="-">−</button><output>${num(c.qty)}</output><button data-a="q" data-i="${i}" data-d="1" aria-label="+">+</button></div></div></div>`; }).join('') : `<div class="empty"><p>${t('empty')}</p><button class="cta" data-a="keep">${t('heroCta')}</button></div>`}
+    <h3 class="sec" style="margin-top:20px">${t('sides')}</h3>
+    <div class="xgrid">${EXTRAS.map(x => `<div class="xitem"><div><b>${N(x)}</b><small>${money(x.price)}</small></div><div class="qty"><button data-a="x" data-id="${x.id}" data-d="-1" aria-label="- ${N(x)}">−</button><output>${num(S.extras[x.id] || 0)}</output><button data-a="x" data-id="${x.id}" data-d="1" aria-label="+ ${N(x)}">+</button></div></div>`).join('')}</div>
+  </div><form id="coForm" novalidate>
+    <h3 class="sec">${t('details')}</h3>
+    <div class="two"><div class="field"><label for="cName">${t('name')}</label><input id="cName" name="name" autocomplete="name" value="${esc(form.name)}"><span class="err"></span></div>
+    <div class="field"><label for="cPhone">${t('phone')}</label><input id="cPhone" name="phone" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" value="${esc(form.phone)}" placeholder="01xxxxxxxxx"><span class="err"></span></div></div>
+    <div class="field"><label for="cArea">${t('area')}</label><select id="cArea" name="area"><option value="">${t('pickArea')}</option>${AREAS.map(a => `<option value="${a.id}" ${form.area === a.id ? 'selected' : ''}>${N(a)} · ${money(a.price)}</option>`).join('')}</select><span class="err"></span></div>
+    <div class="field"><label for="cAddr">${t('address')}</label><textarea id="cAddr" name="address" autocomplete="street-address" placeholder="${t('addrPh')}">${esc(form.address)}</textarea><span class="err"></span></div>
+    <div class="field"><label for="cNotes">${t('notes')} <small>${t('optional')}</small></label><input id="cNotes" name="notes" value="${esc(form.notes)}"></div>
+    <div class="field"><label>${t('pay')}</label></div>
+    <div class="seg" role="radiogroup" aria-label="${t('pay')}">${['cash', 'card', 'instapay'].map(p => `<button type="button" role="radio" aria-checked="${S.pay === p}" data-a="pay" data-p="${p}">${t(p)}</button>`).join('')}</div>
+    <div class="sum"><div><span>${t('subtotal')}</span><span>${money(tt.sub)}</span></div><div><span>${t('delivery')}</span><span>${form.area ? money(tt.fee) : '—'}</span></div><div class="g"><span>${t('total')}</span><span>${money(tt.total)}</span></div></div>
+    <button class="cta" style="width:100%;justify-content:center" ${S.cart.length ? '' : 'disabled'}>${t('place')}</button>
+  </form></div>`;
+  P.onclick = e => { const b = e.target.closest('[data-a]'); if (!b) return; const a = b.dataset.a;
+    if (a === 'close') closeSheet();
+    if (a === 'keep') { closeSheet(); if (S.view !== 'build') openDish(S.dish || 'pizza'); }
+    if (a === 'rm') { S.cart.splice(+b.dataset.i, 1); saveCart(); renderCartN(); renderSheet(); if (S.view === 'build') renderReceipt(); }
+    if (a === 'q') { const c = S.cart[+b.dataset.i]; c.qty = clamp(c.qty + +b.dataset.d, 1, 20); saveCart(); renderCartN(); renderSheet(); }
+    if (a === 'x') { S.extras[b.dataset.id] = clamp((S.extras[b.dataset.id] || 0) + +b.dataset.d, 0, 20); renderSheet(); }
+    if (a === 'pay') { S.pay = b.dataset.p; renderSheet(); } };
+  const fm = $('#coForm');
+  fm.oninput = e => { form[e.target.name] = e.target.value; store.set('cc-cust', form); };
+  fm.onchange = e => { if (e.target.name === 'area') { form.area = e.target.value; store.set('cc-cust', form); const pos = P.scrollTop; renderSheet(); P.scrollTop = pos; } };
+  fm.onsubmit = e => { e.preventDefault(); placeOrder(); };
+}
+function placeOrder() {
+  const phone = toEn(form.phone).replace(/[\s-]/g, '');
+  const errs = {}; if (form.name.trim().length < 2) errs.name = t('errName'); if (!/^(\+?20|0)?1[0125]\d{8}$/.test(phone)) errs.phone = t('errPhone'); if (!form.area) errs.area = t('errArea'); if (form.address.trim().length < 8) errs.address = t('errAddr');
+  $$('#coForm .field').forEach(f => { f.classList.remove('bad'); const er = f.querySelector('.err'); if (er) er.textContent = ''; });
+  let first = null; for (const k in errs) { const inp = $(`#coForm [name="${k}"]`); const f = inp.closest('.field'); f.classList.add('bad'); f.querySelector('.err').textContent = errs[k]; inp.setAttribute('aria-invalid', 'true'); first = first || inp; }
+  if (first) { first.focus(); return; }
+  const tt = totals(); S.orderNo = Math.floor(10000 + Math.random() * 90000);
+  const orders = store.get('cc2-orders', []); orders.push({ no: S.orderNo, at: new Date().toISOString(), cart: S.cart, extras: S.extras, pay: S.pay, total: tt.total, customer: { ...form, phone } }); store.set('cc2-orders', orders.slice(-20));
+  const lines = S.cart.map(c => { const d = dishBy(c.dish); return `<div class="l"><span>${num(c.qty)}× ${N(d)}</span><span>${num(selPrice(d, c.sel) * c.qty)}</span></div>` + d.steps.flatMap(s => c.sel[s.k].map(id => `<div class="l sub"><span>+ ${N(itemBy(d, s.k, id))}</span></div>`)).join(''); }).join('') + EXTRAS.filter(x => S.extras[x.id]).map(x => `<div class="l"><span>${num(S.extras[x.id])}× ${N(x)}</span><span>${num(S.extras[x.id] * x.price)}</span></div>`).join('');
+  $('#panel').innerHTML = `<div class="panel-h"><h2 id="sheetTitle" tabindex="-1">${t('orderNo')} #${num(S.orderNo)}</h2><button class="sbtn" data-a="close" aria-label="${t('close')}">✕</button></div>
+   <div class="done"><h2>${t('thanks')}</h2><p>${t('eta')}</p><div class="printer" aria-hidden="true"></div>
+   <div class="longrc"><div class="rc-head"><i>THE</i><b>COOKING CLUB</b><span class="meta">#${num(S.orderNo)} · ${esc(form.name)}</span></div>${lines}<hr><div class="l"><span>${t('delivery')}</span><span>${num(tt.fee)}</span></div><div class="l"><span>${t('pay')}</span><span>${t(S.pay)}</span></div><hr><div class="l" style="font-weight:700;font-size:1rem"><span>${t('total')}</span><span>${money(tt.total)}</span></div><div class="barcode" style="--bc:${barcode(S.orderNo)}"></div></div>
+   <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px"><button class="cta" data-a="again">${t('again')}</button><button class="sbtn" data-a="home">${t('home')}</button></div></div>`;
+  SFX.play('ding'); buzz([60, 40, 120]);
+  S.cart = []; S.extras = {}; saveCart(); renderCartN(); if (S.view === 'build') renderReceipt();
+  $('#panel').onclick = e => { const b = e.target.closest('[data-a]'); if (!b) return; closeSheet(); if (b.dataset.a === 'again') openDish(S.dish || 'pizza'); if (b.dataset.a === 'home') goHome(); };
+  $('#sheetTitle').focus();
+}
+
+/* ================= init ================= */
+applyLang();
+if (E.ok) setTimeout(bakeHomeImages, 60);
+if (location.hash === '#build') openDish('pizza');
+window.__cc = { E, S, DISHES };
+})();
+</script>
+</body>
+</html>
